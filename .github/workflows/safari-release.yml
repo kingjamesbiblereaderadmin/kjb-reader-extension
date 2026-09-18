@@ -151,12 +151,15 @@ jobs:
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
             CODE_SIGN_IDENTITY="Apple Distribution" \
             CURRENT_PROJECT_VERSION="$BUILD_NUM"
-          # Inject the real Team ID into the export options
-          sed "s/YOUR_TEAM_ID/$APPLE_TEAM_ID/" scripts/safari/ExportOptions.plist > dist/ExportOptions.plist
-          xcodebuild -exportArchive \
-            -archivePath "dist/$APP_NAME.xcarchive" \
-            -exportOptionsPlist dist/ExportOptions.plist \
-            -exportPath dist/
+          # Wrap the signed .app into a Mac App Store package ourselves.
+          # xcodebuild -exportArchive wrongly validates the Mac Installer
+          # certificate against the provisioning profiles (installer certs
+          # are never included in profiles), so we use productbuild — the
+          # same tool the export step uses to produce the flat package.
+          xcrun productbuild \
+            --component "dist/$APP_NAME.xcarchive/Products/$APP_NAME.app" /Applications \
+            --sign "3rd Party Mac Developer Installer: Shawn Hanlin Poh ($APPLE_TEAM_ID)" \
+            "dist/$APP_NAME.pkg"
           ls -la dist/*.pkg
 
       - name: Upload to App Store Connect
