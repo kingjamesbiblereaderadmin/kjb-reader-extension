@@ -60,6 +60,35 @@ jobs:
           test -d "$PWD/$APP_NAME/$APP_NAME.xcodeproj"
           echo "Xcode project created at: $PWD/$APP_NAME/$APP_NAME.xcodeproj"
 
+      - name: Configure manual signing in the Xcode project
+        run: |
+          python3 - <<'PY'
+          import os, re
+          app = os.environ["APP_NAME"]
+          pbx = f"{app}/{app}.xcodeproj/project.pbxproj"
+          src = open(pbx).read()
+          CONTAINER = "com.kingjamesbiblereader.kjbreader.Extension"
+          EXTENSION = CONTAINER + ".Extension"
+          def repl(m):
+              block = m.group(0)
+              if EXTENSION in block:
+                  prof = "KJB Reader Extension Target Distribution"
+              elif CONTAINER in block:
+                  prof = "KJBReader Extension Distribution"
+              else:
+                  return block
+              block = block.replace("CODE_SIGN_STYLE = Automatic;", "CODE_SIGN_STYLE = Manual;")
+              ins = f'PROVISIONING_PROFILE_SPECIFIER = "{prof}";'
+              if ins not in block:
+                  block = re.sub(r'(PRODUCT_BUNDLE_IDENTIFIER[^;]*;\n)',
+                                 lambda mm: mm.group(1) + "\n\t\t\t\tCODE_SIGN_STYLE = Manual;\n\t\t\t\t" + ins,
+                                 block, count=1)
+              return block
+          out = re.sub(r'buildSettings = \{.*?\n\t\t\t\};', repl, src, flags=re.S)
+          open(pbx, "w").write(out)
+          print("manual signing patched:", out.count("CODE_SIGN_STYLE = Manual;"), "targets")
+          PY
+
       - name: Import signing certificates
         if: env.HAS_SIGNING == 'true'
         env:
@@ -113,6 +142,7 @@ jobs:
             -destination 'generic/platform=macOS' \
             -archivePath "dist/$APP_NAME.xcarchive" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
             CURRENT_PROJECT_VERSION="$BUILD_NUM"
           # Inject the real Team ID into the export options
           sed "s/YOUR_TEAM_ID/$APPLE_TEAM_ID/" scripts/safari/ExportOptions.plist > dist/ExportOptions.plist
