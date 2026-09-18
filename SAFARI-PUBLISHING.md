@@ -24,7 +24,7 @@ submission in about 30–60 minutes.
 1. Unzip `kjb-reader-safari-v0.4.252.zip` to a folder, e.g. ~/kjb-safari/
    (manifest.json must sit at the top of that folder — it does).
 2. In Terminal:
-   xcrun safari-web-extension-converter ~/kjb-safari \
+   xcrun safari-web-extension-packager ~/kjb-safari \
      --app-name "KJB Reader" \
      --bundle-identifier com.kingjamesbiblereader.kjbreader \
      --no-open-xcode --force

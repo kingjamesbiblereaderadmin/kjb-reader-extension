@@ -33,12 +33,13 @@ jobs:
 
       - name: Convert to an Xcode project
         run: |
-          # Absolute paths + explicit project location at repo root.
-          xcrun safari-web-extension-converter "$PWD/build/safari" \
+          # Xcode 16+: the tool is safari-web-extension-packager
+          # (the old converter name is a broken alias).
+          xcrun safari-web-extension-packager "$PWD/build/safari" \
             --app-name "$APP_NAME" \
             --bundle-identifier "$BUNDLE_ID" \
             --project-location "$PWD" \
-            --no-open-xcode --no-prompt --force
+            --copy-resources --no-open --no-prompt --force
           ls -d *.xcodeproj
 
       - name: Import signing certificates
