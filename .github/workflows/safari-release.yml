@@ -31,15 +31,31 @@ jobs:
       - name: Build the Safari extension package
         run: ./build.sh safari
 
+      - name: Diagnose Safari packaging tool
+        run: |
+          xcodebuild -version
+          echo "--- find converter:"; xcrun --find safari-web-extension-converter 2>&1 || true
+          echo "--- find packager:";  xcrun --find safari-web-extension-packager  2>&1 || true
+          echo "--- converter help:"; xcrun safari-web-extension-converter --help 2>&1 | head -50 || true
+          echo "--- packager help:";  xcrun safari-web-extension-packager  --help 2>&1 | head -50 || true
+
       - name: Convert to an Xcode project
         run: |
-          # Xcode 16+: the tool is safari-web-extension-packager
-          # (the old converter name is a broken alias).
-          xcrun safari-web-extension-packager "$PWD/build/safari" \
+          # Auto-detect: Xcode 26 calls it packager (--no-open),
+          # Xcode 15/16 calls it converter (--no-open-xcode).
+          if xcrun --find safari-web-extension-packager >/dev/null 2>&1; then
+            TOOL=safari-web-extension-packager
+            NOOPEN=--no-open
+          else
+            TOOL=safari-web-extension-converter
+            NOOPEN=--no-open-xcode
+          fi
+          echo "Using tool: $TOOL"
+          xcrun "$TOOL" "$PWD/build/safari" \
             --app-name "$APP_NAME" \
             --bundle-identifier "$BUNDLE_ID" \
             --project-location "$PWD" \
-            --copy-resources --no-open --no-prompt --force
+            --copy-resources $NOOPEN --no-prompt --force
           ls -d *.xcodeproj
 
       - name: Import signing certificates
