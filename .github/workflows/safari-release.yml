@@ -71,6 +71,8 @@ jobs:
           EXT_ID  = APP_ID + ".Extension"
           APP_PROF = "KJB Reader for Safari Distribution"
           EXT_PROF = "KJB Reader for Safari Ext Distribution"
+          import json as _json
+          VER = _json.load(open("manifest.json"))["version"]
           def repl(m):
               block = m.group(0)
               bm = re.search(r'PRODUCT_BUNDLE_IDENTIFIER = "([^"]*)";', block)
@@ -82,6 +84,17 @@ jobs:
                   bid, prof = APP_ID, APP_PROF
               block = re.sub(r'PRODUCT_BUNDLE_IDENTIFIER = "[^"]*";',
                              'PRODUCT_BUNDLE_IDENTIFIER = "' + bid + '";', block)
+              # align the app version with the extension manifest version
+              block = re.sub(r'MARKETING_VERSION = [^;]*;',
+                             'MARKETING_VERSION = "%s";' % VER, block)
+              # App Store requires a category UTI in the app's Info.plist
+              if not bm.group(1).endswith(".Extension") \
+                 and "LSApplicationCategoryType" not in block:
+                  block = block.replace(
+                      'PRODUCT_BUNDLE_IDENTIFIER = "' + bid + '";',
+                      'PRODUCT_BUNDLE_IDENTIFIER = "' + bid + '";' +
+                      '\n\t\t\t\tINFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.reference";',
+                      1)
               block = block.replace("CODE_SIGN_STYLE = Automatic;", "CODE_SIGN_STYLE = Manual;")
               if "PROVISIONING_PROFILE_SPECIFIER" not in block:
                   block = re.sub(r'(PRODUCT_BUNDLE_IDENTIFIER[^\n]*\n)',
