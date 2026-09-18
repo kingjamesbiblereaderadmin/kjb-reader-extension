@@ -60,33 +60,40 @@ jobs:
           test -d "$PWD/$APP_NAME/$APP_NAME.xcodeproj"
           echo "Xcode project created at: $PWD/$APP_NAME/$APP_NAME.xcodeproj"
 
-      - name: Configure manual signing in the Xcode project
+      - name: Force exact bundle IDs + manual signing in the Xcode project
         run: |
           python3 - <<'PY'
           import os, re
           app = os.environ["APP_NAME"]
           pbx = f"{app}/{app}.xcodeproj/project.pbxproj"
           src = open(pbx).read()
-          CONTAINER = "com.kingjamesbiblereader.kjbreader.Extension"
-          EXTENSION = CONTAINER + ".Extension"
+          APP_ID  = "com.kingjamesbiblereader.kjbreader.Extension"
+          EXT_ID  = APP_ID + ".Extension"
+          APP_PROF = "KJBReader Extension Distribution"
+          EXT_PROF = "KJB Reader Extension Target Distribution"
           def repl(m):
               block = m.group(0)
-              if EXTENSION in block:
-                  prof = "KJB Reader Extension Target Distribution"
-              elif CONTAINER in block:
-                  prof = "KJBReader Extension Distribution"
-              else:
+              bm = re.search(r'PRODUCT_BUNDLE_IDENTIFIER = "([^"]*)";', block)
+              if not bm:
                   return block
+              if bm.group(1).endswith(".Extension"):
+                  bid, prof = EXT_ID, EXT_PROF
+              else:
+                  bid, prof = APP_ID, APP_PROF
+              block = re.sub(r'PRODUCT_BUNDLE_IDENTIFIER = "[^"]*";',
+                             'PRODUCT_BUNDLE_IDENTIFIER = "' + bid + '";', block)
               block = block.replace("CODE_SIGN_STYLE = Automatic;", "CODE_SIGN_STYLE = Manual;")
-              ins = f'PROVISIONING_PROFILE_SPECIFIER = "{prof}";'
-              if ins not in block:
-                  block = re.sub(r'(PRODUCT_BUNDLE_IDENTIFIER[^;]*;\n)',
-                                 lambda mm: mm.group(1) + "\n\t\t\t\tCODE_SIGN_STYLE = Manual;\n\t\t\t\t" + ins,
+              if "PROVISIONING_PROFILE_SPECIFIER" not in block:
+                  block = re.sub(r'(PRODUCT_BUNDLE_IDENTIFIER[^\n]*\n)',
+                                 r'\1' + '\t\t\t\tPROVISIONING_PROFILE_SPECIFIER = "' + prof + '";\n',
                                  block, count=1)
               return block
           out = re.sub(r'buildSettings = \{.*?\n\t\t\t\};', repl, src, flags=re.S)
           open(pbx, "w").write(out)
-          print("manual signing patched:", out.count("CODE_SIGN_STYLE = Manual;"), "targets")
+          n = out.count("CODE_SIGN_STYLE = Manual;")
+          ids = sorted(set(re.findall(r'PRODUCT_BUNDLE_IDENTIFIER = "([^"]*)";', out)))
+          assert n >= 2 and "com.kingjamesbiblereader.KJB-Reader" not in out, "patch failed"
+          print("patched:", n, "| ids:", ids)
           PY
 
       - name: Import signing certificates
