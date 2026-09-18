@@ -179,7 +179,6 @@ jobs:
           echo "uploading v$VER build $BUILD_NUM (apple id 6813462380)"
           xcrun altool --upload-package dist/*.pkg \
             --type macos \
-            --asc-public-id "6813462380" \
             --apple-id "6813462380" \
             --bundle-id "$BUNDLE_ID" \
             --bundle-version "$BUILD_NUM" \
