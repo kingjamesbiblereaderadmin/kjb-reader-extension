@@ -174,11 +174,17 @@ jobs:
           set -eu
           mkdir -p "$HOME/.appstoreconnect/private_keys"
           echo -n "$ASC_KEY_P8" | base64 --decode -o "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+          VER=$(python3 -c "import json;print(json.load(open('manifest.json'))['version'])")
+          echo "uploading v$VER build $BUILD_NUM (apple id 6813462380)"
           xcrun altool --upload-package dist/*.pkg \
             --type macos \
+            --asc-public-id "6813462380" \
+            --apple-id "6813462380" \
+            --bundle-id "$BUNDLE_ID" \
+            --bundle-version "$BUILD_NUM" \
+            --bundle-short-version-string "$VER" \
             --apiKey "$ASC_KEY_ID" \
-            --apiIssuer "$ASC_ISSUER_ID" \
-            --bundle-id "$BUNDLE_ID"
+            --apiIssuer "$ASC_ISSUER_ID"
 
       - name: Attach the .pkg as a workflow artifact
         if: env.HAS_SIGNING == 'true'
