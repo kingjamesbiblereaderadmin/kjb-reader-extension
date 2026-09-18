@@ -33,11 +33,11 @@ jobs:
 
       - name: Convert to an Xcode project
         run: |
-          # Path goes FIRST; flags after (matches Apple's documented usage).
-          ls build/safari/manifest.json
-          xcrun safari-web-extension-converter build/safari \
+          # Absolute paths + explicit project location at repo root.
+          xcrun safari-web-extension-converter "$PWD/build/safari" \
             --app-name "$APP_NAME" \
             --bundle-identifier "$BUNDLE_ID" \
+            --project-location "$PWD" \
             --no-open-xcode --no-prompt --force
           ls -d *.xcodeproj
 
