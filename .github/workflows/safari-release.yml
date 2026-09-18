@@ -21,7 +21,7 @@ jobs:
     runs-on: macos-15
     env:
       APP_NAME: "KJB Reader"
-      BUNDLE_ID: "com.kingjamesbiblereader.kjbreader.Extension"
+      BUNDLE_ID: "com.kingjamesbiblereader.kjbreaderforsafari"
       # Validation mode: run without Apple secrets still builds + converts,
       # and attaches the converted Xcode project as an artifact.
       HAS_SIGNING: ${{ secrets.MAC_APP_CERTIFICATE_P12 != '' }}
@@ -67,10 +67,10 @@ jobs:
           app = os.environ["APP_NAME"]
           pbx = f"{app}/{app}.xcodeproj/project.pbxproj"
           src = open(pbx).read()
-          APP_ID  = "com.kingjamesbiblereader.kjbreader.Extension"
+          APP_ID  = "com.kingjamesbiblereader.kjbreaderforsafari"
           EXT_ID  = APP_ID + ".Extension"
-          APP_PROF = "KJBReader Extension Distribution"
-          EXT_PROF = "KJB Reader Extension Target Distribution"
+          APP_PROF = "KJB Reader for Safari Distribution"
+          EXT_PROF = "KJB Reader for Safari Ext Distribution"
           def repl(m):
               block = m.group(0)
               bm = re.search(r'PRODUCT_BUNDLE_IDENTIFIER = "([^"]*)";', block)
@@ -176,10 +176,10 @@ jobs:
           mkdir -p "$HOME/.appstoreconnect/private_keys"
           echo -n "$ASC_KEY_P8" | base64 --decode -o "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
           VER=$(python3 -c "import json;print(json.load(open('manifest.json'))['version'])")
-          echo "uploading v$VER build $BUILD_NUM (apple id 6813462380)"
+          echo "uploading v$VER build $BUILD_NUM (apple id 6813502666)"
           xcrun altool --upload-package dist/*.pkg \
             --type macos \
-            --apple-id "6813462380" \
+            --apple-id "6813502666" \
             --bundle-id "$BUNDLE_ID" \
             --bundle-version "$BUILD_NUM" \
             --bundle-short-version-string "$VER" \
