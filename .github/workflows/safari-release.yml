@@ -56,8 +56,9 @@ jobs:
             --project-location "$PWD" \
             --swift \
             --copy-resources --no-open --no-prompt --force
-          echo "--- repo root:"; ls -la
-          echo "--- xcodeproj search:"; find . -maxdepth 3 -name '*.xcodeproj' -not -path './build/*' || true
+          # The converter creates "<location>/<App Name>/<App Name>.xcodeproj"
+          test -d "$PWD/$APP_NAME/$APP_NAME.xcodeproj"
+          echo "Xcode project created at: $PWD/$APP_NAME/$APP_NAME.xcodeproj"
 
       - name: Import signing certificates
         if: env.HAS_SIGNING == 'true'
@@ -101,7 +102,7 @@ jobs:
           BUILD_NUM: ${{ github.event.inputs.build_number != '' && github.event.inputs.build_number || github.run_number }}
         run: |
           set -eu
-          PROJ="$APP_NAME.xcodeproj"
+          PROJ="$PWD/$APP_NAME/$APP_NAME.xcodeproj"
           SCHEME=$(xcodebuild -list -project "$PROJ" -json \
             | python3 -c 'import json,sys; ss=json.load(sys.stdin)["project"]["schemes"]; print(next((s for s in ss if "iOS" not in s and "tvOS" not in s), ss[0]))')
           echo "Using scheme: $SCHEME"
@@ -148,7 +149,7 @@ jobs:
       - name: Attach the converted Xcode project (validation mode)
         if: env.HAS_SIGNING != 'true'
         run: |
-          zip -qr converted-xcode-project.zip "$APP_NAME.xcodeproj"
+          zip -qr converted-xcode-project.zip "$APP_NAME"
       - uses: actions/upload-artifact@v4
         if: env.HAS_SIGNING != 'true'
         with:
