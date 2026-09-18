@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>KJB Reader — Print</title>
+  <link rel="stylesheet" href="print.css">
+</head>
+<body>
+  <!-- Toolbar is screen-only; print.css hides it in @media print. -->
+  <div class="kjb-print-bar" id="print-bar">
+    <button type="button" id="print-now">Print / Save as PDF</button>
+    <span class="kjb-print-hint" id="print-hint"></span>
+  </div>
+  <div id="print-content" class="kjb-print-content"></div>
+  <script src="print.js"></script>
+</body>
+</html>

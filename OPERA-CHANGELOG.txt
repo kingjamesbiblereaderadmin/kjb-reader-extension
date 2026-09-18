@@ -1,0 +1,230 @@
+KJB Reader — Version History
+============================
+
+v0.4.140 (August 16, 2026)
+• Added a scroll-to-top button in the Read and Results tabs that appears when scrolling past 200px
+
+v0.4.139 (August 16, 2026)
+• Added WCAG 3:1 contrast safeguard: detected Bible references now fall back to a high-contrast color when the host page's inherited text color is too low contrast
+
+v0.4.138 (August 16, 2026)
+• Fixed a race condition where the in-page overlay would open even when the side panel was already visible
+
+v0.4.137 (August 15, 2026)
+• Replaced zoom-based scaling with fluid CSS reflow for correct tab and content wrapping at all viewport widths (300px–900px) and zoom levels (75%–150%)
+
+v0.4.136 (August 15, 2026)
+• Added "Cori" as a recognized alias for "Corinthians" in Bible reference detection and sidebar lookup
+
+v0.4.135 (August 15, 2026)
+• Detected Bible references now inherit the host page's readable text color instead of forcing a fixed blue, while retaining a dotted underline and pointer cursor
+
+v0.4.134 (August 15, 2026)
+• Switched to painted text ranges for reference detection — no DOM modification, preventing stale references and preserving page layout
+
+v0.4.133 (August 15, 2026)
+• Improved detection of Bible references that span multiple HTML elements, including text across different font styles or character spacing
+
+v0.4.132 (August 15, 2026)
+• Added subtle styling to detected references: dotted underline, pointer cursor, and solid underline on hover
+
+v0.4.131 (August 15, 2026)
+• Preserved host page styling for detected references — the extension no longer overrides existing link colors or styles
+
+v0.4.130 (August 15, 2026)
+• Stale content is now hidden while loading new verses to prevent flashing of previous chapter text
+
+v0.4.129 (August 15, 2026)
+• Fixed Gospel reference navigation and cross-chapter range highlights; highlights now persist correctly across chapters and books
+
+v0.4.128 (August 15, 2026)
+• Migrated to a self-hosted KJB Reader API endpoint for improved reliability
+
+v0.4.127 (August 14, 2026)
+• Added Opera legacy action API callback compatibility
+• Edge mobile users can now open the extension from the browser menu without selecting a verse first
+
+v0.4.126 (August 14, 2026)
+• Added Firefox Android support via an adaptive Manifest V2 event-page model — desktop uses native sidebar, Android uses a full-screen overlay
+
+v0.4.125 (August 14, 2026)
+• Added resizable panel width (280–800px) with a drag grip supporting mouse, touch, and keyboard
+• Added persistent A-/100%/A+ interface scaling controls for text, icons, and spacing
+
+v0.4.124 (August 14, 2026)
+• Fixed overlay close button overlapping header actions on narrow screens by adding a dedicated 40px top toolbar
+
+v0.4.123 (August 14, 2026)
+• Fixed the Copy button overlapping verse text in result cards at narrow sidebar widths
+
+v0.4.122 (August 13, 2026)
+• Audited and corrected all 66 Bible book titles against the live API — fixed 19 mismatched fallback titles
+
+v0.4.121 (August 13, 2026)
+• Fixed truncated book titles for 1–2 Samuel and 1–2 Kings; local fallback now uses full KJV canonical titles
+
+v0.4.120 (August 13, 2026)
+• Redesigned Results heading to a two-line layout: full book name on top, chapter number below, with an 8px gap
+
+v0.4.119 (August 13, 2026)
+• Unified book title formatting between Read and Results modes; standardized chapter heading font to 15px
+
+v0.4.118 (August 13, 2026)
+• Added full KJV book titles to chapter headings in search results with correct text wrapping
+
+v0.4.117 (August 13, 2026)
+• Created a dedicated Firefox-native background script to remove all Chrome-specific sidePanel API references
+
+v0.4.116 (August 13, 2026)
+• Added 6px spacing beneath the superscription divider for improved readability
+
+v0.4.115 (August 13, 2026)
+• Fixed four-digit verse number truncation in the parser
+• Highlight map now only includes verses confirmed by the API, preventing stale highlights
+
+v0.4.114 (August 13, 2026)
+• Nonexistent chapters (e.g., Psalm 200) now display a "not found" message instead of defaulting to Chapter 1
+• Updated parser to support four-digit verse numbers
+
+v0.4.113 (August 13, 2026)
+• Normalized 404 error handling across single, multi-book, and cross-chapter verse lookups
+
+v0.4.112 (August 13, 2026)
+• Restored missing pilcrows in colophons and increased spacing between the final verse and colophon block
+• Fixed rendering bug where invalid verses were hidden when chapter headers were present
+
+v0.4.111 (August 13, 2026)
+• Standardized all verse and structural body text to 15px; restored single pilcrows in colophons
+
+v0.4.110 (August 13, 2026)
+• Increased structural text width by reducing side padding; separated action buttons onto a dedicated row
+
+v0.4.109 (August 13, 2026)
+• Removed background boxes from structural text in favor of clean divider lines with 16px typography
+
+v0.4.108 (August 13, 2026)
+• Fixed off-center chapter headings caused by action button padding; headings now center against full card width
+
+v0.4.107 (August 13, 2026)
+• Centered chapter headings and increased font size for superscriptions, names, and colophons
+
+v0.4.106 (August 13, 2026)
+• Fixed hyperlink highlighting compatibility with split verse references
+
+v0.4.105 (August 13, 2026)
+• Improved hyperlink-safe scanning to preserve original href destinations on detected references
+
+v0.4.104 (August 13, 2026)
+• Unified plain-text scanning to detect Bible references across disparate HTML elements and font styles
+
+v0.4.103 (August 13, 2026)
+• Added unwrapping of existing partial-match links before performing new reference detections
+
+v0.4.102 (August 13, 2026)
+• Added PWA-detection fallback to trigger in-page overlay when the sidePanel API is unavailable
+
+v0.4.101 (August 13, 2026)
+• Added multi-book and cross-chapter reference lookup with persistent highlight map
+
+v0.4.100 (August 13, 2026)
+• Replaced static emoji glyphs with SVG icons for theme-aware interface colors
+
+v0.4.99 (August 13, 2026)
+• Streamlined interface to four tabs: Results, Read, Gospel, and Resources; removed history and favorites
+
+v0.4.98 (August 13, 2026)
+• Removed the Highlighting tool from the extension interface
+
+v0.4.97 (August 13, 2026)
+• Added Gospel tab with salvation resources and Resources tab with preacher links and ministry info
+
+v0.4.96 (August 13, 2026)
+• Added "View in Sidebar" button to the popup for transitioning to the full side panel
+
+v0.4.95 (August 13, 2026)
+• Implemented manifest-based side panel activation for manual browsing with popup windows for automated lookups
+
+v0.4.94 (August 13, 2026)
+• Added right-click context menu for verse lookups on selected text
+
+v0.4.93 (August 13, 2026)
+• Added advanced search with wildcard support (? and *), whole-word match, case-sensitive toggle, and Old/New Testament filtering
+
+v0.4.92 (August 13, 2026)
+• Added epistle subscriptions as centered, bold, bracket-italicized text and Psalm superscriptions with leading pilcrow
+
+v0.4.91 (August 13, 2026)
+• Excluded kingjamesbiblereader.com from content script execution to prevent self-detection loops
+
+v0.4.90 (August 11, 2026)
+• Removed local legal pages and centralized links to the KJB Reader website
+• Fixed a double-panel issue caused by a 2-second timeout fallback
+
+v0.4.89 (August 11, 2026)
+• Redirected privacy and terms links to website-hosted pages; removed obsolete local legal files
+
+v0.4.88 (August 11, 2026)
+• Fixed broken sidebar legal links by pointing them to external website URLs
+
+v0.4.87 (August 10, 2026)
+• Updated extension branding to "KJB Reader - SidePanel" with official site icons
+
+v0.4.86 (August 9, 2026)
+• Added local Privacy, Terms, and Contact pages synced with the website
+
+v0.4.85 (August 9, 2026)
+• Added copy function with approximate visual centering for headers and bracketed notation for italics
+
+v0.4.84 (August 9, 2026)
+• Added printed page footer: "Printed from KJB Reader Web Extension — kingjamesbiblereader.com/extension"
+
+v0.4.83 (August 9, 2026)
+• Standardized "The" prefixes for all 66 KJV books in dropdowns and displays
+
+v0.4.82 (August 9, 2026)
+• Added hand-drawn logo icon for extension branding
+
+v0.4.81 (August 9, 2026)
+• Applied black text for pilcrows at 16px for clear visibility
+
+v0.4.80 (August 9, 2026)
+• Rendered Hebrew section headings and superscriptions as centered, bold text positioned above verse text
+
+v0.4.79 (August 9, 2026)
+• Added colophons placed at the end of the card as normal-weight text
+
+v0.4.78 (August 9, 2026)
+• Applied italics to structural text only when content is enclosed in brackets
+
+v0.4.77 (August 9, 2026)
+• Set 16px font size for structural text with clean divider lines instead of bordered boxes
+
+v0.4.76 (August 9, 2026)
+• Added a unified bordered, rounded card for Psalm Hebrew section headings, superscriptions, and colophons
+
+v0.4.75 (August 9, 2026)
+• Included Psalm superscriptions and epistle colophons in search results with pilcrow and italicized bracket formatting
+
+v0.4.74 (August 9, 2026)
+• Added robust verse detection for varied formats including Roman numerals, ordinals, and references within link tags
+
+v0.4.73 (August 9, 2026)
+• Implemented unified plain-text scanning to detect Bible references across disparate HTML elements
+
+v0.4.72 (August 9, 2026)
+• Added side panel for verse lookup and search functionalities
+
+v0.4.71 (August 9, 2026)
+• Connected extension to the KJB Reader API for verse lookup, advanced search, and reference detection
+
+v0.4.70 (August 9, 2026)
+• Built initial sidebar layout with stacked header, search strip, and tab bar
+
+v0.4.69 (August 9, 2026)
+• Applied compact spacing, restrained surfaces, light borders, and minimal decoration for side panel UI
+
+v0.4.66 (August 9, 2026)
+• Implemented content script for auto-detection of Bible verse references on web pages
+
+v0.4.65 (August 9, 2026)
+• Initial Opera build with sidebar, verse lookup, search, and reference detection

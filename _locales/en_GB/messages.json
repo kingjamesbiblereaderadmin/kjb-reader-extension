@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "KJB Reader - SidePanel",
+    "description": "Extension name"
+  },
+  "extDescription": {
+    "message": "Search, read, and look up King James Bible verses from any web page via sidebar panel.",
+    "description": "Extension description"
+  }
+}

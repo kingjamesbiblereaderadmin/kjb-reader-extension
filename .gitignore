@@ -1,0 +1,9 @@
+build/
+tmp-tests/
+store-submissions/
+*.log
+*_headers.txt
+*_response.txt
+manifest.firefox.tmp
+firefox-v*.json
+.git/

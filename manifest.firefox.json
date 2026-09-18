@@ -1,0 +1,102 @@
+{
+  "manifest_version": 3,
+  "name": "__MSG_extName__",
+  "version": "0.4.252",
+  "description": "__MSG_extDescription__",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "kingjamesbiblereader@outlook.sg",
+      "strict_min_version": "140.0",
+      "data_collection_permissions": {
+        "required": [
+          "none"
+        ]
+      }
+    },
+    "gecko_android": {
+      "strict_min_version": "142.0"
+    }
+  },
+  "permissions": [
+    "contextMenus",
+    "activeTab",
+    "storage",
+    "tabs"
+  ],
+  "background": {
+    "scripts": [
+      "background.firefox.js"
+    ]
+  },
+  "sidebar_action": {
+    "default_title": "KJB Reader - SidePanel",
+    "default_panel": "sidebar.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "all_frames": true,
+      "exclude_matches": [
+        "https://kingjamesbiblereader.com/*",
+        "https://www.kingjamesbiblereader.com/*",
+        "https://kjbreader.com/*",
+        "https://www.kjbreader.com/*"
+      ]
+    },
+    {
+      "matches": [
+        "https://kingjamesbiblereader.com/extension*",
+        "https://www.kingjamesbiblereader.com/extension*"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "css": [
+        "content.css"
+      ],
+      "all_frames": true
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "sidebar.html",
+        "sidebar.css",
+        "sidebar.js",
+        "prepaint.js",
+        "api.js",
+        "icons/*"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "KJB Reader - SidePanel",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "default_locale": "en_GB"
+}

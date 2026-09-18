@@ -1,0 +1,17 @@
+WHAT'S NEW IN v0.4.252 (September 14, 2026)
+
+- Keyword search now includes the Bible's structural text: Psalm superscriptions (search "Maschil" finds all 13 titled psalms), book-end colophons, and epistle subscriptions ("Written to the Romans from Corinthus...") — so searching "Romans" now correctly shows all 7 occurrences, with the structural lines shown attached to their chapter's verses
+- The "Copy All" button on each results group is now centered under the chapter header
+- Copy All for a group with several verses keeps the centered chapter-block format (title and "Chapter N" centered over the verses)
+
+WHAT'S NEW IN v0.4.251 (September 13, 2026)
+
+- The book shortcut above search results now reads "open Joshua — Chapter 1" using the short book name
+- Opening a book from that shortcut now shows the chapter cleanly — a verse matching the searched word (e.g. Joshua 1:1 when you searched "Joshua") is no longer shown highlighted as if it were your result
+
+WHAT'S NEW IN v0.4.250 (September 13, 2026)
+
+- Typing a book name in the search box now ALWAYS runs a text search of every verse — including one-chapter books like Jude and Obadiah, whose names also appear elsewhere in Scripture (Obadiah is mentioned throughout 1 Kings 18), so those verses are no longer hidden behind an automatic book jump
+- A shortcut appears above the results ("open The Book of Joshua 1") for readers who did want the book itself
+- Typing a reference with a chapter or verse ("Joshua 1", "Jude 1", "Romans 3:25") still opens the book directly, and page-click scripture detection is unchanged
+
