@@ -56,7 +56,8 @@ jobs:
             --project-location "$PWD" \
             --swift \
             --copy-resources --no-open --no-prompt --force
-          ls -d *.xcodeproj
+          echo "--- repo root:"; ls -la
+          echo "--- xcodeproj search:"; find . -maxdepth 3 -name '*.xcodeproj' -not -path './build/*' || true
 
       - name: Import signing certificates
         if: env.HAS_SIGNING == 'true'
