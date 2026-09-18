@@ -41,21 +41,21 @@ jobs:
 
       - name: Convert to an Xcode project
         run: |
-          # Auto-detect: Xcode 26 calls it packager (--no-open),
-          # Xcode 15/16 calls it converter (--no-open-xcode).
+          # Xcode 26 calls it packager, Xcode 15/16 converter.
+          # Both use --no-open (the old --no-open-xcode spelling is rejected
+          # with a misleading 'Please provide a path' error).
           if xcrun --find safari-web-extension-packager >/dev/null 2>&1; then
             TOOL=safari-web-extension-packager
-            NOOPEN=--no-open
           else
             TOOL=safari-web-extension-converter
-            NOOPEN=--no-open-xcode
           fi
           echo "Using tool: $TOOL"
           xcrun "$TOOL" "$PWD/build/safari" \
             --app-name "$APP_NAME" \
             --bundle-identifier "$BUNDLE_ID" \
             --project-location "$PWD" \
-            --copy-resources $NOOPEN --no-prompt --force
+            --swift \
+            --copy-resources --no-open --no-prompt --force
           ls -d *.xcodeproj
 
       - name: Import signing certificates
