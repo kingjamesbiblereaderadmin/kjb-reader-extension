@@ -21,7 +21,7 @@ jobs:
     runs-on: macos-15
     env:
       APP_NAME: "KJB Reader"
-      BUNDLE_ID: "com.kingjamesbiblereader.kjbreader"
+      BUNDLE_ID: "com.kingjamesbiblereader.kjbreader.Extension"
       # Validation mode: run without Apple secrets still builds + converts,
       # and attaches the converted Xcode project as an artifact.
       HAS_SIGNING: ${{ secrets.MAC_APP_CERTIFICATE_P12 != '' }}
