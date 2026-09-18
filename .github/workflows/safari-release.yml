@@ -156,8 +156,10 @@ jobs:
           # certificate against the provisioning profiles (installer certs
           # are never included in profiles), so we use productbuild — the
           # same tool the export step uses to produce the flat package.
+          ls "dist/$APP_NAME.xcarchive/Products" || true
+          find "dist/$APP_NAME.xcarchive" -maxdepth 3 -name "*.app" || true
           xcrun productbuild \
-            --component "dist/$APP_NAME.xcarchive/Products/$APP_NAME.app" /Applications \
+            --component "dist/$APP_NAME.xcarchive/Products/Applications/$APP_NAME.app" /Applications \
             --sign "3rd Party Mac Developer Installer: Shawn Hanlin Poh ($APPLE_TEAM_ID)" \
             "dist/$APP_NAME.pkg"
           ls -la dist/*.pkg
