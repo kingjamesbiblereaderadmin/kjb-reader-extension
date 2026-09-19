@@ -1,3 +1,7 @@
+WHAT'S NEW IN v0.4.254 (September 19, 2026)
+
+- Fixed the footer sitting in the middle of the panel with blank space below it when results or page content is short. A one-time startup guess about panel height could get stuck and never update — now it is corrected any time the panel's real size is known, so the footer stays anchored to the bottom.
+
 WHAT'S NEW IN v0.4.253 (September 19, 2026)
 
 - Epistle subscriptions are now printed exactly as the source text reads them ("Written to the Romans from Corinthus, [and] [sent] by Phebe servant of the church at Cenchrea.") instead of an editorial summary line

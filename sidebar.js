@@ -529,6 +529,20 @@
     app.classList.toggle("kjb-stack", !!styles.stack);
     app.classList.toggle("kjb-tight", !!styles.tight);
     app.classList.toggle("kjb-short", !!styles.short);
+    // prepaint.js's guess (html.kjb-short-pre) is a synchronous, one-shot read
+    // of window.innerHeight taken before the panel/window has necessarily
+    // settled into its final size — a freshly created popup window in
+    // particular can report a transitional height on that very first tick.
+    // If that guess said "short" but the real geometry (computed here, and
+    // recomputed on every resize) is not, the CSS keyed off kjb-short-pre
+    // (content-hugging #app + sticky footer) stayed active forever, since
+    // nothing else ever cleared it — leaving a short results list with the
+    // footer parked right under it and a dead gap of body background filling
+    // the rest of the panel instead of the footer sitting at the true bottom.
+    // Reconciling it here, every time this authoritative check runs, fixes
+    // both directions: clears a wrong guess, and reinstates short mode if the
+    // panel is later resized down to genuinely short.
+    document.documentElement.classList.toggle("kjb-short-pre", !!styles.short);
     refitHeader();
     if (styles.reset) {
       app.style.removeProperty("zoom");
