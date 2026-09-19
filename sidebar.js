@@ -1455,28 +1455,26 @@
   // --- KJV Structural Elements: Epistle Subscriptions ---
   // These appear at the end of Pauline epistles in the KJV
   const EPISTLE_SUBSCRIPTIONS = {
-    "Romans|16":        "Written to the Romans from Corinthus, [and sent] by Phebe servant of the church at Cenchrea.",
-    "1 Corinthians|16": "The first [epistle] to the Corinthians was written from Philippi by Stephanas, and Fortunatus, and Achaicus, and Timotheus.",
-    "2 Corinthians|13": "The second [epistle] to the Corinthians was written from Philippi, [a city] of Macedonia, by Titus and Lucas.",
-    "Galatians|6":      "Unto the Galatians written from Rome.",
-    "Ephesians|6":      "Written from Rome unto the Ephesians by Tychicus.",
-    "Philippians|4":    "It was written to the Philippians from Rome by Epaphroditus.",
-    "Colossians|4":     "Written from Rome to the Colossians by Tychicus and Onesimus.",
-    "1 Thessalonians|5":"The first [epistle] unto the Thessalonians was written from Athens.",
-    "2 Thessalonians|3":"The second [epistle] to the Thessalonians was written from Athens.",
-    "1 Timothy|6":      "The first to Timothy was written from Laodicea, which is the chiefest city of Phrygia Pacatiana.",
-    "2 Timothy|4":      "The second [epistle] unto Timotheus, ordained the first bishop of the church of the Ephesians, was written from Rome, when Paul was brought before Nero the second time.",
-    "Titus|3":          "It was written to Titus, ordained the first bishop of the church of the Cretians, from Nicopolis of Macedonia.",
-    "Philemon|1":       "Written from Rome to Philemon, by Onesimus a servant.",
-    "Hebrews|13":       "Written to the Hebrews from Italy by Timothy.",
-    "James|5":          "The epistle of James was written from Jerusalem.",
-    "1 Peter|5":        "The first epistle of Peter was written from Rome.",
-    "2 Peter|3":        "The second epistle of Peter was written from Rome.",
-    "1 John|5":         "The first epistle of John was written from Ephesus.",
-    "2 John|1":         "The second epistle of John was written from Ephesus.",
-    "3 John|1":         "The third epistle of John was written from Ephesus.",
-    "Jude|1":           "The epistle of Jude was written from Jerusalem.",
-    "Revelation|22":    "The Revelation of John was written from Patmos.",
+    // Fallback only — the engine parses these verbatim from the PCE source
+    // (data.__subscriptions) and supplies data.colophon. Values here are the
+    // EXACT source lines, brackets included ([and] [sent], not the old
+    // editorial "[and sent]"), and only the lines the source actually prints:
+    // the PCE has no subscription after James, 1/2 Peter, 1/2/3 John, Jude or
+    // Revelation, so those chapters correctly carry no subscription.
+    "Romans|16":           "Written to the Romans from Corinthus, [and] [sent] by Phebe servant of the church at Cenchrea.",
+    "1 Corinthians|16":    "The first [epistle] to the Corinthians was written from Philippi by Stephanas, and Fortunatus, and Achaicus, and Timotheus.",
+    "2 Corinthians|13":    "The second [epistle] to the Corinthians was written from Philippi, [a] [city] of Macedonia, by Titus and Lucas.",
+    "Galatians|6":         "Unto the Galatians written from Rome.",
+    "Ephesians|6":         "Written from Rome unto the Ephesians by Tychicus.",
+    "Philippians|4":       "It was written to the Philippians from Rome by Epaphroditus.",
+    "Colossians|4":        "Written from Rome to the Colossians by Tychicus and Onesimus.",
+    "1 Thessalonians|5":   "The first [epistle] unto the Thessalonians was written from Athens.",
+    "2 Thessalonians|3":   "The second [epistle] to the Thessalonians was written from Athens.",
+    "1 Timothy|6":         "The first to Timothy was written from Laodicea, which is the chiefest city of Phrygia Pacatiana.",
+    "2 Timothy|4":         "The second [epistle] unto Timotheus, ordained the first bishop of the church of the Ephesians, was written from Rome, when Paul was brought before Nero the second time.",
+    "Titus|3":             "It was written to Titus, ordained the first bishop of the church of the Cretians, from Nicopolis of Macedonia.",
+    "Philemon|1":          "Written from Rome to Philemon, by Onesimus a servant.",
+    "Hebrews|13":          "Written to the Hebrews from Italy by Timothy.",
   };
 
 
@@ -2609,13 +2607,32 @@
       if (g.verses.length === 1) {
         parts.push("\u201c" + headerLine + g.verses[0].text + footerBit + "\u201d - " + g.book + " " + g.chapter + ":" + g.verses[0].verse + " (KJB)");
       } else {
-        const combined = g.verses.map(v => v.text).join(" ");
-        const first = g.verses[0].verse;
-        const last = g.verses[g.verses.length - 1].verse;
-        const refStr = first === last
-          ? g.book + " " + g.chapter + ":" + first
-          : g.book + " " + g.chapter + ":" + first + "-" + last;
-        parts.push("\u201c" + headerLine + combined + footerBit + "\u201d - " + refStr + " (KJB)");
+        const isConsecutive = g.verses.every((v, i) => i === 0 || v.verse === g.verses[i - 1].verse + 1);
+        if (!isConsecutive) {
+          // A NON-consecutive selection must never claim a range it does not
+          // cover (quoting verses 21 and 37 as if 21-37 were all selected), so
+          // it copies as a whole like "Copy All" instead: centered title and
+          // "Chapter N", then one verse per line with its verse number — the
+          // numbers make the gaps explicit.
+          const fullTitle = BOOK_FULL_TITLES[g.book] || g.book;
+          let block = centerLine(fullTitle) + "\n" + centerLine(`Chapter ${g.chapter}`) + "\n\n";
+          g.verses.forEach(v => {
+            if (v.header) block += centerLine(v.header) + "\n\n";
+            block += v.verse + " " + v.text + "\n";
+            if (v.footer) block += "\n" + centerLine(v.footer) + "\n";
+          });
+          parts.push(block.replace(/[\s]+$/, ''));
+        } else {
+          // Consecutive selections keep the consolidated paragraph with a
+          // range reference.
+          const combined = g.verses.map(v => v.text).join(" ");
+          const first = g.verses[0].verse;
+          const last = g.verses[g.verses.length - 1].verse;
+          const refStr = first === last
+            ? g.book + " " + g.chapter + ":" + first
+            : g.book + " " + g.chapter + ":" + first + "-" + last;
+          parts.push("\u201c" + headerLine + combined + footerBit + "\u201d - " + refStr + " (KJB)");
+        }
       }
     }
     const text = parts.join("\n\n");

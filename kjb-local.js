@@ -571,6 +571,24 @@ async function fetchAndParsePCE() {
       titleBook = null;
       continue;
     }
+        // Trailing structural line from the SOURCE text: the epistle
+    // subscription ("¶ Written to the Romans from Corinthus, [and] [sent]
+    // by Phebe servant of the church at Cenchrea."). Keyed to the chapter that
+    // just ended, so lookups and keyword search attach the real text —
+    // never an editorial approximation. Book-end lines ("THE END OF THE
+    // PROPHETS.", "THE END.") are website-only and intentionally NOT captured
+    // here. Guarded by "the chapter already has verses" so a pilcrow-led FIRST
+    // verse can never be mistaken for a subscription.
+    if (currentBook && currentChapter !== null && (data[currentBook][currentChapter] || []).length > 0) {
+      const subMatch = /^¶\s+(.+)$/.exec(trimmed);
+      if (subMatch) {
+        if (!data.__subscriptions) data.__subscriptions = {};
+        data.__subscriptions[`${currentBook}:${currentChapter}`] = subMatch[1].trim();
+        pendingLines = [];
+        titleBook = null;
+        continue;
+      }
+    }
     if (currentBook === "Psalms" && currentChapter === 119) {
       const letters = /* @__PURE__ */ new Set(["ALEPH", "BETH", "GIMEL", "DALETH", "HE", "VAU", "ZAIN", "CHETH", "TETH", "JOD", "CAPH", "LAMED", "MEM", "NUN", "SAMECH", "AIN", "PE", "TZADDI", "KOPH", "RESH", "SCHIN", "TAU"]);
       if (letters.has(trimmed.replace(/\.$/, "").toUpperCase())) {
@@ -628,8 +646,14 @@ async function fetchAndParsePCE() {
       pendingLines.shift();
     }
   }
-  data.__colophons = { ...COLOPHONS };
-  data.__subscriptions = { ...EPISTLE_SUBSCRIPTIONS };
+  // Trailing structural text is SOURCE-PARSED ONLY (see the subscription
+  // and book-end branches in the loop above). The old editorial COLOPHONS
+  // map invented lines the PCE never printed ("The End of the Epistle of
+  // Paul the Apostle to the Romans.") — for Romans 16 the real trailing line
+  // is the subscription "Written to the Romans from Corinthus, [and] [sent]
+  // by Phebe servant of the church at Cenchrea." The consts above remain only
+  // as a historical reference; nothing consumes them.
+  if (!data.__subscriptions) data.__subscriptions = {};
   cachedBible = data;
   return data;
 }
@@ -676,7 +700,7 @@ function chapterResponse(bible, bookName, chapter, verses) {
     if (out.verses.length > 0) out.verses[0].superscription = superscription;
   }
   const coversEnd = chapterData.length > 0 && fullChapter.length > 0 && chapterData[chapterData.length - 1].verse >= fullChapter[fullChapter.length - 1].verse;
-  const colophon = bible.__colophons?.[supKey] || null;
+  const colophon = bible.__subscriptions?.[supKey] || null;
   if (colophon && coversEnd) out.colophon = colophon;
   return out;
 }
@@ -714,7 +738,7 @@ async function bibleApi(body) {
         if (sup) out.superscription = sup;
       }
       if (chapterData.length > 0 && v.verse === chapterData[chapterData.length - 1].verse) {
-        const col = bible.__colophons?.[`${bookName}:${chapter}`];
+        const col = bible.__subscriptions?.[`${bookName}:${chapter}`] || null;
         if (col) out.colophon = col;
       }
       return out;
@@ -838,8 +862,8 @@ async function bibleApi(body) {
         // Trailing structural lines: the printed book-end colophon ("The End
         // of the Epistle...") and the epistle subscription ("Written to the
         // Romans from Corinthus..."). Either can carry the searched words.
+        // Only the source subscription — book-end lines are website-only.
         const trailingTexts = [
-          bible.__colophons?.[`${bookName}:${chapter}`] || null,
           bible.__subscriptions?.[`${bookName}:${chapter}`] || null
         ].filter(Boolean);
         const supForms = supText ? formsOf(plain(supText)) : null;
@@ -853,31 +877,54 @@ async function bibleApi(body) {
         for (const v of chapterVerses) {
           const text = plain(v.text);
           const forms = formsOf(text);
+          let matchedP = false, matchedA = false;
           if (useWildcard) {
-            if (hitAny(wildcardRegexes, forms)) verseHitsP.push(v);
-            continue;
+            matchedP = hitAny(wildcardRegexes, forms);
+          } else {
+            matchedP = hitAny(phraseRegexes, forms);
+            if (!matchedP && termRegexSets.some((set) => hitAll(set, forms))) matchedA = true;
           }
-          if (hitAny(phraseRegexes, forms)) {
-            verseHitsP.push(v);
-            continue;
+          // Hebrew section heading (Psalm 119 letter names) is real scripture
+          // text: test it too, so a query like "ALEPH" surfaces the section's
+          // anchor verse with its heading attached.
+          if (!matchedP && !matchedA && v.heading) {
+            const hForms = formsOf(plain(v.heading));
+            if (hitPhraseLevel(hForms)) matchedP = true;
+            else if (!useWildcard && hitAndLevel(hForms)) matchedA = true;
           }
-          if (termRegexSets.some((set) => hitAll(set, forms))) {
-            verseHitsA.push(v);
-          }
+          if (matchedP) verseHitsP.push(v);
+          else if (matchedA) verseHitsA.push(v);
         }
         if (verseHitsP.length > 0 || supVia === "phrase" || trailing.some((t) => t.via === "phrase")) anyPhraseHit = true;
         const firstVerse = chapterVerses[0];
         const lastVerse = chapterVerses[chapterVerses.length - 1];
         const pushLevel = (arr, level, hits) => {
-          if (supVia === level) {
+          const reachedStart = hits.some((v) => v.verse === firstVerse.verse);
+          const reachedEnd = hits.some((v) => v.verse === lastVerse.verse);
+          // Superscription: attach when its text matched the query OR the hits
+          // reach the chapter's first verse — the same rule a reference lookup
+          // follows (chapterResponse attaches it when the fetch covers verse 1),
+          // so a keyword hit on verse 1 shows the chapter's superscription too.
+          if (supText && (supVia === level || reachedStart)) {
+            if (!reachedStart) arr.push({ bookName, chapter, v: firstVerse });
             arr.push({ bookName, chapter, __struct: { kind: "superscription", text: supText } });
-            if (!hits.some((v) => v.verse === firstVerse.verse)) arr.push({ bookName, chapter, v: firstVerse });
           }
-          hits.forEach((v) => arr.push({ bookName, chapter, v }));
+          hits.forEach((v) => {
+            // Hebrew section heading (Psalm 119 letters): attach before its
+            // verse whenever that verse appears in the results, exactly as a
+            // reference lookup shows the section letter above the verse.
+            if (v.heading) arr.push({ bookName, chapter, __struct: { kind: "hebrewHeading", text: v.heading } });
+            arr.push({ bookName, chapter, v });
+          });
+          // Trailing structural lines (book-end colophon / epistle
+          // subscription): attach when their text matched the query OR the
+          // hits reach the chapter's final verse — the same rule a reference
+          // lookup follows (chapterResponse coversEnd), so a keyword that
+          // lands on the last verse carries the colophon, like "Romans 16".
           const trailHits = trailing.filter((t) => t.via === level);
-          if (trailHits.length > 0) {
-            if (!hits.some((v) => v.verse === lastVerse.verse)) arr.push({ bookName, chapter, v: lastVerse });
-            trailHits.forEach((t) => arr.push({ bookName, chapter, __struct: { kind: "colophon", text: t.text } }));
+          if (trailHits.length > 0 || reachedEnd) {
+            if (trailHits.length > 0 && !reachedEnd) arr.push({ bookName, chapter, v: lastVerse });
+            (reachedEnd ? trailing : trailHits).forEach((t) => arr.push({ bookName, chapter, __struct: { kind: "colophon", text: t.text } }));
           }
         };
         pushLevel(matches, "phrase", verseHitsP);
