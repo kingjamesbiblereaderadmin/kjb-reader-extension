@@ -29,6 +29,18 @@ fi
 # built from the Chrome one, so it is now generated rather than maintained.
 cp "$BASE_DIR/manifest.json" "$BASE_DIR/manifest.opera.json"
 
+# The Firefox manifest is maintained by hand (different permissions/keys), and
+# it once silently stayed at an old version while manifest.json moved ahead —
+# producing zips named v0.4.25x whose inner manifest still said 0.4.253, which
+# AMO rejected with "Version 0.4.253 already exists". Refuse to build unless
+# every manifest agrees with manifest.json.
+FF_VERSION=$(python3 -c "import json;print(json.load(open('$BASE_DIR/manifest.firefox.json'))['version'])")
+if [ "$FF_VERSION" != "$VERSION" ]; then
+  echo "ERROR: manifest.json says $VERSION but manifest.firefox.json says $FF_VERSION." >&2
+  echo "       Bump manifest.firefox.json too — its version rides inside the zip." >&2
+  exit 1
+fi
+
 build() {
   local browser="$1" manifest="$2" background="$3"
   local out="$BUILD_DIR/$browser"
