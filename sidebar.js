@@ -2281,6 +2281,11 @@
     return text;
   }
 
+  // Punctuation attached to the tail of a match is highlighted together with
+  // the term, so a hit reads as "grace," with the comma inside the mark
+  // instead of the mark stopping one character short of it.
+  const TRAILING_PUNCT = "[,.:;!?…'\"“”‘’()]*";
+
   function highlightTerms(html, query) {
     const hasSpecial = KJB_API.hasLiteralSpecialChars(query);
     const wildcard = optWildcard.checked && !hasSpecial;
@@ -2288,7 +2293,7 @@
     let terms = [];
 
     if (wildcard && (query.includes('?') || query.includes('*'))) {
-      const pattern = escapeRegexForWildcard(query);
+      const pattern = escapeRegexForWildcard(query) + TRAILING_PUNCT;
       try {
         const re = new RegExp(`(${pattern})`, optCaseSensitive.checked ? 'g' : 'gi');
         return highlightWithRegex(html, re);
@@ -2305,11 +2310,13 @@
       if (!term || term.length < 1) return;
       let pattern;
       if (hasSpecial) {
-        pattern = escapeRegex(term);
+        pattern = escapeRegex(term) + TRAILING_PUNCT;
       } else if (optWholeWord.checked) {
-        pattern = `(?<![A-Za-z'-])${escapeRegex(term)}(?![A-Za-z'-])`;
+        // The whole-word lookahead must still bind directly to the term —
+        // trailing punctuation is only consumed after the word boundary holds.
+        pattern = `(?<![A-Za-z'-])${escapeRegex(term)}(?![A-Za-z'-])${TRAILING_PUNCT}`;
       } else {
-        pattern = escapeRegex(term);
+        pattern = escapeRegex(term) + TRAILING_PUNCT;
       }
       try {
         const re = new RegExp(`(${pattern})`, optCaseSensitive.checked ? 'g' : 'gi');

@@ -1,4 +1,8 @@
-WHAT'S NEW IN v0.4.254 (September 19, 2026)
+WHAT'S NEW IN v0.4.256 (September 20, 2026)
+
+- Keyword search highlighting now includes the punctuation attached to a matched word, so a hit like "grace," is highlighted as one unit instead of leaving a stray comma or period outside the highlight.
+
+WHAT'S NEW IN v0.4.255 (September 19, 2026)
 
 - Fixed the footer sitting in the middle of the panel with blank space below it when results or page content is short. A one-time startup guess about panel height could get stuck and never update — now it is corrected any time the panel's real size is known, so the footer stays anchored to the bottom.
 
