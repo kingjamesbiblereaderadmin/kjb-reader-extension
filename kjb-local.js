@@ -782,7 +782,9 @@ async function bibleApi(body) {
     const offset = Math.max(parseInt(rawOffset, 10) || 0, 0);
     const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const flags = caseSensitive ? "g" : "gi";
-    const wrapWholeWord = (p) => wholeWord ? `\\b${p}\\b` : p;
+    // Same word-boundary class the sidebar highlight uses, extended to both
+    // apostrophe forms so "God" whole-word never matches inside "God’s".
+    const wrapWholeWord = (p) => wholeWord ? `(?<![A-Za-z'\u2019-])${p}(?![A-Za-z'\u2019-])` : p;
     const useWildcard = Boolean(wildcard) && /[?*]/.test(query);
     const termsOf = (q) => q.split(/[\s,]+/).filter((t) => t.length > 0);
     const terms = termsOf(String(query));
@@ -793,11 +795,18 @@ async function bibleApi(body) {
         out.push(q.replace(/-/g, ""));
         out.push(q.replace(/-/g, " "));
       }
+      // Apostrophe style must not decide a hit: typed queries use the ASCII
+      // apostrophe while the source prints the typographic right quote (U+2019),
+      // so "God's" never matched the printed "God’s". Additive, like hyphens.
+      if (q.includes("'") || q.includes("\u2019")) {
+        out.push(q.replace(/'/g, "\u2019"));
+        out.push(q.replace(/\u2019/g, "'"));
+      }
       return [...new Set(out.map((x) => x.trim()).filter(Boolean))];
     })();
     const buildWildcard = (q) => {
       let pattern = escape(q).replace(/\\\*/g, ".*").replace(/\\\?/g, ".");
-      if (wholeWord) pattern = `\\b${pattern}\\b`;
+      if (wholeWord) pattern = `(?<![A-Za-z'\u2019-])${pattern}(?![A-Za-z'\u2019-])`;
       return new RegExp(pattern, flags);
     };
     const buildPhrase = (q) => {

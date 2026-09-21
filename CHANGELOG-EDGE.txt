@@ -1,3 +1,7 @@
+WHAT'S NEW IN v0.4.257 (September 21, 2026)
+
+- Fixed searching for words with apostrophes (God's, Jacob's, Christ's). The Bible text prints the typographic apostrophe, so typed searches using a plain apostrophe never matched; searches now match either style and the highlight covers the whole word.
+
 WHAT'S NEW IN v0.4.256 (September 20, 2026)
 
 - Keyword search highlighting now includes the punctuation attached to a matched word, so a hit like "grace," is highlighted as one unit instead of leaving a stray comma or period outside the highlight.
