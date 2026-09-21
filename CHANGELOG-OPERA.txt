@@ -1,5 +1,5 @@
-WHAT'S NEW IN v0.4.258 (September 21, 2026)
+WHAT'S NEW IN v0.4.259 (September 21, 2026)
 
-- Fixed searching for words the Bible prints with the Æ ligature (Ænon, Judæa, Cæsar, Galilæan). Typing AEnon, Judaea, Caesar — or the modern spellings Enon, Judea, Galileans — now finds and highlights every occurrence.
-- The "No results" screen now invites you to email kingjamesbiblereader@outlook.sg if a search looks wrong.
+- Fixed searches that combine the Æ ligature with an apostrophe, like "Caesar's" — the Bible prints "Cæsar’s", which previously returned no results.
+- Fixed long keyword searches silently dropping verses near the end of the results (Psalm titles and other structural lines were taking up result slots), e.g. "right" was missing Revelation 22:14.
 

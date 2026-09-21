@@ -800,35 +800,47 @@ async function bibleApi(body) {
     const useWildcard = Boolean(wildcard) && /[?*]/.test(query);
     const termsOf = (q) => q.split(/[\s,]+/).filter((t) => t.length > 0);
     const terms = termsOf(String(query));
-    const queryVariants = (() => {
-      const q = String(query);
-      const out = [q];
-      if (q.includes("-")) {
-        out.push(q.replace(/-/g, ""));
-        out.push(q.replace(/-/g, " "));
+        const queryVariants = (() => {
+      // Expand the query to its variant forms to a fixpoint so the transforms
+      // CROSS-APPLY: typed "Caesar's" needs BOTH the ligature swap (Caesar ->
+      // Cæsar) AND the apostrophe swap (' -> ’) to reach the printed
+      // "Cæsar’s". Each newly added variant is fed back through every
+      // transform until no new forms appear, so hyphen, apostrophe and
+      // ligature variants combine in every meaningful way. Additive only.
+      const seen = new Set();
+      const out = [];
+      const push = (x) => {
+        const t = x.trim();
+        if (t && !seen.has(t)) { seen.add(t); out.push(t); }
+      };
+      push(String(query));
+      for (let i = 0; i < out.length; i++) {
+        const q = out[i];
+        if (q.includes("-")) {
+          push(q.replace(/-/g, ""));
+          push(q.replace(/-/g, " "));
+        }
+        // Apostrophe style must not decide a hit: typed queries use the ASCII
+        // apostrophe while the source prints the typographic right quote (U+2019),
+        // so "God's" never matched the printed "God’s". Additive, like hyphens.
+        if (q.includes("'")) push(q.replace(/'/g, "\u2019"));
+        if (q.includes("\u2019")) push(q.replace(/\u2019/g, "'"));
+        // Ligature variants. The PCE prints the Æ ligature ("Ænon",
+        // "Judæa", "Cæsar", "Galilæan") while readers type the
+        // letters out: "AEnon", "Judaea", "Caesar". The swap covers every
+        // ae-æ pair; the word map covers the modern e-style spellings
+        // ("Judea", "Enon", "Galileans") that no character swap can reach.
+        if (/ae/i.test(q)) {
+          const swapped = q.replace(/[Aa][Ee]/g, (m) =>
+            m === m.toLowerCase() ? "\u00e6" : m === m.toUpperCase() ? "\u00C6" : (m[0] === m[0].toUpperCase() ? "\u00C6" : "\u00e6"));
+          if (swapped !== q) push(swapped);
+        }
+        for (const [modern, source] of Object.entries(LIGATURE_SPELLINGS)) {
+          const re = new RegExp(`\\b${modern}\\b`, "gi");
+          if (re.test(q)) push(q.replace(new RegExp(`\\b${modern}\\b`, "gi"), source));
+        }
       }
-      // Apostrophe style must not decide a hit: typed queries use the ASCII
-      // apostrophe while the source prints the typographic right quote (U+2019),
-      // so "God's" never matched the printed "God’s". Additive, like hyphens.
-      if (q.includes("'") || q.includes("\u2019")) {
-        out.push(q.replace(/'/g, "\u2019"));
-        out.push(q.replace(/\u2019/g, "'"));
-      }
-      // Ligature variants. The PCE prints the \u00C6 ligature ("\u00C6non",
-      // "Jud\u00e6a", "C\u00e6sar", "Galil\u00e6an") while readers type the
-      // letters out: "AEnon", "Judaea", "Caesar". The swap covers every
-      // ae-\u00e6 pair; the word map covers the modern e-style spellings
-      // ("Judea", "Enon", "Galileans") that no character swap can reach.
-      if (/ae/i.test(q)) {
-        const swapped = q.replace(/[Aa][Ee]/g, (m) =>
-          m === m.toLowerCase() ? "\u00e6" : m === m.toUpperCase() ? "\u00C6" : (m[0] === m[0].toUpperCase() ? "\u00C6" : "\u00e6"));
-        if (swapped !== q) out.push(swapped);
-      }
-      for (const [modern, source] of Object.entries(LIGATURE_SPELLINGS)) {
-        const re = new RegExp(`\\b${modern}\\b`, "gi");
-        if (re.test(q)) out.push(q.replace(new RegExp(`\\b${modern}\\b`, "gi"), source));
-      }
-      return [...new Set(out.map((x) => x.trim()).filter(Boolean))];
+      return out;
     })();
     const buildWildcard = (q) => {
       let pattern = escape(q).replace(/\\\*/g, ".*").replace(/\\\?/g, ".");
@@ -936,20 +948,38 @@ async function bibleApi(body) {
         const pushLevel = (arr, level, hits) => {
           const reachedStart = hits.some((v) => v.verse === firstVerse.verse);
           const reachedEnd = hits.some((v) => v.verse === lastVerse.verse);
+          // Result units: one verse entry carrying its structural lines
+          // (superscription/Hebrew heading ride above, subscription below).
+          // Structural lines used to be separate entries in the result list,
+          // which let them consume paging slots — with limit/offset paging a
+          // long keyword search silently lost verses at the end of the list
+          // ("right" missed Revelation 22:14). Attaching them to their anchor
+          // verse keeps every verse reachable on some page.
+          const byVerse = new Map();
+          const unit = (v) => {
+            const key = v.verse;
+            if (!byVerse.has(key)) byVerse.set(key, { bookName, chapter, v, before: [], after: [] });
+            return byVerse.get(key);
+          };
+          const units = [];
+          const addUnit = (v, before) => {
+            const e = unit(v);
+            if (units[units.length - 1] !== e) units.push(e);
+            return e;
+          };
           // Superscription: attach when its text matched the query OR the hits
           // reach the chapter's first verse — the same rule a reference lookup
           // follows (chapterResponse attaches it when the fetch covers verse 1),
           // so a keyword hit on verse 1 shows the chapter's superscription too.
           if (supText && (supVia === level || reachedStart)) {
-            if (!reachedStart) arr.push({ bookName, chapter, v: firstVerse });
-            arr.push({ bookName, chapter, __struct: { kind: "superscription", text: supText } });
+            addUnit(firstVerse).before.push({ kind: "superscription", text: supText });
           }
           hits.forEach((v) => {
+            const e = addUnit(v);
             // Hebrew section heading (Psalm 119 letters): attach before its
             // verse whenever that verse appears in the results, exactly as a
             // reference lookup shows the section letter above the verse.
-            if (v.heading) arr.push({ bookName, chapter, __struct: { kind: "hebrewHeading", text: v.heading } });
-            arr.push({ bookName, chapter, v });
+            if (v.heading) e.before.push({ kind: "hebrewHeading", text: v.heading });
           });
           // Trailing structural lines (book-end colophon / epistle
           // subscription): attach when their text matched the query OR the
@@ -958,9 +988,9 @@ async function bibleApi(body) {
           // lands on the last verse carries the colophon, like "Romans 16".
           const trailHits = trailing.filter((t) => t.via === level);
           if (trailHits.length > 0 || reachedEnd) {
-            if (trailHits.length > 0 && !reachedEnd) arr.push({ bookName, chapter, v: lastVerse });
-            (reachedEnd ? trailing : trailHits).forEach((t) => arr.push({ bookName, chapter, __struct: { kind: "colophon", text: t.text } }));
+            addUnit(lastVerse).after.push(...(reachedEnd ? trailing : trailHits).map((t) => ({ kind: "colophon", text: t.text })));
           }
+          arr.push(...units);
         };
         pushLevel(matches, "phrase", verseHitsP);
         pushLevel(andMatches, "and", verseHitsA);
@@ -970,28 +1000,25 @@ async function bibleApi(body) {
     if (!useWildcard && matches.length === 0 && termRegexSets.length > 0 && !anyPhraseHit) {
       finalMatches = andMatches;
     }
-    // Structural entries ride along in the result list but do not count as
-    // occurrences themselves — the occurrence count is the number of verse
-    // records (including anchor verses pulled in by a structural hit).
-    const total = finalMatches.filter((e) => !e.__struct).length;
+    // Structural lines ride attached to their anchor verse (they never
+    // consume a paging slot), so the occurrence count is simply the number
+    // of verse units (including anchor verses pulled in by a structural hit).
+    const total = finalMatches.length;
     const page = finalMatches.slice(offset, offset + limit);
-    const results = page.map((entry) => {
-      if (entry.__struct) {
-        const s = entry.__struct;
-        return {
-          abbr: bookAbbr(entry.bookName),
-          book: entry.bookName,
-          bookFullName: bible.__bookTitles?.[entry.bookName] || entry.bookName,
-          chapter: entry.chapter,
-          // Carry the structural text as `text` so client-side filters
-          // (wildcard, case-sensitive, book) keep working on these entries.
-          text: s.text,
-          [s.kind]: s.text
-        };
-      }
+    const results = page.flatMap((entry) => {
+      const structRecord = (s) => ({
+        abbr: bookAbbr(entry.bookName),
+        book: entry.bookName,
+        bookFullName: bible.__bookTitles?.[entry.bookName] || entry.bookName,
+        chapter: entry.chapter,
+        // Carry the structural text as `text` so client-side filters
+        // (wildcard, case-sensitive, book) keep working on these entries.
+        text: s.text,
+        [s.kind]: s.text
+      });
       const { bookName, chapter, v } = entry;
       const ref = `${bookName} ${chapter}:${v.verse}`;
-      return {
+      const verseRecord = {
         abbr: bookAbbr(bookName),
         book: bookName,
         bookFullName: bible.__bookTitles?.[bookName] || bookName,
@@ -1001,6 +1028,7 @@ async function bibleApi(body) {
         text: v.text,
         description: `"${plain(v.text)}" \u2014 ${ref}`
       };
+      return [...entry.before.map(structRecord), verseRecord, ...entry.after.map(structRecord)];
     });
     return {
       query,
