@@ -2097,7 +2097,7 @@
 
   function renderResults(results, query) {
     if (results.length === 0) {
-      showEmptyState(resultsList, "No results found. Try a different search term.");
+      showEmptyState(resultsList, "No results found. Try a different search term.", true);
       resultCount.textContent = "";
       return;
     }
@@ -2114,7 +2114,7 @@
       const message = missingResults[0].missingType === "chapter" || !refStr.includes(":")
         ? `${refStr} — chapter not found.`
         : `${refStr} — verse not found.`;
-      showEmptyState(resultsList, message);
+      showEmptyState(resultsList, message, true);
       resultCount.textContent = "";
       return;
     }
@@ -2123,7 +2123,7 @@
     // retained as explicit notices after the valid verse groups.
     const validResults = results.filter(r => !r.notFound);
     if (validResults.length === 0) {
-      showEmptyState(resultsList, "No results found. Try a different search term.");
+      showEmptyState(resultsList, "No results found. Try a different search term.", true);
       resultCount.textContent = "";
       return;
     }
@@ -2293,6 +2293,28 @@
   // (U+2019). Either form matches both.
   const aposInsensitive = (pattern) => pattern.replace(/['’]/g, "['’]");
 
+  // Æ-ligature equivalences. The source prints the ligature ("Ænon",
+  // "Judæa", "Cæsar", "Galilæan") while readers type the letters
+  // out ("AEnon", "Judaea", "Caesar") or use modern spellings ("Enon",
+  // "Judea", "Galileans"). Results carry the SOURCE spelling, so the highlight
+  // must cover every form the term can take.
+  const LIGATURE_SPELLINGS = {
+    judea: "judæa", enon: "ænon", galilean: "galilæan",
+    galileans: "galilæans", thaddeus: "thaddæus", chaldeans: "chaldæans"
+  };
+  const ligatureForms = (term) => {
+    const forms = [term];
+    const swapped = term.replace(/[Aa][Ee]/g, (m) =>
+      m === m.toLowerCase() ? "æ" : m === m.toUpperCase() ? "Æ" : (m[0] === m[0].toUpperCase() ? "Æ" : "æ"));
+    if (swapped !== term) forms.push(swapped);
+    const mapped = LIGATURE_SPELLINGS[term.toLowerCase()];
+    if (mapped) {
+      forms.push(mapped);
+      if (term[0] === term[0].toUpperCase()) forms.push(mapped.charAt(0).toUpperCase() + mapped.slice(1));
+    }
+    return [...new Set(forms)];
+  };
+
   function highlightTerms(html, query) {
     const hasSpecial = KJB_API.hasLiteralSpecialChars(query);
     const wildcard = optWildcard.checked && !hasSpecial;
@@ -2315,17 +2337,22 @@
 
     terms.forEach(term => {
       if (!term || term.length < 1) return;
+      const ligForms = hasSpecial ? [term] : ligatureForms(term);
+      const termPattern = ligForms.length > 1
+        ? `(?:${ligForms.map((f) => aposInsensitive(escapeRegex(f))).join("|")})`
+        : aposInsensitive(escapeRegex(term));
       let pattern;
       if (hasSpecial) {
-        pattern = aposInsensitive(escapeRegex(term)) + TRAILING_PUNCT;
+        pattern = termPattern + TRAILING_PUNCT;
       } else if (optWholeWord.checked) {
         // The whole-word lookahead must still bind directly to the term —
         // trailing punctuation is only consumed after the word boundary holds.
-        // Both apostrophe forms sit in the boundary class so "God" whole-word
-        // never matches inside "God’s", however the apostrophe is printed.
-        pattern = `(?<![A-Za-z'’-])${aposInsensitive(escapeRegex(term))}(?![A-Za-z'’-])${TRAILING_PUNCT}`;
+        // Both apostrophe forms AND both ligature forms sit in the boundary
+        // class so "God" whole-word never matches inside "God’s" and "non"
+        // whole-word never matches inside "Ænon", however they are printed.
+        pattern = `(?<![A-Za-z'’Ææ-])${termPattern}(?![A-Za-z'’Ææ-])${TRAILING_PUNCT}`;
       } else {
-        pattern = aposInsensitive(escapeRegex(term)) + TRAILING_PUNCT;
+        pattern = termPattern + TRAILING_PUNCT;
       }
       try {
         const re = new RegExp(`(${pattern})`, optCaseSensitive.checked ? 'g' : 'gi');
@@ -2681,8 +2708,15 @@
     });
   }
 
-  function showEmptyState(container, message) {
-    setHTML(container, `<div class="empty-state"><p>${escapeHtml(message)}</p></div>`);
+  function showEmptyState(container, message, reportLookupTrouble = false) {
+    // Empty search results can also mean a lookup bug (a word the source prints
+    // with special typography a query cannot reach). The report line invites
+    // the user to flag suspected errors so nothing silently fails to be found.
+    setHTML(container, `<div class="empty-state"><p>${escapeHtml(message)}</p>${
+      reportLookupTrouble
+        ? `<p class="hint">If you think this is an error, please email <a href="mailto:kingjamesbiblereader@outlook.sg">kingjamesbiblereader@outlook.sg</a></p>`
+        : ""
+    }</div>`);
   }
 
   function showLoading(show) {

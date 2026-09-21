@@ -782,9 +782,21 @@ async function bibleApi(body) {
     const offset = Math.max(parseInt(rawOffset, 10) || 0, 0);
     const escape = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
     const flags = caseSensitive ? "g" : "gi";
+    // Modern spellings of source \u00C6-ligature words. Searched as query
+    // variants so "Judea" finds "Jud\u00e6a" and "Enon" finds "\u00C6non".
+    const LIGATURE_SPELLINGS = {
+      judea: "jud\u00e6a",
+      enon: "\u00e6non",
+      galilean: "galil\u00e6an",
+      galileans: "galil\u00e6ans",
+      thaddeus: "thadd\u00e6us",
+      chaldeans: "chald\u00e6ans"
+    };
     // Same word-boundary class the sidebar highlight uses, extended to both
-    // apostrophe forms so "God" whole-word never matches inside "God’s".
-    const wrapWholeWord = (p) => wholeWord ? `(?<![A-Za-z'\u2019-])${p}(?![A-Za-z'\u2019-])` : p;
+    // apostrophe forms and the \u00C6/\u00e6 ligature so "God" whole-word never
+    // matches inside "God’s" and "non" whole-word never matches inside
+    // "\u00C6non".
+    const wrapWholeWord = (p) => wholeWord ? `(?<![A-Za-z'\u2019\u00C6\u00e6-])${p}(?![A-Za-z'\u2019\u00C6\u00e6-])` : p;
     const useWildcard = Boolean(wildcard) && /[?*]/.test(query);
     const termsOf = (q) => q.split(/[\s,]+/).filter((t) => t.length > 0);
     const terms = termsOf(String(query));
@@ -802,11 +814,25 @@ async function bibleApi(body) {
         out.push(q.replace(/'/g, "\u2019"));
         out.push(q.replace(/\u2019/g, "'"));
       }
+      // Ligature variants. The PCE prints the \u00C6 ligature ("\u00C6non",
+      // "Jud\u00e6a", "C\u00e6sar", "Galil\u00e6an") while readers type the
+      // letters out: "AEnon", "Judaea", "Caesar". The swap covers every
+      // ae-\u00e6 pair; the word map covers the modern e-style spellings
+      // ("Judea", "Enon", "Galileans") that no character swap can reach.
+      if (/ae/i.test(q)) {
+        const swapped = q.replace(/[Aa][Ee]/g, (m) =>
+          m === m.toLowerCase() ? "\u00e6" : m === m.toUpperCase() ? "\u00C6" : (m[0] === m[0].toUpperCase() ? "\u00C6" : "\u00e6"));
+        if (swapped !== q) out.push(swapped);
+      }
+      for (const [modern, source] of Object.entries(LIGATURE_SPELLINGS)) {
+        const re = new RegExp(`\\b${modern}\\b`, "gi");
+        if (re.test(q)) out.push(q.replace(new RegExp(`\\b${modern}\\b`, "gi"), source));
+      }
       return [...new Set(out.map((x) => x.trim()).filter(Boolean))];
     })();
     const buildWildcard = (q) => {
       let pattern = escape(q).replace(/\\\*/g, ".*").replace(/\\\?/g, ".");
-      if (wholeWord) pattern = `(?<![A-Za-z'\u2019-])${pattern}(?![A-Za-z'\u2019-])`;
+      if (wholeWord) pattern = `(?<![A-Za-z'\u2019\u00C6\u00e6-])${pattern}(?![A-Za-z'\u2019\u00C6\u00e6-])`;
       return new RegExp(pattern, flags);
     };
     const buildPhrase = (q) => {
