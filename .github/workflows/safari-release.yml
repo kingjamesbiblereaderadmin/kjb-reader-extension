@@ -1,14 +1,14 @@
-name: Safari Release (Mac App Store)
+name: Safari Release (macOS + iOS)
 
 # Builds the KJB Reader Safari Web Extension on a GitHub-hosted macOS runner
-# and (optionally) uploads the signed .pkg to App Store Connect.
+# and (optionally) uploads signed macOS and iOS packages to App Store Connect.
 # Full setup guide: SAFARI-GITHUB.md in the repo root.
 
 on:
   workflow_dispatch:
     inputs:
       upload:
-        description: "Upload the built .pkg to App Store Connect"
+        description: "Upload the macOS .pkg and iOS .ipa to App Store Connect"
         type: boolean
         default: false
       build_number:
@@ -60,7 +60,7 @@ jobs:
           test -d "$PWD/$APP_NAME/$APP_NAME.xcodeproj"
           echo "Xcode project created at: $PWD/$APP_NAME/$APP_NAME.xcodeproj"
 
-      - name: Force exact bundle IDs + manual signing in the Xcode project
+      - name: Configure exact bundle IDs, versions, platforms, and signing
         run: |
           python3 - <<'PY'
           import os, re
@@ -69,8 +69,8 @@ jobs:
           src = open(pbx).read()
           APP_ID  = "com.kingjamesbiblereader.kjbreaderforsafari"
           EXT_ID  = APP_ID + ".Extension"
-          APP_PROF = "KJB Reader for Safari Distribution"
-          EXT_PROF = "KJB Reader for Safari Ext Distribution"
+          MAC_APP_PROF = "KJB Reader for Safari Distribution"
+          MAC_EXT_PROF = "KJB Reader for Safari Ext Distribution"
           import json as _json
           VER = _json.load(open("manifest.json"))["version"]
           def repl(m):
@@ -78,35 +78,51 @@ jobs:
               bm = re.search(r'PRODUCT_BUNDLE_IDENTIFIER = "([^"]*)";', block)
               if not bm:
                   return block
-              if bm.group(1).endswith(".Extension"):
-                  bid, prof = EXT_ID, EXT_PROF
-              else:
-                  bid, prof = APP_ID, APP_PROF
+              is_ios = 'SDKROOT = iphoneos;' in block or 'iOS (' in block
+              is_ext = bm.group(1).endswith('.Extension') or '(Extension)/Info.plist' in block
+              bid = EXT_ID if is_ext else APP_ID
               block = re.sub(r'PRODUCT_BUNDLE_IDENTIFIER = "[^"]*";',
                              'PRODUCT_BUNDLE_IDENTIFIER = "' + bid + '";', block)
-              # align the app version with the extension manifest version
               block = re.sub(r'MARKETING_VERSION = [^;]*;',
                              'MARKETING_VERSION = "%s";' % VER, block)
-              # App Store requires a category UTI in the app's Info.plist
-              if not bm.group(1).endswith(".Extension") \
-                 and "LSApplicationCategoryType" not in block:
-                  block = block.replace(
-                      'PRODUCT_BUNDLE_IDENTIFIER = "' + bid + '";',
-                      'PRODUCT_BUNDLE_IDENTIFIER = "' + bid + '";' +
-                      '\n\t\t\t\tINFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.reference";',
-                      1)
-              block = block.replace("CODE_SIGN_STYLE = Automatic;", "CODE_SIGN_STYLE = Manual;")
-              if "PROVISIONING_PROFILE_SPECIFIER" not in block:
-                  block = re.sub(r'(PRODUCT_BUNDLE_IDENTIFIER[^\n]*\n)',
-                                 r'\1' + '\t\t\t\tPROVISIONING_PROFILE_SPECIFIER = "' + prof + '";\n',
-                                 block, count=1)
+              if is_ios:
+                  # iOS and iPadOS are supported from Safari 17 onward. This
+                  # also guarantees CSS Highlight API support for painted,
+                  # non-DOM-injected Bible-reference detection.
+                  block = re.sub(r'IPHONEOS_DEPLOYMENT_TARGET = [^;]*;',
+                                 'IPHONEOS_DEPLOYMENT_TARGET = 17.0;', block)
+                  block = block.replace('CODE_SIGN_STYLE = Manual;', 'CODE_SIGN_STYLE = Automatic;')
+                  block = re.sub(r'\n\s*PROVISIONING_PROFILE_SPECIFIER = "[^"]*";', '', block)
+              else:
+                  block = block.replace('CODE_SIGN_STYLE = Automatic;', 'CODE_SIGN_STYLE = Manual;')
+                  prof = MAC_EXT_PROF if is_ext else MAC_APP_PROF
+                  if 'PROVISIONING_PROFILE_SPECIFIER' not in block:
+                      block = re.sub(r'(PRODUCT_BUNDLE_IDENTIFIER[^\n]*\n)',
+                                     r'\1' + '\t\t\t\tPROVISIONING_PROFILE_SPECIFIER = "' + prof + '";\n',
+                                     block, count=1)
+              if not is_ext:
+                  # KJB Reader implements no encryption algorithm. It only
+                  # accesses Apple's exempt operating-system HTTPS/TLS stack.
+                  if 'ITSAppUsesNonExemptEncryption' not in block:
+                      block = block.replace(
+                          'PRODUCT_BUNDLE_IDENTIFIER = "' + bid + '";',
+                          'PRODUCT_BUNDLE_IDENTIFIER = "' + bid + '";' +
+                          '\n\t\t\t\tINFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;', 1)
+                  if not is_ios and 'LSApplicationCategoryType' not in block:
+                      block = block.replace(
+                          'PRODUCT_BUNDLE_IDENTIFIER = "' + bid + '";',
+                          'PRODUCT_BUNDLE_IDENTIFIER = "' + bid + '";' +
+                          '\n\t\t\t\tINFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.reference";', 1)
               return block
           out = re.sub(r'buildSettings = \{.*?\n\t\t\t\};', repl, src, flags=re.S)
           open(pbx, "w").write(out)
-          n = out.count("CODE_SIGN_STYLE = Manual;")
           ids = sorted(set(re.findall(r'PRODUCT_BUNDLE_IDENTIFIER = "([^"]*)";', out)))
-          assert n >= 2 and "com.kingjamesbiblereader.KJB-Reader" not in out, "patch failed"
-          print("patched:", n, "| ids:", ids)
+          assert APP_ID in ids and EXT_ID in ids and "com.kingjamesbiblereader.KJB-Reader" not in out
+          assert 'IPHONEOS_DEPLOYMENT_TARGET = 17.0;' in out
+          assert 'INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;' in out
+          assert out.count('CODE_SIGN_STYLE = Manual;') >= 2
+          assert out.count('CODE_SIGN_STYLE = Automatic;') >= 2
+          print("configured ids:", ids, "| macOS manual + iOS automatic signing")
           PY
 
       - name: Import signing certificates
@@ -144,6 +160,17 @@ jobs:
             echo -n "$MAC_EXTENSION_PROFILE" | base64 --decode -o "$PROFILES/KJBReaderExtension.provisionprofile"
           fi
 
+      - name: Install App Store Connect API key
+        if: env.HAS_SIGNING == 'true'
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+        run: |
+          set -eu
+          mkdir -p "$HOME/.appstoreconnect/private_keys"
+          echo -n "$ASC_KEY_P8" | base64 --decode -o "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+          chmod 600 "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+
       - name: Archive and export the Mac App Store package
         if: env.HAS_SIGNING == 'true'
         env:
@@ -177,19 +204,64 @@ jobs:
             "dist/$APP_NAME.pkg"
           ls -la dist/*.pkg
 
-      - name: Upload to App Store Connect
+      - name: Archive and export the iOS and iPadOS App Store package
+        if: env.HAS_SIGNING == 'true'
+        env:
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          BUILD_NUM: ${{ github.event.inputs.build_number != '' && github.event.inputs.build_number || github.run_number }}
+        run: |
+          set -eu
+          PROJ="$PWD/$APP_NAME/$APP_NAME.xcodeproj"
+          SCHEME=$(xcodebuild -list -project "$PROJ" -json \
+            | python3 -c 'import json,sys; ss=json.load(sys.stdin)["project"]["schemes"]; print(next(s for s in ss if "(iOS)" in s and "Extension" not in s))')
+          KEY="$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+          echo "Using iOS scheme: $SCHEME"
+          xcodebuild archive \
+            -project "$PROJ" \
+            -scheme "$SCHEME" \
+            -destination 'generic/platform=iOS' \
+            -archivePath "dist/$APP_NAME-iOS.xcarchive" \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEY" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
+            DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            CURRENT_PROJECT_VERSION="$BUILD_NUM"
+          cat > dist/ExportOptions-iOS.plist <<EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0"><dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>export</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>teamID</key><string>$APPLE_TEAM_ID</string>
+            <key>manageAppVersionAndBuildNumber</key><false/>
+          </dict></plist>
+          EOF
+          xcodebuild -exportArchive \
+            -archivePath "dist/$APP_NAME-iOS.xcarchive" \
+            -exportPath dist/ios-export \
+            -exportOptionsPlist dist/ExportOptions-iOS.plist \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEY" \
+            -authenticationKeyID "$ASC_KEY_ID" \
+            -authenticationKeyIssuerID "$ASC_ISSUER_ID"
+          find dist/ios-export -maxdepth 1 -name '*.ipa' -print -quit | grep -q .
+          ls -la dist/ios-export/*.ipa
+
+      - name: Upload macOS and iOS builds to App Store Connect
         if: env.HAS_SIGNING == 'true' && github.event.inputs.upload == 'true'
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
           BUILD_NUM: ${{ github.event.inputs.build_number != '' && github.event.inputs.build_number || github.run_number }}
         run: |
           set -eu
-          mkdir -p "$HOME/.appstoreconnect/private_keys"
-          echo -n "$ASC_KEY_P8" | base64 --decode -o "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
           VER=$(python3 -c "import json;print(json.load(open('manifest.json'))['version'])")
-          echo "uploading v$VER build $BUILD_NUM (apple id 6813502666)"
+          echo "Uploading macOS v$VER build $BUILD_NUM (Apple ID 6813502666)"
           xcrun altool --upload-package dist/*.pkg \
             --type macos \
             --apple-id "6813502666" \
@@ -198,13 +270,23 @@ jobs:
             --bundle-short-version-string "$VER" \
             --apiKey "$ASC_KEY_ID" \
             --apiIssuer "$ASC_ISSUER_ID"
+          IPA=$(find dist/ios-export -maxdepth 1 -name '*.ipa' -print -quit)
+          test -n "$IPA"
+          echo "Uploading iOS/iPadOS v$VER build $BUILD_NUM"
+          xcrun altool --upload-app \
+            --type ios \
+            --file "$IPA" \
+            --apiKey "$ASC_KEY_ID" \
+            --apiIssuer "$ASC_ISSUER_ID"
 
-      - name: Attach the .pkg as a workflow artifact
+      - name: Attach macOS and iOS packages as workflow artifacts
         if: env.HAS_SIGNING == 'true'
         uses: actions/upload-artifact@v4
         with:
-          name: KJB-Reader-Safari-pkg
-          path: dist/*.pkg
+          name: KJB-Reader-Safari-macOS-iOS
+          path: |
+            dist/*.pkg
+            dist/ios-export/*.ipa
           retention-days: 14
 
       - name: Attach the converted Xcode project (validation mode)
