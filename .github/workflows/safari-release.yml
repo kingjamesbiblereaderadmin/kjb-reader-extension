@@ -149,6 +149,10 @@ jobs:
           echo -n "$MAC_INSTALLER_P12" | base64 --decode -o installer.p12
           security import app.p12 -P "$MAC_APP_P12_PASSWORD" -A -k "$KEYCHAIN"
           security import installer.p12 -P "$MAC_INSTALLER_P12_PASSWORD" -A -k "$KEYCHAIN"
+          IOS_CERTIFICATE_SERIAL=$(openssl pkcs12 -in app.p12 -clcerts -nokeys -passin pass:"$MAC_APP_P12_PASSWORD" 2>/dev/null \
+            | openssl x509 -noout -serial | sed 's/^serial=//')
+          test -n "$IOS_CERTIFICATE_SERIAL"
+          echo "IOS_CERTIFICATE_SERIAL=$IOS_CERTIFICATE_SERIAL" >> "$GITHUB_ENV"
           security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | tr '\n' ' ')
           security set-key-partition-list -S apple-tool:,apple: -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
 
@@ -188,6 +192,7 @@ jobs:
           IOS_APP_PROFILE_NAME: KJB Reader iOS App Store
           IOS_EXT_PROFILE_NAME: KJB Reader iOS Extension App Store
           IOS_PROFILE_OUTPUT_DIR: ${{ runner.temp }}/ios-profiles
+          IOS_CERTIFICATE_SERIAL: ${{ env.IOS_CERTIFICATE_SERIAL }}
         run: |
           set -eu
           cp "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8" "$ASC_KEY_PATH"

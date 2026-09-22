@@ -18,6 +18,7 @@ EXT_BUNDLE_ID = ENV.fetch("IOS_EXT_BUNDLE_ID")
 APP_PROFILE_NAME = ENV.fetch("IOS_APP_PROFILE_NAME")
 EXT_PROFILE_NAME = ENV.fetch("IOS_EXT_PROFILE_NAME")
 OUTPUT_DIR = File.expand_path(ENV.fetch("IOS_PROFILE_OUTPUT_DIR"))
+CERTIFICATE_SERIAL = ENV.fetch("IOS_CERTIFICATE_SERIAL").delete(":").upcase.sub(/\A0+/, "")
 BASE_URL = "https://api.appstoreconnect.apple.com"
 
 def b64url(value)
@@ -67,9 +68,12 @@ def distribution_certificate
   now = Time.now
   candidates = rows.select do |item|
     attrs = item.fetch("attributes")
-    accepted.include?(attrs["certificateType"]) && Time.parse(attrs["expirationDate"]) > now
+    serial = attrs.fetch("serialNumber", "").delete(":").upcase.sub(/\A0+/, "")
+    accepted.include?(attrs["certificateType"]) &&
+      Time.parse(attrs["expirationDate"]) > now &&
+      serial == CERTIFICATE_SERIAL
   end
-  raise "No active Apple Distribution certificate is available" if candidates.empty?
+  raise "The installed Apple Distribution certificate was not found in App Store Connect" if candidates.empty?
   candidates.max_by { |item| Time.parse(item.dig("attributes", "expirationDate")) }.fetch("id")
 end
 
