@@ -71,6 +71,8 @@ jobs:
           EXT_ID  = APP_ID + ".Extension"
           MAC_APP_PROF = "KJB Reader for Safari Distribution"
           MAC_EXT_PROF = "KJB Reader for Safari Ext Distribution"
+          IOS_APP_PROF = "KJB Reader iOS App Store"
+          IOS_EXT_PROF = "KJB Reader iOS Extension App Store"
           import json as _json
           VER = _json.load(open("manifest.json"))["version"]
           def repl(m):
@@ -91,8 +93,12 @@ jobs:
                   # non-DOM-injected Bible-reference detection.
                   block = re.sub(r'IPHONEOS_DEPLOYMENT_TARGET = [^;]*;',
                                  'IPHONEOS_DEPLOYMENT_TARGET = 17.0;', block)
-                  block = block.replace('CODE_SIGN_STYLE = Manual;', 'CODE_SIGN_STYLE = Automatic;')
-                  block = re.sub(r'\n\s*PROVISIONING_PROFILE_SPECIFIER = "[^"]*";', '', block)
+                  block = block.replace('CODE_SIGN_STYLE = Automatic;', 'CODE_SIGN_STYLE = Manual;')
+                  prof = IOS_EXT_PROF if is_ext else IOS_APP_PROF
+                  if 'PROVISIONING_PROFILE_SPECIFIER' not in block:
+                      block = re.sub(r'(PRODUCT_BUNDLE_IDENTIFIER[^\n]*\n)',
+                                     r'\1' + '\t\t\t\tPROVISIONING_PROFILE_SPECIFIER = "' + prof + '";\n',
+                                     block, count=1)
               else:
                   block = block.replace('CODE_SIGN_STYLE = Automatic;', 'CODE_SIGN_STYLE = Manual;')
                   prof = MAC_EXT_PROF if is_ext else MAC_APP_PROF
@@ -121,8 +127,8 @@ jobs:
           assert 'IPHONEOS_DEPLOYMENT_TARGET = 17.0;' in out
           assert 'INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;' in out
           assert out.count('CODE_SIGN_STYLE = Manual;') >= 2
-          assert out.count('CODE_SIGN_STYLE = Automatic;') >= 2
-          print("configured ids:", ids, "| macOS manual + iOS automatic signing")
+          assert 'KJB Reader iOS App Store' in out and 'KJB Reader iOS Extension App Store' in out
+          print("configured ids:", ids, "| manual App Store signing for macOS and iOS")
           PY
 
       - name: Import signing certificates
@@ -170,6 +176,25 @@ jobs:
           mkdir -p "$HOME/.appstoreconnect/private_keys"
           echo -n "$ASC_KEY_P8" | base64 --decode -o "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
           chmod 600 "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8"
+
+      - name: Create and install iOS App Store provisioning profiles
+        if: env.HAS_SIGNING == 'true'
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_PATH: ${{ runner.temp }}/AuthKey.p8
+          IOS_APP_BUNDLE_ID: com.kingjamesbiblereader.kjbreaderforsafari
+          IOS_EXT_BUNDLE_ID: com.kingjamesbiblereader.kjbreaderforsafari.Extension
+          IOS_APP_PROFILE_NAME: KJB Reader iOS App Store
+          IOS_EXT_PROFILE_NAME: KJB Reader iOS Extension App Store
+          IOS_PROFILE_OUTPUT_DIR: ${{ runner.temp }}/ios-profiles
+        run: |
+          set -eu
+          cp "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8" "$ASC_KEY_PATH"
+          ruby scripts/create_ios_profiles.rb
+          PROFILES="$HOME/Library/MobileDevice/Provisioning Profiles"
+          mkdir -p "$PROFILES"
+          cp "$IOS_PROFILE_OUTPUT_DIR"/*.mobileprovision "$PROFILES/"
 
       - name: Archive and export the Mac App Store package
         if: env.HAS_SIGNING == 'true'
@@ -228,6 +253,7 @@ jobs:
             -authenticationKeyID "$ASC_KEY_ID" \
             -authenticationKeyIssuerID "$ASC_ISSUER_ID" \
             DEVELOPMENT_TEAM="$APPLE_TEAM_ID" \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
             CURRENT_PROJECT_VERSION="$BUILD_NUM"
           cat > dist/ExportOptions-iOS.plist <<EOF
           <?xml version="1.0" encoding="UTF-8"?>
@@ -235,7 +261,7 @@ jobs:
           <plist version="1.0"><dict>
             <key>method</key><string>app-store-connect</string>
             <key>destination</key><string>export</string>
-            <key>signingStyle</key><string>automatic</string>
+            <key>signingStyle</key><string>manual</string>
             <key>teamID</key><string>$APPLE_TEAM_ID</string>
             <key>manageAppVersionAndBuildNumber</key><false/>
           </dict></plist>
