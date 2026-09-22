@@ -82,13 +82,13 @@ jobs:
           VER = _json.load(open("manifest.json"))["version"]
           def repl(m):
               block = m.group(0)
-              bm = re.search(r'PRODUCT_BUNDLE_IDENTIFIER = "([^"]*)";', block)
+              bm = re.search(r'PRODUCT_BUNDLE_IDENTIFIER = \"?([^\";]+)\"?;', block)
               if not bm:
                   return block
               is_ios = 'SDKROOT = iphoneos;' in block or 'iOS (' in block
               is_ext = bm.group(1).endswith('.Extension') or '(Extension)/Info.plist' in block
               bid = EXT_ID if is_ext else APP_ID
-              block = re.sub(r'PRODUCT_BUNDLE_IDENTIFIER = "[^"]*";',
+              block = re.sub(r'PRODUCT_BUNDLE_IDENTIFIER = \"?[^\";]+\"?;',
                              'PRODUCT_BUNDLE_IDENTIFIER = "' + bid + '";', block)
               block = re.sub(r'MARKETING_VERSION = [^;]*;',
                              'MARKETING_VERSION = "%s";' % VER, block)
@@ -127,7 +127,7 @@ jobs:
               return block
           out = re.sub(r'buildSettings = \{.*?\n\t\t\t\};', repl, src, flags=re.S)
           open(pbx, "w").write(out)
-          ids = sorted(set(re.findall(r'PRODUCT_BUNDLE_IDENTIFIER = "([^"]*)";', out)))
+          ids = sorted(set(re.findall(r'PRODUCT_BUNDLE_IDENTIFIER = \"?([^\";]+)\"?;', out)))
           assert APP_ID in ids and EXT_ID in ids and "com.kingjamesbiblereader.KJB-Reader" not in out
           assert 'IPHONEOS_DEPLOYMENT_TARGET = 17.0;' in out
           assert 'INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;' in out
