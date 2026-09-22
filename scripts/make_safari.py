@@ -43,18 +43,15 @@ def patch_background(src: str) -> str:
         fail("background.js platform anchor not found; update make_safari.py")
     src = src.replace(anchor, replacement, 1)
 
-    old_popup = (
-        'if (actionApi && typeof actionApi.setPopup === "function") {\n'
-        '      const popupResult = actionApi.setPopup({ popup: isAndroid ? "sidebar.html" : "" });'
-    )
-    new_popup = (
-        'if (actionApi && typeof actionApi.setPopup === "function") {\n'
-        "      // Safari toolbar always uses the dedicated, explicitly-sized popup.\n"
-        '      const popupResult = actionApi.setPopup({ popup: "toolbar.html" });'
-    )
-    if old_popup not in src:
-        fail("background.js configurePlatformAction popup anchor not found")
-    return src.replace(old_popup, new_popup, 1)
+    # The manifest already establishes toolbar.html before the worker starts.
+    # Calling action.setPopup() as the first click wakes the worker closes the
+    # popover Safari has just opened. The second click then works, producing the
+    # repeatable "blob, close, then open" symptom. Never reconfigure it at runtime.
+    configure_anchor = "function configurePlatformAction() {\n  if (isFirefox) return;"
+    configure_replacement = "function configurePlatformAction() {\n  if (isFirefox || isSafari) return;"
+    if configure_anchor not in src:
+        fail("background.js configurePlatformAction anchor not found")
+    return src.replace(configure_anchor, configure_replacement, 1)
 
 
 def make_toolbar_popup():
