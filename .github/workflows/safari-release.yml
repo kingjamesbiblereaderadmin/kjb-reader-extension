@@ -137,11 +137,16 @@ jobs:
                           'PRODUCT_BUNDLE_IDENTIFIER = "' + bid + '";',
                           'PRODUCT_BUNDLE_IDENTIFIER = "' + bid + '";' +
                           '\n\t\t\t\tINFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;', 1)
-                  if not is_ios and 'LSApplicationCategoryType' not in block:
-                      block = block.replace(
-                          'PRODUCT_BUNDLE_IDENTIFIER = "' + bid + '";',
-                          'PRODUCT_BUNDLE_IDENTIFIER = "' + bid + '";' +
-                          '\n\t\t\t\tINFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.reference";', 1)
+                  if not is_ios:
+                      # Finder/Launchpad use the macOS product (.app) name,
+                      # not CFBundleDisplayName, for the visible application label.
+                      block = re.sub(r'PRODUCT_NAME = [^;]*;',
+                                     'PRODUCT_NAME = "KJB Panel";', block)
+                      if 'LSApplicationCategoryType' not in block:
+                          block = block.replace(
+                              'PRODUCT_BUNDLE_IDENTIFIER = "' + bid + '";',
+                              'PRODUCT_BUNDLE_IDENTIFIER = "' + bid + '";' +
+                              '\n\t\t\t\tINFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.reference";', 1)
               return block
           out = re.sub(r'buildSettings = \{.*?\n\t\t\t\};', repl, src, flags=re.S)
           open(pbx, "w").write(out)
@@ -150,6 +155,7 @@ jobs:
           assert 'IPHONEOS_DEPLOYMENT_TARGET = 17.0;' in out
           assert 'INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;' in out
           assert 'INFOPLIST_KEY_CFBundleDisplayName = "KJB Panel";' in out
+          assert 'PRODUCT_NAME = "KJB Panel";' in out
           assert out.count('CODE_SIGN_STYLE = Manual;') >= 2
           assert 'KJB Reader iOS App Store' in out and 'KJB Reader iOS Extension App Store' in out
           print("configured ids:", ids, "| manual App Store signing for macOS and iOS")
@@ -252,8 +258,11 @@ jobs:
           # same tool the export step uses to produce the flat package.
           ls "dist/$APP_NAME.xcarchive/Products" || true
           find "dist/$APP_NAME.xcarchive" -maxdepth 3 -name "*.app" || true
+          MAC_APP_PATH=$(find "dist/$APP_NAME.xcarchive/Products/Applications" -maxdepth 1 -name "*.app" -print -quit)
+          test -n "$MAC_APP_PATH" && test -d "$MAC_APP_PATH"
+          echo "Packaging macOS app: $MAC_APP_PATH"
           xcrun productbuild \
-            --component "dist/$APP_NAME.xcarchive/Products/Applications/$APP_NAME.app" /Applications \
+            --component "$MAC_APP_PATH" /Applications \
             --sign "3rd Party Mac Developer Installer: Shawn Hanlin Poh ($APPLE_TEAM_ID)" \
             "dist/$APP_NAME.pkg"
           ls -la dist/*.pkg
