@@ -124,12 +124,12 @@ jobs:
                   # macOS/iPhone/iPad container consistently with its App Store record.
                   if 'INFOPLIST_KEY_CFBundleDisplayName' in block:
                       block = re.sub(r'INFOPLIST_KEY_CFBundleDisplayName = [^;]*;',
-                                     'INFOPLIST_KEY_CFBundleDisplayName = "KJB Reader - SidePanel";', block)
+                                     'INFOPLIST_KEY_CFBundleDisplayName = "KJB Panel";', block)
                   else:
                       block = block.replace(
                           'buildSettings = {',
                           'buildSettings = {' +
-                          '\n\t\t\t\tINFOPLIST_KEY_CFBundleDisplayName = "KJB Reader - SidePanel";', 1)
+                          '\n\t\t\t\tINFOPLIST_KEY_CFBundleDisplayName = "KJB Panel";', 1)
                   # KJB Reader implements no encryption algorithm. It only
                   # accesses Apple's exempt operating-system HTTPS/TLS stack.
                   if 'ITSAppUsesNonExemptEncryption' not in block:
@@ -149,7 +149,7 @@ jobs:
           assert APP_ID in ids and EXT_ID in ids and "com.kingjamesbiblereader.KJB-Reader" not in out
           assert 'IPHONEOS_DEPLOYMENT_TARGET = 17.0;' in out
           assert 'INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;' in out
-          assert 'INFOPLIST_KEY_CFBundleDisplayName = "KJB Reader - SidePanel";' in out
+          assert 'INFOPLIST_KEY_CFBundleDisplayName = "KJB Panel";' in out
           assert out.count('CODE_SIGN_STYLE = Manual;') >= 2
           assert 'KJB Reader iOS App Store' in out and 'KJB Reader iOS Extension App Store' in out
           print("configured ids:", ids, "| manual App Store signing for macOS and iOS")
