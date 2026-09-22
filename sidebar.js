@@ -21,6 +21,8 @@
   // nothing happen at all.
   const KJB_IS_LOOKUP_WINDOW = /[?&]win=1/.test(location.search);
   const KJB_IS_MOBILE = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+  const KJB_IS_SAFARI = /Safari/i.test(navigator.userAgent) &&
+    !/Chrome|Chromium|CriOS|Edg|OPR|Firefox|FxiOS/i.test(navigator.userAgent);
   const KJB_IS_SIDE_PANEL = !KJB_IS_OVERLAY && !KJB_IS_LOOKUP_WINDOW;
   console.log("[KJB Sidebar] context:", KJB_IS_OVERLAY ? "OVERLAY (no presence)" : (KJB_IS_LOOKUP_WINDOW ? "LOOKUP WINDOW (no presence)" : "SIDE PANEL"));
 
@@ -340,12 +342,23 @@
         kjbPrintPayload: { html: html, title: title || "KJB Reader", ts: Date.now() }
       }, function () {
         const url = chrome.runtime.getURL("print.html");
+        // Safari iOS terminates its nested extension sheet when that iframe
+        // calls tabs.create directly. It looks like the host site crashed,
+        // which is the same failure previously fixed for chapter/external
+        // links. Let the background open the print tab from a stable context.
+        if (KJB_IS_SAFARI) {
+          kjbSend({ type: "KJB_OPEN_PRINT_PAGE", url: url });
+          return;
+        }
         try {
-          chrome.tabs.create({ url: url });
+          const opened = chrome.tabs.create({ url: url });
+          if (opened && typeof opened.catch === "function") {
+            opened.catch(() => kjbSend({ type: "KJB_OPEN_PRINT_PAGE", url: url }));
+          }
         } catch (e) {
           // Popup contexts on some mobile builds disallow tabs.create; the
           // background has no such restriction.
-          chrome.runtime.sendMessage({ type: "KJB_OPEN_PRINT_PAGE", url: url });
+          kjbSend({ type: "KJB_OPEN_PRINT_PAGE", url: url });
         }
       });
     } catch (e) {
