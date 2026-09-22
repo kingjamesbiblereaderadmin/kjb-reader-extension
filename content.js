@@ -2,7 +2,7 @@
 // reinjectContentScripts() in the background may inject this file into a tab
 // that already has it (after an extension update); without this guard the
 // top-level `const` declarations would throw "already declared".
-const KJB_CONTENT_VERSION = "0.4.264";
+const KJB_CONTENT_VERSION = "0.4.265";
 
 // A plain boolean guard here was a serious bug: after an extension update the
 // background re-injects this file into already-open tabs, and the boolean made
@@ -1316,9 +1316,59 @@ document.addEventListener("mousedown", (e) => {
   if (link) e.preventDefault();
 }, true);
 
+// iPhone and iPad Safari paint CSS Highlight ranges correctly, but their
+// synthetic click event can report (0, 0) instead of the finger coordinate.
+// Preserve the real touch coordinate and activate only a stationary tap. This
+// leaves scrolling, text selection, and nearby controls untouched.
+let kjbTouchStart = null;
+let kjbSuppressClickUntil = 0;
+document.addEventListener("touchstart", (e) => {
+  if (!supportsKjbTextHighlights || e.touches.length !== 1 || isInteractiveTarget(e)) {
+    kjbTouchStart = null;
+    return;
+  }
+  const touch = e.touches[0];
+  kjbTouchStart = {
+    x: touch.clientX,
+    y: touch.clientY,
+    entry: findKjbHit(touch.clientX, touch.clientY)
+  };
+}, { passive: true, capture: true });
+
+document.addEventListener("touchend", (e) => {
+  if (!supportsKjbTextHighlights || !kjbTouchStart || isInteractiveTarget(e)) {
+    kjbTouchStart = null;
+    return;
+  }
+  const touch = e.changedTouches && e.changedTouches[0];
+  const started = kjbTouchStart;
+  kjbTouchStart = null;
+  if (!touch) return;
+  // A moved finger is a scroll/gesture, not a verse tap.
+  if (Math.hypot(touch.clientX - started.x, touch.clientY - started.y) > 12) return;
+  let entry = started.entry;
+  if (!entry || !isKjbEntryStillValid(entry)) {
+    entry = findKjbHit(touch.clientX, touch.clientY);
+  }
+  if (!entry) return;
+  e.preventDefault();
+  e.stopPropagation();
+  kjbLastHitEntry = null;
+  kjbSuppressClickUntil = Date.now() + 800;
+  handleVerseClick(entry.ref, null);
+}, { passive: false, capture: true });
+
+document.addEventListener("touchcancel", () => { kjbTouchStart = null; }, { passive: true, capture: true });
+
 // --- Document-level click handler ---
 document.addEventListener("click", (e) => {
   if (supportsKjbTextHighlights) {
+    // touchend already handled the tap with reliable finger coordinates.
+    if (Date.now() < kjbSuppressClickUntil) {
+      e.preventDefault();
+      e.stopPropagation();
+      return;
+    }
     if (isInteractiveTarget(e)) { kjbLastHitEntry = null; return; }
     // Use the entry from mousedown if still valid. Otherwise fresh check
     // using both geometric AND text-position detection. isConnected alone
