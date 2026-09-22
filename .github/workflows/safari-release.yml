@@ -64,6 +64,8 @@ jobs:
           # The converter creates "<location>/<App Name>/<App Name>.xcodeproj"
           test -d "$PWD/$APP_NAME/$APP_NAME.xcodeproj"
           echo "Xcode project created at: $PWD/$APP_NAME/$APP_NAME.xcodeproj"
+          echo "--- generated app icon catalogs ---"
+          find "$PWD/$APP_NAME" -path '*.appiconset/Contents.json' -print -exec cat {} \;
 
       - name: Configure exact bundle IDs, versions, platforms, and signing
         run: |
