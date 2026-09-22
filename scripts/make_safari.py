@@ -3,9 +3,9 @@
 
 Safari has no side-panel API, so this script:
   1. copies build/chrome -> build/safari
-  2. patches manifest.json  (drops sidePanel permission + side_panel key,
-     adds action.default_popup = sidebar.html, retitles the action)
-  3. patches background.js  (isSafari detection + toolbar popup like Android)
+  2. creates a dedicated, explicitly-sized toolbar popup from sidebar.html
+  3. patches manifest.json (drops sidePanel and points the action at toolbar.html)
+  4. patches background.js deterministically for Safari (no UA sniffing)
 
 Every patch uses exact string anchors. If background.js is ever refactored,
 the anchors stop matching and this script FAILS LOUDLY instead of silently
@@ -33,20 +33,15 @@ def fail(msg):
 
 
 def patch_background(src: str) -> str:
+    # This is a Safari-only build, so do not guess from the service worker UA.
+    # Safari's worker UA is not stable across macOS releases; a failed guess
+    # classified Safari as Opera and replaced the toolbar popup with the
+    # in-page overlay route.
     anchor = "const isOpera = !isFirefox && !hasChromeSidePanel;"
+    replacement = "const isSafari = true;\nconst isOpera = false;"
     if anchor not in src:
-        fail(
-            "background.js anchor 'const isOpera = ...' not found. "
-            "background.js was refactored — update the anchors in "
-            "scripts/make_safari.py."
-        )
-    safari_detect = (
-        anchor
-        + '\nconst isSafari = !isFirefox && typeof navigator !== "undefined"'
-        + ' && /\\bSafari\\//.test(navigator.userAgent)'
-        + ' && !/Chrome|Chromium|Edg\\/|OPR|Firefox/.test(navigator.userAgent);'
-    )
-    src = src.replace(anchor, safari_detect, 1)
+        fail("background.js platform anchor not found; update make_safari.py")
+    src = src.replace(anchor, replacement, 1)
 
     old_popup = (
         'if (actionApi && typeof actionApi.setPopup === "function") {\n'
@@ -54,18 +49,46 @@ def patch_background(src: str) -> str:
     )
     new_popup = (
         'if (actionApi && typeof actionApi.setPopup === "function") {\n'
-        "      // Safari has no sidePanel API: the toolbar icon opens the full reader\n"
-        "      // as a popup (same proven path as Android).\n"
-        '      const popupPath = (isAndroid || isSafari) ? "sidebar.html" : "";\n'
-        "      const popupResult = actionApi.setPopup({ popup: popupPath });"
+        "      // Safari toolbar always uses the dedicated, explicitly-sized popup.\n"
+        '      const popupResult = actionApi.setPopup({ popup: "toolbar.html" });'
     )
     if old_popup not in src:
-        fail(
-            "background.js configurePlatformAction popup line not found. "
-            "Update the anchors in scripts/make_safari.py."
-        )
-    src = src.replace(old_popup, new_popup, 1)
-    return src
+        fail("background.js configurePlatformAction popup anchor not found")
+    return src.replace(old_popup, new_popup, 1)
+
+
+def make_toolbar_popup():
+    source = (SAFARI / "sidebar.html").read_text(encoding="utf-8")
+    css_link = '  <link rel="stylesheet" href="safari-toolbar.css">\n'
+    anchor = '  <link rel="stylesheet" href="sidebar.css">\n'
+    if anchor not in source:
+        fail("sidebar.html stylesheet anchor not found")
+    popup = source.replace(anchor, anchor + css_link, 1)
+    (SAFARI / "toolbar.html").write_text(popup, encoding="utf-8")
+
+    # Safari popovers need an intrinsic pixel size. width:100% / height:100%
+    # alone is circular sizing and produced the tiny blank blob that vanished.
+    (SAFARI / "safari-toolbar.css").write_text(
+        "html, body {\n"
+        "  width: 420px !important;\n"
+        "  min-width: 420px !important;\n"
+        "  height: 600px !important;\n"
+        "  min-height: 600px !important;\n"
+        "  margin: 0 !important;\n"
+        "}\n"
+        "#app { width: 420px; height: 600px; }\n",
+        encoding="utf-8",
+    )
+
+    # A toolbar popover is not a persistent side panel. Prevent it from
+    # publishing side-panel heartbeats or close notifications.
+    js = SAFARI / "sidebar.js"
+    text = js.read_text(encoding="utf-8")
+    old = "const KJB_IS_SIDE_PANEL = !KJB_IS_OVERLAY && !KJB_IS_LOOKUP_WINDOW;"
+    new = "const KJB_IS_TOOLBAR_POPUP = location.pathname.endsWith('/toolbar.html');\n  const KJB_IS_SIDE_PANEL = !KJB_IS_OVERLAY && !KJB_IS_LOOKUP_WINDOW && !KJB_IS_TOOLBAR_POPUP;"
+    if old not in text:
+        fail("sidebar.js context anchor not found")
+    js.write_text(text.replace(old, new, 1), encoding="utf-8")
 
 
 def main():
@@ -84,15 +107,19 @@ def main():
         m["permissions"].remove("sidePanel")
     if "side_panel" in m:
         del m["side_panel"]
-    m.setdefault("action", {})["default_popup"] = "sidebar.html"
+    m.setdefault("action", {})["default_popup"] = "toolbar.html"
     m["action"]["default_title"] = "KJB Reader"
     mpath.write_text(json.dumps(m, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
-    print("patched manifest.json (no sidePanel, popup action)")
+    print("patched manifest.json (no sidePanel, toolbar.html popup action)")
+
+    # --- dedicated toolbar popup ---
+    make_toolbar_popup()
+    print("created toolbar.html + explicit 420x600 Safari popup sizing")
 
     # --- background ---
     bpath = SAFARI / "background.js"
     bpath.write_text(patch_background(bpath.read_text(encoding="utf-8")), encoding="utf-8")
-    print("patched background.js (isSafari + popup path)")
+    print("patched background.js (deterministic Safari toolbar route)")
 
     # --- zip ---
     version = m["version"]
