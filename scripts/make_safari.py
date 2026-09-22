@@ -55,37 +55,29 @@ def patch_background(src: str) -> str:
 
 
 def make_toolbar_popup():
-    source = (SAFARI / "sidebar.html").read_text(encoding="utf-8")
-    css_link = '  <link rel="stylesheet" href="safari-toolbar.css">\n'
-    anchor = '  <link rel="stylesheet" href="sidebar.css">\n'
-    if anchor not in source:
-        fail("sidebar.html stylesheet anchor not found")
-    popup = source.replace(anchor, anchor + css_link, 1)
+    # Keep Safari's actual popover document tiny and completely static. Safari
+    # decides whether to keep the popover open while its first document is
+    # loading; using the full reader as that document let prepaint.js, viewport
+    # measurements and UI scaling race the initial popover geometry. A fixed
+    # outer shell gives Safari its final 420x600 size synchronously, then loads
+    # the full reader inside without ever resizing the popover itself.
+    popup = """<!DOCTYPE html>
+<html lang="en" style="width:420px;height:600px;margin:0;overflow:hidden">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=420, initial-scale=1">
+  <title>KJB Reader</title>
+  <style>
+    html, body { width:420px; height:600px; min-width:420px; min-height:600px; margin:0; overflow:hidden; }
+    iframe { display:block; width:420px; height:600px; border:0; }
+  </style>
+</head>
+<body style="width:420px;height:600px;margin:0;overflow:hidden">
+  <iframe src="sidebar.html?ctx=toolbar" title="KJB Reader"></iframe>
+</body>
+</html>
+"""
     (SAFARI / "toolbar.html").write_text(popup, encoding="utf-8")
-
-    # Safari popovers need an intrinsic pixel size. width:100% / height:100%
-    # alone is circular sizing and produced the tiny blank blob that vanished.
-    (SAFARI / "safari-toolbar.css").write_text(
-        "html, body {\n"
-        "  width: 420px !important;\n"
-        "  min-width: 420px !important;\n"
-        "  height: 600px !important;\n"
-        "  min-height: 600px !important;\n"
-        "  margin: 0 !important;\n"
-        "}\n"
-        "#app { width: 420px; height: 600px; }\n",
-        encoding="utf-8",
-    )
-
-    # A toolbar popover is not a persistent side panel. Prevent it from
-    # publishing side-panel heartbeats or close notifications.
-    js = SAFARI / "sidebar.js"
-    text = js.read_text(encoding="utf-8")
-    old = "const KJB_IS_SIDE_PANEL = !KJB_IS_OVERLAY && !KJB_IS_LOOKUP_WINDOW;"
-    new = "const KJB_IS_TOOLBAR_POPUP = location.pathname.endsWith('/toolbar.html');\n  const KJB_IS_SIDE_PANEL = !KJB_IS_OVERLAY && !KJB_IS_LOOKUP_WINDOW && !KJB_IS_TOOLBAR_POPUP;"
-    if old not in text:
-        fail("sidebar.js context anchor not found")
-    js.write_text(text.replace(old, new, 1), encoding="utf-8")
 
 
 def main():
@@ -111,7 +103,7 @@ def main():
 
     # --- dedicated toolbar popup ---
     make_toolbar_popup()
-    print("created toolbar.html + explicit 420x600 Safari popup sizing")
+    print("created static 420x600 toolbar shell around the reader")
 
     # --- background ---
     bpath = SAFARI / "background.js"
