@@ -46,6 +46,15 @@
     } catch (e) {}
   }
 
+  // Open external pages through the background. Safari can terminate an
+  // extension popover when chrome.tabs.create() is called from its nested
+  // toolbar frame; the background owns a normal extension context and opens
+  // the tab without crashing or dismissing the reader first.
+  function openExternalUrl(url) {
+    if (!/^https:\/\//i.test(String(url || ""))) return;
+    kjbSend({ type: "KJB_OPEN_URL", url: String(url) });
+  }
+
   let earlyLookupTs = 0;
   // Set the moment a verse is actually handed to doSearch — receipt is not
   // delivery, and the difference is what broke the first click.
@@ -840,17 +849,17 @@
 
     // Website link
     btnWebsite.addEventListener("click", () => {
-      chrome.tabs.create({ url: KJB_API.getWebsiteUrl() });
+      openExternalUrl(KJB_API.getWebsiteUrl());
     });
 
     // Legal links — open website extension pages in a browser tab (works on all browsers incl. Firefox)
     document.getElementById("link-privacy")?.addEventListener("click", (e) => {
       e.preventDefault();
-      chrome.tabs.create({ url: "https://kingjamesbiblereader.com/extension-privacy" });
+      openExternalUrl("https://kingjamesbiblereader.com/extension-privacy");
     });
     document.getElementById("link-terms")?.addEventListener("click", (e) => {
       e.preventDefault();
-      chrome.tabs.create({ url: "https://kingjamesbiblereader.com/extension-terms" });
+      openExternalUrl("https://kingjamesbiblereader.com/extension-terms");
     });
 
 
@@ -1950,7 +1959,7 @@
           const openWeb = e.target.closest("#read-open-web");
           if (prev && !prev.disabled) loadChapter(currentBook, currentChapter - 1, null, null, currentEndChapter);
           if (next && !next.disabled) loadChapter(currentBook, currentChapter + 1, null, null, currentEndChapter);
-          if (openWeb) chrome.tabs.create({ url: KJB_API.getReadUrl(currentBook, currentChapter) });
+          if (openWeb) openExternalUrl(KJB_API.getReadUrl(currentBook, currentChapter));
         });
         const bd = rcEl.querySelector("#read-book-dropdown");
         if (bd) bd.addEventListener("change", () => loadChapter(bd.value, 1));
@@ -2485,7 +2494,7 @@
       card.querySelector(".btn-link")?.addEventListener("click", (e) => {
         e.stopPropagation();
         const url = e.target.dataset.url;
-        if (url) chrome.tabs.create({ url });
+        if (url) openExternalUrl(url);
       });
 
       card.addEventListener("click", () => {
@@ -3046,7 +3055,7 @@
     el.querySelectorAll(".info-link").forEach(link => {
       link.addEventListener("click", (e) => {
         e.preventDefault();
-        chrome.tabs.create({ url: link.dataset.url });
+        openExternalUrl(link.dataset.url);
       });
     });
     makeVerseRefsClickable(el);
@@ -3146,7 +3155,7 @@
     el.querySelectorAll(".info-link").forEach(link => {
       link.addEventListener("click", (e) => {
         e.preventDefault();
-        chrome.tabs.create({ url: link.dataset.url });
+        openExternalUrl(link.dataset.url);
       });
     });
     makeVerseRefsClickable(el);

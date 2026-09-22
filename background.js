@@ -342,6 +342,15 @@ api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     return;
   }
 
+  if (msg.type === "KJB_OPEN_URL") {
+    // External navigation is background-owned so Safari toolbar iframes never
+    // call tabs.create directly (which can terminate the popover document).
+    const url = String(msg.url || "");
+    if (/^https:\/\//i.test(url)) api.tabs.create({ url }).catch(() => {});
+    sendResponse({ ok: true });
+    return;
+  }
+
   if (msg.type === "KJB_OPEN_LOOKUP") {
     console.log("[KJB Background] KJB_OPEN_LOOKUP received:", msg.text);
     // Two listeners racing on one click would otherwise schedule two
