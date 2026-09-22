@@ -62,18 +62,25 @@ def make_toolbar_popup():
     # outer shell gives Safari its final 420x600 size synchronously, then loads
     # the full reader inside without ever resizing the popover itself.
     popup = """<!DOCTYPE html>
-<html lang="en" style="width:420px;height:600px;margin:0;overflow:hidden">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=420, initial-scale=1">
-  <title>KJB Reader</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>KJB Reader - SidePanel</title>
   <style>
     html, body { width:420px; height:600px; min-width:420px; min-height:600px; margin:0; overflow:hidden; }
     iframe { display:block; width:420px; height:600px; border:0; }
+    /* Desktop Safari needs a synchronous 420x600 popover. On iPhone/iPad that
+       fixed canvas occupies only part of the taller extension sheet, leaving
+       the footer halfway up. Coarse-touch Safari uses its live visual viewport. */
+    @media (hover: none) and (pointer: coarse) {
+      html, body { width:100vw; height:100vh; height:100dvh; min-width:0; min-height:0; }
+      iframe { width:100vw; height:100vh; height:100dvh; }
+    }
   </style>
 </head>
-<body style="width:420px;height:600px;margin:0;overflow:hidden">
-  <iframe src="sidebar.html?ctx=toolbar" title="KJB Reader"></iframe>
+<body>
+  <iframe src="sidebar.html?ctx=toolbar" title="KJB Reader - SidePanel"></iframe>
 </body>
 </html>
 """
