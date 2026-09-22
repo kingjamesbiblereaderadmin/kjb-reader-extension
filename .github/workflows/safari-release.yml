@@ -64,8 +64,14 @@ jobs:
           # The converter creates "<location>/<App Name>/<App Name>.xcodeproj"
           test -d "$PWD/$APP_NAME/$APP_NAME.xcodeproj"
           echo "Xcode project created at: $PWD/$APP_NAME/$APP_NAME.xcodeproj"
-          echo "--- generated app icon catalogs ---"
-          find "$PWD/$APP_NAME" -path '*.appiconset/Contents.json' -print -exec cat {} \;
+          # The Safari packager pads extension icons onto a white 1024px canvas,
+          # producing a visibly undersized iPhone/iPad Home Screen icon. Replace
+          # only the iOS universal icon with the full-bleed hand-drawn artwork.
+          IOS_ICON="$PWD/$APP_NAME/Shared (App)/Assets.xcassets/AppIcon.appiconset/universal-icon-1024@1x.png"
+          test -f "$IOS_ICON"
+          cp "$PWD/store-assets/kjb-1024.png" "$IOS_ICON"
+          test "$(sips -g pixelWidth "$IOS_ICON" | awk '/pixelWidth/{print $2}')" = "1024"
+          test "$(sips -g pixelHeight "$IOS_ICON" | awk '/pixelHeight/{print $2}')" = "1024"
 
       - name: Configure exact bundle IDs, versions, platforms, and signing
         run: |
