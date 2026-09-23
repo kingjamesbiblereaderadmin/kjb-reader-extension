@@ -2,7 +2,7 @@
 // reinjectContentScripts() in the background may inject this file into a tab
 // that already has it (after an extension update); without this guard the
 // top-level `const` declarations would throw "already declared".
-const KJB_CONTENT_VERSION = "0.4.271";
+const KJB_CONTENT_VERSION = "0.4.272";
 
 // A plain boolean guard here was a serious bug: after an extension update the
 // background re-injects this file into already-open tabs, and the boolean made
@@ -119,6 +119,9 @@ let lastOverlayInjectTs = 0;
 // True only for the newest injected instance. A superseded instance keeps its
 // listeners (they cannot be removed from outside) so it must refuse to act.
 function kjbIsActiveInstance() {
+  const host = location.hostname.toLowerCase();
+  if ((host === "kingjamesbiblereader.com" || host === "www.kingjamesbiblereader.com") &&
+      location.pathname !== "/extension" && location.pathname !== "/extension/") return false;
   return window.__kjbReaderContentVersion === KJB_CONTENT_VERSION;
 }
 

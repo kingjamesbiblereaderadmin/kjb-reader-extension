@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "0.4.271",
+  "version": "0.4.272",
   "description": "__MSG_extDescription__",
   "permissions": [
     "contextMenus",
@@ -45,8 +45,10 @@
     },
     {
       "matches": [
-        "https://kingjamesbiblereader.com/extension*",
-        "https://www.kingjamesbiblereader.com/extension*"
+        "https://kingjamesbiblereader.com/extension",
+        "https://kingjamesbiblereader.com/extension/",
+        "https://www.kingjamesbiblereader.com/extension",
+        "https://www.kingjamesbiblereader.com/extension/"
       ],
       "js": [
         "content.js"
