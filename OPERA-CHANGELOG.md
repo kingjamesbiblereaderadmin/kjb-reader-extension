@@ -4,6 +4,10 @@ All versions are backdated to their actual build dates.
 
 ---
 
+**v0.4.272** — 2026-09-23
+- Allow Bible-reference detection only on the exact kingjamesbiblereader.com/extension test page while keeping other pages on that site excluded, including /extension-privacy.
+- Includes combined apostrophe/Æ ligature search and long-result paging fixes since the previous recorded entry.
+
 **v0.4.140** — 2026-08-16
 - Added a scroll-to-top button in the Read and Results tabs. A small circular arrow appears in the bottom-right corner when scrolling past 200px; clicking smoothly scrolls back to the top.
 

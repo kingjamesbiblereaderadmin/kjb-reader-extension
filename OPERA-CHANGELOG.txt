@@ -1,6 +1,10 @@
 KJB Reader — Version History
 ============================
 
+v0.4.272 (September 23, 2026)
+• Allowed reference detection only on the exact kingjamesbiblereader.com/extension test page; other pages on that site remain excluded
+• Included combined apostrophe/Æ ligature search and long-result paging fixes since the previous recorded entry
+
 v0.4.140 (August 16, 2026)
 • Added a scroll-to-top button in the Read and Results tabs that appears when scrolling past 200px
 

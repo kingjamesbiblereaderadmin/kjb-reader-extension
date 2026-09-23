@@ -1,5 +1,4 @@
-WHAT'S NEW IN v0.4.259 (September 21, 2026)
+WHAT'S NEW IN v0.4.272 (September 23, 2026)
 
-- Fixed searches that combine the Æ ligature with an apostrophe, like "Caesar's" — the Bible prints "Cæsar’s", which previously returned no results.
-- Fixed long keyword searches silently dropping verses near the end of the results (Psalm titles and other structural lines were taking up result slots), e.g. "right" was missing Revelation 22:14.
-
+- Bible-reference detection is allowed on kingjamesbiblereader.com/extension for testing, but stays disabled on all other pages of that site. The exemption is limited to the exact page (with or without a trailing slash), not pages such as /extension-privacy.
+- Includes recent search fixes: apostrophes and Æ ligatures work together ("Caesar's" finds "Cæsar’s"), and long searches no longer lose verses when Psalm titles or other structural lines appear.
