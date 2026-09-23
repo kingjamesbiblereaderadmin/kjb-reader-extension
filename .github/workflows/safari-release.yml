@@ -161,6 +161,18 @@ jobs:
           print("configured ids:", ids, "| manual App Store signing for macOS and iOS")
           PY
 
+      - name: Package the configured Xcode project for download
+        run: |
+          zip -qry KJB-Reader-Xcode-v0.4.272.zip "$APP_NAME"             -x '*/.DS_Store' '*/xcuserdata/*' '*/DerivedData/*'
+          unzip -l KJB-Reader-Xcode-v0.4.272.zip | grep -E '\.xcodeproj/project.pbxproj|manifest.json' | head
+
+      - name: Attach configured Xcode project
+        uses: actions/upload-artifact@v4
+        with:
+          name: KJB-Reader-Xcode-v0.4.272
+          path: KJB-Reader-Xcode-v0.4.272.zip
+          retention-days: 14
+
       - name: Import signing certificates
         if: env.HAS_SIGNING == 'true'
         env:
