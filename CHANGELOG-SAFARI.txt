@@ -1,6 +1,5 @@
-WHAT'S NEW IN v0.4.272 (September 23, 2026)
+WHAT'S NEW IN v0.4.273 (September 25, 2026)
 
-- Bible-reference detection is allowed on kingjamesbiblereader.com/extension for testing, but stays disabled on all other pages of that site. The exemption does not include /extension-privacy or other similarly named pages.
-- On iPhone and iPad, verse references use tap-friendly hit detection, the toolbar fills the available screen height, and opening a print page is routed through the extension background. These changes do not alter macOS printing.
-- The installed app is named KJB Panel. The extension and App Store listing retain KJB Reader - SidePanel.
-- Includes recent apostrophe/Æ ligature search and long-result paging fixes.
+- Punctuation attached to an italicized (bracketed) word now sits inside the brackets on screen and when copying, e.g. "thou [art,] and unto dust". The PCE already prints ":" and ";" inside the brackets; commas and periods now follow the same rule.
+- Updated the Verified KJB Preachers list with corrected and expanded links (YouTube, Instagram, TikTok, X, Facebook and ministry sites).
+- Safari/iOS: painted verse references remain tap-friendly and the toolbar fills the available screen height (unchanged from recent builds).

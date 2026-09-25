@@ -1,6 +1,10 @@
 KJB Reader — Version History
 ============================
 
+v0.4.273 (September 25, 2026)
+• Punctuation attached to a bracketed (italic) word now sits inside the brackets on screen and when copying
+• Updated the Verified KJB Preachers list with corrected and expanded links
+
 v0.4.272 (September 23, 2026)
 • Allowed reference detection only on the exact kingjamesbiblereader.com/extension test page; other pages on that site remain excluded
 • Included combined apostrophe/Æ ligature search and long-result paging fixes since the previous recorded entry

@@ -4,6 +4,10 @@ All versions are backdated to their actual build dates.
 
 ---
 
+**v0.4.273** — 2026-09-25
+- Punctuation attached to a bracketed (italic) word now sits inside the brackets on screen and when copying, matching the source's own ":" and ";" convention.
+- Updated the Verified KJB Preachers list with corrected and expanded links.
+
 **v0.4.272** — 2026-09-23
 - Allow Bible-reference detection only on the exact kingjamesbiblereader.com/extension test page while keeping other pages on that site excluded, including /extension-privacy.
 - Includes combined apostrophe/Æ ligature search and long-result paging fixes since the previous recorded entry.

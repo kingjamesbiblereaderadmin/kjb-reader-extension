@@ -1,4 +1,4 @@
-WHAT'S NEW IN v0.4.272 (September 23, 2026)
+WHAT'S NEW IN v0.4.273 (September 25, 2026)
 
-- Bible-reference detection is allowed on kingjamesbiblereader.com/extension for testing, but stays disabled on all other pages of that site. The exemption is limited to the exact page (with or without a trailing slash), not pages such as /extension-privacy.
-- Includes recent search fixes: apostrophes and Æ ligatures work together ("Caesar's" finds "Cæsar’s"), and long searches no longer lose verses when Psalm titles or other structural lines appear.
+- Punctuation attached to an italicized (bracketed) word now sits inside the brackets on screen and when copying, e.g. "thou [art,] and unto dust". The PCE already prints ":" and ";" inside the brackets; commas and periods now follow the same rule.
+- Updated the Verified KJB Preachers list with corrected and expanded links (YouTube, Instagram, TikTok, X, Facebook and ministry sites).

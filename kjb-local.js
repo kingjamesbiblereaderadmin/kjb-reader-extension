@@ -545,6 +545,17 @@ async function fetchAndParsePCE() {
       const pilcrow = /^\u00b6\s*/.test(text2) ? "\xB6 " : "";
       text2 = pilcrow + repair.full;
     }
+
+    // Punctuation attached to a bracketed (italic) word belongs INSIDE the
+    // bracket with it, on screen and in plain-text copy. The source already
+    // prints ":" ";" "?" inside ("[it:]", "[them;]", "[it?]") but leaves "," and
+    // "." outside ("[was],", "set [themselves] [in] [array]."). Moving trailing
+    // , . ; : ! ? inside makes the italic span cover the punctuation visually
+    // and the copy show "[was,]". A hyphen still joins two bracketed words
+    // ("[Ben]-[hadad]") and ")" belongs to the sentence ("[above:])"), so they
+    // stay outside.
+    text2 = text2.replace(/\]([.,;:!?]+)/g, "$1]");
+
     if (!data[currentBook]) data[currentBook] = {};
     if (!data[currentBook][currentChapter]) data[currentBook][currentChapter] = [];
     const verse = { verse: verseNum, text: text2 };
@@ -583,7 +594,7 @@ async function fetchAndParsePCE() {
       const subMatch = /^¶\s+(.+)$/.exec(trimmed);
       if (subMatch) {
         if (!data.__subscriptions) data.__subscriptions = {};
-        data.__subscriptions[`${currentBook}:${currentChapter}`] = subMatch[1].trim();
+        data.__subscriptions[`${currentBook}:${currentChapter}`] = subMatch[1].trim().replace(/\]([.,;:!?]+)/g, "$1]");
         pendingLines = [];
         titleBook = null;
         continue;
@@ -600,7 +611,7 @@ async function fetchAndParsePCE() {
       const knownTitle = PSALM_SUPERSCRIPTIONS[currentChapter];
       if (knownTitle && normLine(trimmed) === normLine(knownTitle)) {
         if (!data.__superscriptions) data.__superscriptions = {};
-        data.__superscriptions[`Psalms:${currentChapter}`] = trimmed;
+        data.__superscriptions[`Psalms:${currentChapter}`] = trimmed.replace(/\]([.,;:!?]+)/g, "$1]");
         continue;
       }
     }
