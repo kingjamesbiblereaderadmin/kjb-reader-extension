@@ -1,3 +1,7 @@
+## v0.4.274 (September 27, 2026)
+
+- Personal Ministry Links in the Resources tab now include TikTok, Instagram and Discord, and the Rumble link points to rumble.com/user/Godisgracious1031.
+
 # KJB Reader — Opera Add-ons Changelog
 
 All versions are backdated to their actual build dates.

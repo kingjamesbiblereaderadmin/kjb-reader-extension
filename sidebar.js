@@ -8,9 +8,15 @@
   // the background broadcasts that to every tab, and the content
   // script then removes the overlay — the overlay deleted itself,
   // which is the "flash" the user saw.
+  // URL tag ONLY — content.js always launches the real overlay iframe with
+  // ?ctx=overlay, so that tag alone is a complete and reliable test. NEVER
+  // add window !== window.top here: Edge hosts its own DOCKED side panel
+  // inside an internal frame, so on Edge that check made the real panel
+  // misidentify itself as the overlay, it stopped broadcasting "I'm live",
+  // and content.js then left (or re-injected) the in-page overlay behind
+  // it — the ghost duplicate panel visible at the docked panel's edge.
   const KJB_IS_OVERLAY = (function () {
     try {
-      if (window !== window.top) return true;
       if (new URLSearchParams(location.search).get("ctx") === "overlay") return true;
     } catch (e) {}
     return false;
@@ -24,6 +30,22 @@
   const KJB_IS_SAFARI = /Safari/i.test(navigator.userAgent) &&
     !/Chrome|Chromium|CriOS|Edg|OPR|Firefox|FxiOS/i.test(navigator.userAgent);
   const KJB_IS_SIDE_PANEL = !KJB_IS_OVERLAY && !KJB_IS_LOOKUP_WINDOW;
+
+  // Safety net for prepaint.js's Edge title-hiding: prepaint applies
+  // .kjb-edge-panel before first paint, but if anything ever prevents
+  // that pass (script blocked, cached order change), re-apply here.
+  // Same URL-only rule as prepaint — ?ctx=overlay / ?win=1 only; the
+  // docked Edge panel itself runs inside an internal frame, so window
+  // top-ness must NEVER be used to detect the overlay.
+  try {
+    if (KJB_IS_SIDE_PANEL &&
+        (/Edg\//i.test(navigator.userAgent) ||
+         (navigator.userAgentData && (navigator.userAgentData.brands || []).some(
+           function (b) { return /Microsoft Edge/i.test(b.brand); }
+         )))) {
+      document.documentElement.classList.add("kjb-edge-panel");
+    }
+  } catch (e) {}
   console.log("[KJB Sidebar] context:", KJB_IS_OVERLAY ? "OVERLAY (no presence)" : (KJB_IS_LOOKUP_WINDOW ? "LOOKUP WINDOW (no presence)" : "SIDE PANEL"));
 
   // ============================================================
@@ -2344,7 +2366,14 @@
     let terms = [];
 
     if (wildcard && (query.includes('?') || query.includes('*'))) {
-      const pattern = aposInsensitive(escapeRegexForWildcard(query)) + TRAILING_PUNCT;
+      // Match word must bind in wildcard mode too, exactly like the engine's
+      // buildWildcard(): without the boundary wrapper a whole-word wildcard
+      // search counted "love" from "lov?" but the highlight still painted the
+      // "love" inside "beloved" — search hit and highlight disagreed.
+      const ww = optWholeWord.checked
+        ? "(?<![A-Za-z'’Ææ-])(...)(?![A-Za-z'’Ææ-])"
+        : "(...)";
+      const pattern = ww.replace("(...)", aposInsensitive(escapeRegexForWildcard(query))) + TRAILING_PUNCT;
       try {
         const re = new RegExp(`(${pattern})`, optCaseSensitive.checked ? 'g' : 'gi');
         return highlightWithRegex(html, re);
@@ -2404,7 +2433,11 @@
   }
 
   function escapeRegexForWildcard(str) {
-    return str.replace(/[.*+^${}()|[\]\\]/g, (m) => {
+    // '?' must be IN the escape class for the wildcard branch to fire — it was
+    // missing, so a query like "lov?" built the regex "lov?" ("lo" + optional
+    // "v") and highlighted "lo" inside every word, instead of "lov." matching
+    // any three-letter "lov-" word. Mirrors the engine's buildWildcard().
+    return str.replace(/[.*+?^${}()|[\]\\]/g, (m) => {
       if (m === '?') return '.';
       if (m === '*') return '.*';
       return '\\' + m;
@@ -3151,7 +3184,10 @@
           <div class="preacher">
             <a href="#" class="info-link" data-url="https://godisgracious1031ministriescom.odoo.com/"><strong>God is Gracious 1031 Ministries</strong></a><br>
             <a href="#" class="info-link" data-url="https://youtube.com/@shawnr325av">YouTube</a> ·
-            <a href="#" class="info-link" data-url="https://rumble.com/@shawnr325av">Rumble</a> ·
+            <a href="#" class="info-link" data-url="https://rumble.com/user/Godisgracious1031">Rumble</a> ·
+            <a href="#" class="info-link" data-url="https://www.tiktok.com/@svdbyfaithinr325av">TikTok</a> ·
+            <a href="#" class="info-link" data-url="https://www.instagram.com/svdbyfaithinhisbloodr325av/">Instagram</a> ·
+            <a href="#" class="info-link" data-url="https://discord.com/users/faithinhisbloodr325av">Discord</a> ·
             <a href="#" class="info-link" data-url="https://linktr.ee/shawnr325av">Linktree</a>
           </div>
         </div>
