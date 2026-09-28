@@ -11,11 +11,6 @@ on:
         description: "Upload the macOS .pkg and iOS .ipa to App Store Connect"
         type: boolean
         default: false
-      build_number:
-        description: "Unique build number (blank = use the run number)"
-        required: false
-        default: ""
-
 jobs:
   build:
     runs-on: macos-15
