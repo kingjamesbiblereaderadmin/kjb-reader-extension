@@ -87,7 +87,7 @@ jobs:
           IOS_APP_PROF = "KJB Reader iOS App Store"
           IOS_EXT_PROF = "KJB Reader iOS Extension App Store"
           import json as _json
-          VER = _json.load(open("manifest.json"))["version"]
+          VER = "2." + os.environ["GITHUB_RUN_NUMBER"]
           def repl(m):
               block = m.group(0)
               bm = re.search(r'PRODUCT_BUNDLE_IDENTIFIER = \"?([^\";]+)\"?;', block)
@@ -247,7 +247,7 @@ jobs:
         if: env.HAS_SIGNING == 'true'
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          BUILD_NUM: ${{ github.event.inputs.build_number != '' && github.event.inputs.build_number || github.run_number }}
+          BUILD_NUM: ${{ github.run_number }}
         run: |
           set -eu
           PROJ="$PWD/$APP_NAME/$APP_NAME.xcodeproj"
@@ -285,7 +285,7 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-          BUILD_NUM: ${{ github.event.inputs.build_number != '' && github.event.inputs.build_number || github.run_number }}
+          BUILD_NUM: ${{ github.run_number }}
         run: |
           set -eu
           PROJ="$PWD/$APP_NAME/$APP_NAME.xcodeproj"
@@ -339,7 +339,7 @@ jobs:
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-          BUILD_NUM: ${{ github.event.inputs.build_number != '' && github.event.inputs.build_number || github.run_number }}
+          BUILD_NUM: ${{ github.run_number }}
         run: |
           set -eu
           VER=$(python3 -c "import json;print(json.load(open('manifest.json'))['version'])")
