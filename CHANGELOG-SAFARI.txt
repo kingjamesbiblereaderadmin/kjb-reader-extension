@@ -1,3 +1,7 @@
+WHAT'S NEW IN v0.4.282 (September 28, 2026)
+
+- Supplied words joined by an apostrophe or hyphen now share one set of italic brackets, matching the printed page: "he taketh [a] [man's] life" and "[Ben-hadad]" instead of split brackets like "[a] [man]'[s]" and "[Ben]-[hadad]". Copy and search treat the joined words the same way.
+
 WHAT'S NEW IN v0.4.281 (September 28, 2026)
 
 - Verse clicks open the reader on the first click again, the way v0.4.146 did. When the side panel cannot open or fails to answer a lookup, the in-page reader now steps in — but only after the side panel has been given a brief chance to acknowledge the verse, so nothing appears twice. Tabs are never mis-flagged by a failed panel open.
