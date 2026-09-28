@@ -2,7 +2,7 @@
 // reinjectContentScripts() in the background may inject this file into a tab
 // that already has it (after an extension update); without this guard the
 // top-level `const` declarations would throw "already declared".
-const KJB_CONTENT_VERSION = "0.4.273";
+const KJB_CONTENT_VERSION = "0.4.279";
 
 // A plain boolean guard here was a serious bug: after an extension update the
 // background re-injects this file into already-open tabs, and the boolean made
@@ -155,14 +155,24 @@ try {
     if (area !== "local" || !changes.kjbPanelHeartbeat) return;
     lastHeartbeat = changes.kjbPanelHeartbeat.newValue || 0;
     panelOpen = panelIsLive();
-    if (panelOpen && Date.now() - lastOverlayInjectTs < 3000) {
+    // The panel is live — an in-page overlay is by definition a duplicate
+    // surface. The old "only within 3s of injection" guard left overlays
+    // injected during a momentary heartbeat gap alive FOREVER, ghosting
+    // behind the docked panel (the Edge duplicate-panel report). While the
+    // real panel is open there is never a reason to keep one.
+    if (panelOpen && overlayExists()) {
       try { removeSidebarOverlay(); } catch (e) {}
     }
   });
 } catch (e) {}
 
 // Re-evaluate staleness so a closed panel is noticed even with no writes.
-setInterval(() => { panelOpen = panelIsLive(); }, 1000);
+setInterval(() => {
+  panelOpen = panelIsLive();
+  if (panelOpen && overlayExists()) {
+    try { removeSidebarOverlay(); } catch (e) {}
+  }
+}, 1000);
 refreshPanelState();
 // Re-check whenever this tab regains attention — the user may have opened the
 // side panel while another tab was focused.  Keeping panelOpen fresh BEFORE
@@ -331,11 +341,29 @@ function buildVerseRegex() {
 const VERSE_REGEX = buildVerseRegex();
 
 // --- Skip these elements ---
+// MUST cross shadow-DOM boundaries: modern editors (Discord's slate compose
+// box, Facebook/Instagram/TikTok comment and post boxes) hide their editable
+// surface inside a shadow root, and closest() stops at the shadow boundary —
+// the old check never saw that a text node lived inside a compose box, so the
+// scanner painted verse styling right inside the box the user was typing into
+// (glitchy rendering in React editors) and laid hit rectangles over the
+// message box. Ancestor-walk with getRootNode().host hops, same technique as
+// isEditablePoint()/isInteractiveTarget().
+const KJB_SKIP_SEL = 'SCRIPT, STYLE, NOSCRIPT, TEXTAREA, INPUT, BUTTON, KJB-LINK, .kjb-link, #kjb-sidebar-overlay, [contenteditable], [contenteditable=\"\"], [contenteditable=\"true\"]';
 function shouldSkipElement(el) {
-  if (!el || !el.closest) return true;
-  const skip = el.closest("SCRIPT, STYLE, NOSCRIPT, TEXTAREA, INPUT, BUTTON, KJB-LINK, .kjb-link, #kjb-sidebar-overlay, [contenteditable], [contenteditable=\"\"], [contenteditable=\"true\"]");
-  if (skip) return true;
+  if (!el) return true;
+  if (el.nodeType !== Node.ELEMENT_NODE) return true;
   if (el.classList && el.classList.contains("kjb-link")) return true;
+  let node = el;
+  let guard = 0;
+  while (node && guard++ < 128) {
+    if (node.nodeType !== Node.ELEMENT_NODE) return false;
+    if (node.isContentEditable) return true;
+    if (node.matches && node.matches(KJB_SKIP_SEL)) return true;
+    const root = node.getRootNode && node.getRootNode();
+    if (root && root.host) { node = root.host; continue; } // cross shadow DOM
+    node = node.parentElement;
+  }
   return false;
 }
 
@@ -391,6 +419,17 @@ function showStaleNotice() {
 
 let overlayAuthorizedUntil = 0;
 function injectSidebarOverlay(force) {
+  // EDGE OVERLAY BAN (2026-09-28): a recent Edge update makes the panel
+  // surface unreliable while chrome.sidePanel.open() rejects spuriously,
+  // and the overlay injected beside the open docked panel is the literal
+  // "duplicate panel" the user has fought on every version since v0.4.146.
+  // Edge is banned from the in-page overlay entirely — lookups there route
+  // to the docked panel or a popup lookup window (background.js isEdge).
+  // Firefox/Opera keep the overlay: it is their only side-panel substitute.
+  if (/Edg\//.test(navigator.userAgent)) {
+    console.log("[KJB Reader] Edge: in-page overlay banned");
+    return;
+  }
   if (!extensionAlive()) {
     console.log('[KJB Reader] orphaned content script — standing down instead of injecting');
     showStaleNotice();
@@ -1293,20 +1332,56 @@ function isInteractiveTarget(e) {
   // happens to be inside a container with tabindex/onclick/data-* (those
   // are ubiquitous on Facebook, React apps, Bootstrap sites, etc. and
   // would silently swallow every verse click).
-  // [contenteditable] is included so clicking into a compose box (Facebook
-  // Messenger, TikTok comments, etc.) always focuses it normally, even if a
-  // verse-highlight hit area happens to geometrically overlap that spot —
-  // otherwise mousedown's preventDefault below blocks focus entirely and
-  // the box becomes untypable.
-  const interactive = el.closest(
-    'button, select, input, textarea, summary, [role="button"], [role="combobox"], [role="listbox"], [role="menuitem"], [role="tab"], [contenteditable], [contenteditable="true"], [contenteditable=""]'
-  );
-  return !!interactive;
+  // [contenteditable] / isContentEditable is included so clicking into a
+  // compose box (Facebook Messenger, TikTok comments, etc.) always focuses
+  // it normally, even if a verse-highlight hit area happens to
+  // geometrically overlap that spot — otherwise mousedown's preventDefault
+  // below blocks focus entirely and the box becomes untypable.
+  // composedPath() is used instead of closest() because it crosses shadow
+  // DOM boundaries: some modern editors hide their editable surface behind
+  // a shadow root, and closest() stops at the shadow host, so the guard
+  // failed and the compose box became untypable after typing.
+  const INTERACTIVE_SEL =
+    'button, select, input, textarea, iframe, summary, [role="button"], ' +
+    '[role="combobox"], [role="listbox"], [role="menuitem"], [role="tab"], ' +
+    '[role="textbox"], [contenteditable], [contenteditable="true"], [contenteditable=""]';
+  const path = (typeof e.composedPath === "function") ? e.composedPath() : [el];
+  for (const node of path) {
+    if (!node || node.nodeType !== Node.ELEMENT_NODE) continue;
+    if (node.isContentEditable) return true;
+    if (node.matches && node.matches(INTERACTIVE_SEL)) return true;
+  }
+  return false;
+}
+
+// Point-based editable check. e.target can lie about what the user is
+// actually clicking (editor overlay layers, shadow DOM, pseudo-element
+// hit boxes), and after a page re-renders a stale verse-hit rect can sit
+// right over a compose box. This asks the document what is at the exact
+// coordinate and walks up — crossing shadow roots — looking for anything
+// editable. If the click point is editable, the verse handlers must never
+// intercept: focusing a comment box always wins.
+function isEditablePoint(x, y) {
+  let el = null;
+  try { el = document.elementFromPoint(x, y); } catch (_) {}
+  if (!el) return false;
+  if (document.designMode === "on") return true;
+  let guard = 0;
+  while (el && guard++ < 64) {
+    if (el.nodeType !== Node.ELEMENT_NODE) return false;
+    if (el.isContentEditable) return true;
+    if (el.tagName === "TEXTAREA" || el.tagName === "INPUT") return true;
+    const root = el.getRootNode && el.getRootNode();
+    if (root && root.host) { el = root.host; continue; } // cross shadow DOM
+    el = el.parentElement;
+  }
+  return false;
 }
 
 document.addEventListener("mousedown", (e) => {
   if (supportsKjbTextHighlights) {
     if (isInteractiveTarget(e)) return; // let buttons/dropdowns work
+    if (isEditablePoint(e.clientX, e.clientY)) return; // never block caret placement
     const entry = findKjbHit(e.clientX, e.clientY);
     kjbLastHitEntry = entry;
     if (entry) e.preventDefault(); // prevent text selection so click fires
@@ -1334,7 +1409,9 @@ document.addEventListener("touchstart", (e) => {
   kjbTouchStart = {
     x: touch.clientX,
     y: touch.clientY,
-    entry: findKjbHit(touch.clientX, touch.clientY)
+    entry: isEditablePoint(touch.clientX, touch.clientY)
+      ? null
+      : findKjbHit(touch.clientX, touch.clientY)
   };
 }, { passive: true, capture: true });
 
@@ -1372,7 +1449,10 @@ document.addEventListener("click", (e) => {
       e.stopPropagation();
       return;
     }
-    if (isInteractiveTarget(e)) { kjbLastHitEntry = null; return; }
+    if (isInteractiveTarget(e) || isEditablePoint(e.clientX, e.clientY)) {
+      kjbLastHitEntry = null;
+      return;
+    }
     // Use the entry from mousedown if still valid. Otherwise fresh check
     // using both geometric AND text-position detection. isConnected alone
     // isn't enough here — see isKjbEntryStillValid — a reused text node
@@ -1472,7 +1552,7 @@ chrome.runtime.onMessage.addListener((msg) => {
     // Self-healing, but ONLY for an overlay we injected in the last 1.5s.
     // Beyond that window the overlay is there deliberately (panel was shut)
     // and a late broadcast must not close it under the user.
-    if (panelOpen && Date.now() - lastOverlayInjectTs < 3000) {
+    if (panelOpen && overlayExists()) {
       try { removeSidebarOverlay(); } catch (e) {}
     }
     return;
@@ -1484,8 +1564,14 @@ chrome.runtime.onMessage.addListener((msg) => {
     // The background may ask for an overlay after chrome.sidePanel.open()
     // rejected — but that call rejects on some sites even while the panel is
     // visible. If the panel is beating, ignore the request.
-    if (!msg.force && panelIsLive()) {
-      console.log('[KJB Reader] KJB_INJECT_OVERLAY ignored — panel is live');
+    if (panelIsLive()) {
+      // Even force must bow to a live panel. force=true was meant for PWA
+      // tabs where no docked panel exists — but on Edge a toolbar click can
+      // mark a tab standalone and force an overlay WHILE the docked panel
+      // is open, creating the literal duplicate panel under the sidebar.
+      // A live panel always wins; the verse reaches it via the
+      // KJB_SIDEBAR_LOOKUP push that runs before this fallback.
+      console.log('[KJB Reader] KJB_INJECT_OVERLAY ignored (forced) — panel is live');
       return;
     }
     // If the overlay was just injected (within 2s), don't destroy and

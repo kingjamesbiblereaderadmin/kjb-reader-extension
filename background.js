@@ -6,6 +6,13 @@
 const isFirefox = typeof browser !== "undefined" && typeof browser.sidebarAction !== "undefined";
 const hasChromeSidePanel = !isFirefox && typeof chrome !== "undefined" && typeof chrome.sidePanel !== "undefined" && !!chrome.sidePanel.setPanelBehavior;
 const isOpera = !isFirefox && !hasChromeSidePanel;
+// EDGE OVERLAY BAN (2026-09-28): an Edge update made chrome.sidePanel.open()
+// reject even while the docked panel is open. The overlay fallback then got
+// injected INTO THE PAGE right beside the open panel — the literal duplicate
+// panel the user has been fighting, reproduced on every version back to
+// v0.4.146 (it is Edge's behavior change, not our regression). Chrome's
+// sidePanel.open() keeps behaving, so only Edge bans the in-page overlay.
+const isEdge = /Edg\//.test((navigator && navigator.userAgent) || "");
 const api = isFirefox ? browser : chrome;
 
 // Track which tabs are in PWA/standalone mode (side panel unavailable)
@@ -185,11 +192,22 @@ if (isFirefox) {
     }
     // Side panel couldn't open (onClicked wouldn't fire if it could).
     // Try once more in case it's recoverable; otherwise fall back to overlay.
+    // EDGE QUIRK: sidePanel.open() can reject even while the docked panel is
+    // visible. Marking the tab standalone then force-injecting an overlay
+    // next to the open panel is the literal duplicate-panel bug — so trust
+    // the panel's own heartbeat first, exactly like openLookup does.
     chrome.sidePanel.open({ tabId: tab.id }).then(() => {
       setSidePanelOpen(true);
     }).catch(() => {
-      standaloneTabs.add(tab.id);
-      openFallbackSurface(null, tab.id, true);
+      chrome.storage.local.get(["kjbPanelHeartbeat"], (d) => {
+        const hb = (d && d.kjbPanelHeartbeat) || 0;
+        if (Date.now() - hb < 6500) {
+          console.log("[KJB Background] toolbar click: sidePanel.open rejected but panel is live — no overlay");
+          return;
+        }
+        standaloneTabs.add(tab.id);
+        openFallbackSurface(null, tab.id, true);
+      });
     });
   });
 }
@@ -242,10 +260,36 @@ function claimSurface(kind) {
   return true;
 }
 
-function openFallbackSurface(text, tabId, standaloneHint) {
+async function openFallbackSurface(text, tabId, standaloneHint) {
   // The hint matters: a restarted service worker loses standaloneTabs, and
   // without it a PWA/mobile tab would wrongly get a popup window.
-  if (tabId !== null && (standaloneHint || standaloneTabs.has(tabId))) {
+  // On Edge the in-page overlay is BANNED entirely (see isEdge comment): if
+  // the heartbeat shows the panel is live, silently route there; otherwise
+  // fall through to the popup lookup window, which can never duplicate the
+  // docked panel inside the page.
+  if (isEdge) {
+    try {
+      const hbData = await chrome.storage.local.get(["kjbPanelHeartbeat"]);
+      const hb = (hbData && hbData.kjbPanelHeartbeat) || 0;
+      if (Date.now() - hb < 6500) {
+        console.log("[KJB Background] Edge: panel is live — routing to panel, no surface");
+        return;
+      }
+    } catch (_) {}
+    console.log("[KJB Background] Edge: overlay banned — popup lookup window instead");
+  } else if (tabId !== null && (standaloneHint || standaloneTabs.has(tabId))) {
+    // If the docked panel is alive it always wins over an overlay — even on
+    // a tab previously marked standalone (Edge mis-marks tabs when
+    // sidePanel.open rejects spuriously). The verse has already been pushed
+    // to the panel via KJB_SIDEBAR_LOOKUP in openLookup.
+    try {
+      const hbData = await chrome.storage.local.get(["kjbPanelHeartbeat"]);
+      const hb = (hbData && hbData.kjbPanelHeartbeat) || 0;
+      if (Date.now() - hb < 6500) {
+        console.log("[KJB Background] standalone tab but panel is live — routing to panel, no overlay");
+        return;
+      }
+    } catch (_) {}
     if (!claimSurface("overlay")) return;
     // Never leave a popup window from an earlier lookup sitting alongside the
     // overlay — that pairing is exactly what the user was seeing.
@@ -507,6 +551,13 @@ api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     setSidePanelOpen(true);
     sidePanelOpen = true;
     broadcastPanelStatus(true);
+    // A leftover popup lookup window sitting behind the docked panel reads
+    // as a literal duplicate panel — with the panel alive it is redundant.
+    if (lookupWindowId !== null) {
+      const stale = lookupWindowId;
+      lookupWindowId = null;
+      chrome.windows.remove(stale).catch(() => {});
+    }
     sendResponse({ ok: true });
     return;
   }

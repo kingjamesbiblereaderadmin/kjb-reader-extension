@@ -111,6 +111,13 @@ body {
   text-overflow: ellipsis;
 }
 
+/* 2026-09-28: the Edge-only header hiding (logo + title) was REMOVED at
+   the user's request — the branding header with logo and the
+   "KJB Reader - SidePanel" title text must show on every browser, Edge
+   included, exactly like Chrome. .kjb-edge-panel stays defined because
+   prepaint.js/sidebar.js still tag the document for any future
+   Edge-specific needs. */
+
 /* Zoom must ADD size, never take features away. An earlier build responded to
    A+ by hiding the logo, the % readout and the website button — pressing
    "bigger" made the header smaller, which is backwards.
@@ -1097,6 +1104,14 @@ html.kjb-short-pre .content-area {
 .empty-state .hint {
   font-size: 12px;
   opacity: 0.8;
+}
+
+/* The report-line email must NOT render in the default browser link blue —
+   unreadably low-contrast against the panel background. Keep it clearly a
+   link via underline, but inherit the surrounding text color. */
+.empty-state .hint a {
+  color: inherit;
+  text-decoration: underline;
 }
 
 /* Loading */

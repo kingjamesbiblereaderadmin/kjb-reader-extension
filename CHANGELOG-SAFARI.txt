@@ -1,3 +1,17 @@
+WHAT'S NEW IN v0.4.277 (September 27, 2026)
+
+- Wildcard search highlighting now follows the Match word option: with Match word on, a wildcard pattern like "lov?" only highlights whole words, exactly matching the results list.
+- Fixed the sidebar highlight treating "?" as "optional previous character" instead of a wildcard "any single character" (e.g. "lov?" highlighted "lo" inside every word).
+- Fixed a rare conflict where clicking back into a comment or post compose box on some sites (Facebook, TikTok and other editors that render behind shadow DOM) failed to focus the box and typing couldn't be resumed: verse-link hit detection now always yields to editable areas.
+
+WHAT'S NEW IN v0.4.275 (September 27, 2026)
+
+- On Microsoft Edge, the side panel no longer shows the extension name twice: Edge's own native header already displays the name, so the panel's duplicate title text is now hidden (the logo and controls remain).
+
+WHAT'S NEW IN v0.4.274 (September 27, 2026)
+
+- Personal Ministry Links in the Resources tab now include TikTok, Instagram and Discord, and the Rumble link points to rumble.com/user/Godisgracious1031.
+
 WHAT'S NEW IN v0.4.273 (September 25, 2026)
 
 - Punctuation attached to an italicized (bracketed) word now sits inside the brackets on screen and when copying, e.g. "thou [art,] and unto dust". The PCE already prints ":" and ";" inside the brackets; commas and periods now follow the same rule.

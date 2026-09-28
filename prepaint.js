@@ -16,6 +16,31 @@
       document.documentElement.classList.add("kjb-has-lookup");
     }
 
+    // Edge's native side panel frame already renders its own header with the
+    // extension's icon, "KJB Reader - SidePanel" title text and a close (X)
+    // button — the exact same branding our own in-page header repeats right
+    // below it, so the panel visibly says its own name twice. Chrome's side
+    // panel chrome is a minimal source dropdown (no title text) and Firefox's
+    // sidebar picker only names the extension in its own dropdown, so neither
+    // duplicates like this; this is Edge-specific. Only the true docked side
+    // panel is affected — the in-page overlay iframe and the popup lookup
+    // window embed this same file but have no native title bar of their own.
+    // The URL is the ONLY surface test needed: content.js tags the in-page
+    // overlay with ?ctx=overlay and the popup lookup window with ?win=1.
+    // NEVER add window !== window.top to this test — Edge hosts its docked
+    // side panel inside an internal frame, so on Edge the REAL panel IS an
+    // iframe, and that test misclassified it as an overlay, leaving the
+    // duplicate title under Edge's native header.
+    var isOverlay = params.get("ctx") === "overlay";
+    var isLookupWindow = /[?&]win=1/.test(location.search);
+    var isEdge = /Edg\//i.test(navigator.userAgent) ||
+      !!(navigator.userAgentData && (navigator.userAgentData.brands || []).some(
+        function (b) { return /Microsoft Edge/i.test(b.brand); }
+      ));
+    if (isEdge && !isOverlay && !isLookupWindow) {
+      document.documentElement.classList.add("kjb-edge-panel");
+    }
+
     var raw = parseFloat(localStorage.getItem("kjbUiScale"));
     var scale = (!raw || raw < 0.75 || raw > 1.5) ? 1 : raw;
 
