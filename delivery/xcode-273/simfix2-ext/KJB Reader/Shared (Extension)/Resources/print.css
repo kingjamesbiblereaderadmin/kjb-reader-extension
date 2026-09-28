@@ -1,0 +1,54 @@
+/* Print page chrome. The scripture styling itself travels with the payload
+   (each print document carries its own <style>), so this file only styles the
+   toolbar and page shell — and removes both when actually printing. */
+body {
+  margin: 0;
+  background: #fff;
+  color: #111;
+  font-family: Georgia, "Times New Roman", serif;
+}
+
+.kjb-print-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  background: #f6f6f4;
+  border-bottom: 1px solid #ddd;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.kjb-print-bar button {
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  padding: 10px 18px;
+  min-height: 44px;            /* comfortable touch target on phones */
+  border: 1px solid #8a7a5c;
+  border-radius: 6px;
+  background: #8a7a5c;
+  color: #fff;
+  cursor: pointer;
+}
+
+.kjb-print-bar button:hover { background: #766a50; }
+.kjb-print-bar button:active { transform: translateY(1px); }
+
+.kjb-print-hint {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #555;
+  max-width: 46ch;
+}
+
+.kjb-print-content { padding: 18px 0 40px; }
+
+@media print {
+  .kjb-print-bar { display: none !important; }
+  .kjb-print-content { padding: 0; }
+  body { background: #fff; }
+}

@@ -1,0 +1,1077 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		43D98C1C30667A300063AA97 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D98C1B30667A300063AA97 /* AppDelegate.swift */; };
+		43D98C1E30667A300063AA97 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D98C1D30667A300063AA97 /* SceneDelegate.swift */; };
+		43D98C2130667A300063AA97 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C1F30667A300063AA97 /* LaunchScreen.storyboard */; };
+		43D98C2430667A300063AA97 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C2230667A300063AA97 /* Main.storyboard */; };
+		43D98C2D30667A300063AA97 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D98C2C30667A300063AA97 /* AppDelegate.swift */; };
+		43D98C3030667A300063AA97 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C2E30667A300063AA97 /* Main.storyboard */; };
+		43D98C3730667A300063AA97 /* KJB Reader Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 43D98C3630667A300063AA97 /* KJB Reader Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		43D98C4130667A300063AA97 /* KJB Reader Extension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 43D98C4030667A300063AA97 /* KJB Reader Extension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		43D98C4630667A300063AA97 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C0B30667A2B0063AA97 /* Main.html */; };
+		43D98C4730667A300063AA97 /* Main.html in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C0B30667A2B0063AA97 /* Main.html */; };
+		43D98C4830667A300063AA97 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C0D30667A2B0063AA97 /* Icon.png */; };
+		43D98C4930667A300063AA97 /* Icon.png in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C0D30667A2B0063AA97 /* Icon.png */; };
+		43D98C4A30667A300063AA97 /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C0E30667A2B0063AA97 /* Style.css */; };
+		43D98C4B30667A300063AA97 /* Style.css in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C0E30667A2B0063AA97 /* Style.css */; };
+		43D98C4C30667A300063AA97 /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C0F30667A2B0063AA97 /* Script.js */; };
+		43D98C4D30667A300063AA97 /* Script.js in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C0F30667A2B0063AA97 /* Script.js */; };
+		43D98C4E30667A300063AA97 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D98C1030667A2B0063AA97 /* ViewController.swift */; };
+		43D98C4F30667A300063AA97 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D98C1030667A2B0063AA97 /* ViewController.swift */; };
+		43D98C5030667A300063AA97 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C1130667A300063AA97 /* Assets.xcassets */; };
+		43D98C5130667A300063AA97 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C1130667A300063AA97 /* Assets.xcassets */; };
+		43D98C5230667A300063AA97 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D98C1330667A300063AA97 /* SafariWebExtensionHandler.swift */; };
+		43D98C5330667A300063AA97 /* SafariWebExtensionHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43D98C1330667A300063AA97 /* SafariWebExtensionHandler.swift */; };
+		43D98C7630667A310063AA97 /* kjb-local.js in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C6530667A310063AA97 /* kjb-local.js */; };
+		43D98C7730667A310063AA97 /* content.css in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C6630667A310063AA97 /* content.css */; };
+		43D98C7830667A310063AA97 /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C6730667A310063AA97 /* background.js */; };
+		43D98C7930667A310063AA97 /* sidebar.js in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C6830667A310063AA97 /* sidebar.js */; };
+		43D98C7A30667A310063AA97 /* print.html in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C6930667A310063AA97 /* print.html */; };
+		43D98C7B30667A310063AA97 /* prepaint.js in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C6A30667A310063AA97 /* prepaint.js */; };
+		43D98C7C30667A310063AA97 /* toolbar.html in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C6B30667A310063AA97 /* toolbar.html */; };
+		43D98C7D30667A310063AA97 /* icons in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C6C30667A310063AA97 /* icons */; };
+		43D98C7E30667A310063AA97 /* sidebar.css in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C6D30667A310063AA97 /* sidebar.css */; };
+		43D98C7F30667A310063AA97 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C6E30667A310063AA97 /* manifest.json */; };
+		43D98C8030667A310063AA97 /* print.css in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C6F30667A310063AA97 /* print.css */; };
+		43D98C8130667A310063AA97 /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C7030667A310063AA97 /* _locales */; };
+		43D98C8230667A310063AA97 /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C7130667A310063AA97 /* content.js */; };
+		43D98C8330667A310063AA97 /* api.js in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C7230667A310063AA97 /* api.js */; };
+		43D98C8430667A310063AA97 /* kjb-pce.txt in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C7330667A310063AA97 /* kjb-pce.txt */; };
+		43D98C8530667A310063AA97 /* sidebar.html in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C7430667A310063AA97 /* sidebar.html */; };
+		43D98C8630667A310063AA97 /* print.js in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C7530667A310063AA97 /* print.js */; };
+		43D98C8730667A310063AA97 /* kjb-local.js in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C6530667A310063AA97 /* kjb-local.js */; };
+		43D98C8830667A310063AA97 /* content.css in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C6630667A310063AA97 /* content.css */; };
+		43D98C8930667A310063AA97 /* background.js in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C6730667A310063AA97 /* background.js */; };
+		43D98C8A30667A310063AA97 /* sidebar.js in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C6830667A310063AA97 /* sidebar.js */; };
+		43D98C8B30667A310063AA97 /* print.html in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C6930667A310063AA97 /* print.html */; };
+		43D98C8C30667A310063AA97 /* prepaint.js in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C6A30667A310063AA97 /* prepaint.js */; };
+		43D98C8D30667A310063AA97 /* toolbar.html in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C6B30667A310063AA97 /* toolbar.html */; };
+		43D98C8E30667A310063AA97 /* icons in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C6C30667A310063AA97 /* icons */; };
+		43D98C8F30667A310063AA97 /* sidebar.css in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C6D30667A310063AA97 /* sidebar.css */; };
+		43D98C9030667A310063AA97 /* manifest.json in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C6E30667A310063AA97 /* manifest.json */; };
+		43D98C9130667A310063AA97 /* print.css in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C6F30667A310063AA97 /* print.css */; };
+		43D98C9230667A310063AA97 /* _locales in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C7030667A310063AA97 /* _locales */; };
+		43D98C9330667A310063AA97 /* content.js in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C7130667A310063AA97 /* content.js */; };
+		43D98C9430667A310063AA97 /* api.js in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C7230667A310063AA97 /* api.js */; };
+		43D98C9530667A310063AA97 /* kjb-pce.txt in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C7330667A310063AA97 /* kjb-pce.txt */; };
+		43D98C9630667A310063AA97 /* sidebar.html in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C7430667A310063AA97 /* sidebar.html */; };
+		43D98C9730667A310063AA97 /* print.js in Resources */ = {isa = PBXBuildFile; fileRef = 43D98C7530667A310063AA97 /* print.js */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		43D98C3830667A300063AA97 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 43D98C0530667A290063AA97 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 43D98C3530667A300063AA97;
+			remoteInfo = "KJB Reader Extension (iOS)";
+		};
+		43D98C4230667A300063AA97 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 43D98C0530667A290063AA97 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 43D98C3F30667A300063AA97;
+			remoteInfo = "KJB Reader Extension (macOS)";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		43D98C5930667A300063AA97 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				43D98C3730667A300063AA97 /* KJB Reader Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		43D98C6030667A300063AA97 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				43D98C4130667A300063AA97 /* KJB Reader Extension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		43D98C0C30667A2B0063AA97 /* Base */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = Base; path = Base.lproj/Main.html; sourceTree = "<group>"; };
+		43D98C0D30667A2B0063AA97 /* Icon.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = Icon.png; sourceTree = "<group>"; };
+		43D98C0E30667A2B0063AA97 /* Style.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; path = Style.css; sourceTree = "<group>"; };
+		43D98C0F30667A2B0063AA97 /* Script.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; path = Script.js; sourceTree = "<group>"; };
+		43D98C1030667A2B0063AA97 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		43D98C1130667A300063AA97 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		43D98C1330667A300063AA97 /* SafariWebExtensionHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SafariWebExtensionHandler.swift; sourceTree = "<group>"; };
+		43D98C1830667A300063AA97 /* KJB Reader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "KJB Reader.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		43D98C1B30667A300063AA97 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		43D98C1D30667A300063AA97 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
+		43D98C2030667A300063AA97 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		43D98C2330667A300063AA97 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		43D98C2530667A300063AA97 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		43D98C2A30667A300063AA97 /* KJB Reader.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "KJB Reader.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		43D98C2C30667A300063AA97 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		43D98C2F30667A300063AA97 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		43D98C3130667A300063AA97 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		43D98C3630667A300063AA97 /* KJB Reader Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "KJB Reader Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		43D98C3B30667A300063AA97 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		43D98C4030667A300063AA97 /* KJB Reader Extension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = "KJB Reader Extension.appex"; sourceTree = BUILT_PRODUCTS_DIR; };
+		43D98C4530667A300063AA97 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		43D98C6530667A310063AA97 /* kjb-local.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = "kjb-local.js"; path = "Resources/kjb-local.js"; sourceTree = "<group>"; };
+		43D98C6630667A310063AA97 /* content.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = content.css; path = Resources/content.css; sourceTree = "<group>"; };
+		43D98C6730667A310063AA97 /* background.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = background.js; path = Resources/background.js; sourceTree = "<group>"; };
+		43D98C6830667A310063AA97 /* sidebar.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = sidebar.js; path = Resources/sidebar.js; sourceTree = "<group>"; };
+		43D98C6930667A310063AA97 /* print.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = print.html; path = Resources/print.html; sourceTree = "<group>"; };
+		43D98C6A30667A310063AA97 /* prepaint.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = prepaint.js; path = Resources/prepaint.js; sourceTree = "<group>"; };
+		43D98C6B30667A310063AA97 /* toolbar.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = toolbar.html; path = Resources/toolbar.html; sourceTree = "<group>"; };
+		43D98C6C30667A310063AA97 /* icons */ = {isa = PBXFileReference; lastKnownFileType = folder; name = icons; path = Resources/icons; sourceTree = "<group>"; };
+		43D98C6D30667A310063AA97 /* sidebar.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = sidebar.css; path = Resources/sidebar.css; sourceTree = "<group>"; };
+		43D98C6E30667A310063AA97 /* manifest.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; name = manifest.json; path = Resources/manifest.json; sourceTree = "<group>"; };
+		43D98C6F30667A310063AA97 /* print.css */ = {isa = PBXFileReference; lastKnownFileType = text.css; name = print.css; path = Resources/print.css; sourceTree = "<group>"; };
+		43D98C7030667A310063AA97 /* _locales */ = {isa = PBXFileReference; lastKnownFileType = folder; name = _locales; path = Resources/_locales; sourceTree = "<group>"; };
+		43D98C7130667A310063AA97 /* content.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = content.js; path = Resources/content.js; sourceTree = "<group>"; };
+		43D98C7230667A310063AA97 /* api.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = api.js; path = Resources/api.js; sourceTree = "<group>"; };
+		43D98C7330667A310063AA97 /* kjb-pce.txt */ = {isa = PBXFileReference; lastKnownFileType = text; name = "kjb-pce.txt"; path = "Resources/kjb-pce.txt"; sourceTree = "<group>"; };
+		43D98C7430667A310063AA97 /* sidebar.html */ = {isa = PBXFileReference; lastKnownFileType = text.html; name = sidebar.html; path = Resources/sidebar.html; sourceTree = "<group>"; };
+		43D98C7530667A310063AA97 /* print.js */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.javascript; name = print.js; path = Resources/print.js; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		43D98C1530667A300063AA97 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		43D98C2730667A300063AA97 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		43D98C3330667A300063AA97 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		43D98C3D30667A300063AA97 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		43D98C0430667A290063AA97 = {
+			isa = PBXGroup;
+			children = (
+				43D98C0930667A2A0063AA97 /* Shared (App) */,
+				43D98C1230667A300063AA97 /* Shared (Extension) */,
+				43D98C1A30667A300063AA97 /* iOS (App) */,
+				43D98C2B30667A300063AA97 /* macOS (App) */,
+				43D98C3A30667A300063AA97 /* iOS (Extension) */,
+				43D98C4430667A300063AA97 /* macOS (Extension) */,
+				43D98C1930667A300063AA97 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		43D98C0930667A2A0063AA97 /* Shared (App) */ = {
+			isa = PBXGroup;
+			children = (
+				43D98C1030667A2B0063AA97 /* ViewController.swift */,
+				43D98C1130667A300063AA97 /* Assets.xcassets */,
+				43D98C0A30667A2A0063AA97 /* Resources */,
+			);
+			path = "Shared (App)";
+			sourceTree = "<group>";
+		};
+		43D98C0A30667A2A0063AA97 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				43D98C0B30667A2B0063AA97 /* Main.html */,
+				43D98C0D30667A2B0063AA97 /* Icon.png */,
+				43D98C0E30667A2B0063AA97 /* Style.css */,
+				43D98C0F30667A2B0063AA97 /* Script.js */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		43D98C1230667A300063AA97 /* Shared (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				43D98C6430667A310063AA97 /* Resources */,
+				43D98C1330667A300063AA97 /* SafariWebExtensionHandler.swift */,
+			);
+			path = "Shared (Extension)";
+			sourceTree = "<group>";
+		};
+		43D98C1930667A300063AA97 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				43D98C1830667A300063AA97 /* KJB Reader.app */,
+				43D98C2A30667A300063AA97 /* KJB Reader.app */,
+				43D98C3630667A300063AA97 /* KJB Reader Extension.appex */,
+				43D98C4030667A300063AA97 /* KJB Reader Extension.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		43D98C1A30667A300063AA97 /* iOS (App) */ = {
+			isa = PBXGroup;
+			children = (
+				43D98C1B30667A300063AA97 /* AppDelegate.swift */,
+				43D98C1D30667A300063AA97 /* SceneDelegate.swift */,
+				43D98C1F30667A300063AA97 /* LaunchScreen.storyboard */,
+				43D98C2230667A300063AA97 /* Main.storyboard */,
+				43D98C2530667A300063AA97 /* Info.plist */,
+			);
+			path = "iOS (App)";
+			sourceTree = "<group>";
+		};
+		43D98C2B30667A300063AA97 /* macOS (App) */ = {
+			isa = PBXGroup;
+			children = (
+				43D98C2C30667A300063AA97 /* AppDelegate.swift */,
+				43D98C2E30667A300063AA97 /* Main.storyboard */,
+				43D98C3130667A300063AA97 /* Info.plist */,
+			);
+			path = "macOS (App)";
+			sourceTree = "<group>";
+		};
+		43D98C3A30667A300063AA97 /* iOS (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				43D98C3B30667A300063AA97 /* Info.plist */,
+			);
+			path = "iOS (Extension)";
+			sourceTree = "<group>";
+		};
+		43D98C4430667A300063AA97 /* macOS (Extension) */ = {
+			isa = PBXGroup;
+			children = (
+				43D98C4530667A300063AA97 /* Info.plist */,
+			);
+			path = "macOS (Extension)";
+			sourceTree = "<group>";
+		};
+		43D98C6430667A310063AA97 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				43D98C6530667A310063AA97 /* kjb-local.js */,
+				43D98C6630667A310063AA97 /* content.css */,
+				43D98C6730667A310063AA97 /* background.js */,
+				43D98C6830667A310063AA97 /* sidebar.js */,
+				43D98C6930667A310063AA97 /* print.html */,
+				43D98C6A30667A310063AA97 /* prepaint.js */,
+				43D98C6B30667A310063AA97 /* toolbar.html */,
+				43D98C6C30667A310063AA97 /* icons */,
+				43D98C6D30667A310063AA97 /* sidebar.css */,
+				43D98C6E30667A310063AA97 /* manifest.json */,
+				43D98C6F30667A310063AA97 /* print.css */,
+				43D98C7030667A310063AA97 /* _locales */,
+				43D98C7130667A310063AA97 /* content.js */,
+				43D98C7230667A310063AA97 /* api.js */,
+				43D98C7330667A310063AA97 /* kjb-pce.txt */,
+				43D98C7430667A310063AA97 /* sidebar.html */,
+				43D98C7530667A310063AA97 /* print.js */,
+			);
+			name = Resources;
+			path = "Shared (Extension)";
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		43D98C1730667A300063AA97 /* KJB Reader (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 43D98C5A30667A300063AA97 /* Build configuration list for PBXNativeTarget "KJB Reader (iOS)" */;
+			buildPhases = (
+				43D98C1430667A300063AA97 /* Sources */,
+				43D98C1530667A300063AA97 /* Frameworks */,
+				43D98C1630667A300063AA97 /* Resources */,
+				43D98C5930667A300063AA97 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				43D98C3930667A300063AA97 /* PBXTargetDependency */,
+			);
+			name = "KJB Reader (iOS)";
+			packageProductDependencies = (
+			);
+			productName = "KJB Reader (iOS)";
+			productReference = 43D98C1830667A300063AA97 /* KJB Reader.app */;
+			productType = "com.apple.product-type.application";
+		};
+		43D98C2930667A300063AA97 /* KJB Reader (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 43D98C6130667A300063AA97 /* Build configuration list for PBXNativeTarget "KJB Reader (macOS)" */;
+			buildPhases = (
+				43D98C2630667A300063AA97 /* Sources */,
+				43D98C2730667A300063AA97 /* Frameworks */,
+				43D98C2830667A300063AA97 /* Resources */,
+				43D98C6030667A300063AA97 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				43D98C4330667A300063AA97 /* PBXTargetDependency */,
+			);
+			name = "KJB Reader (macOS)";
+			packageProductDependencies = (
+			);
+			productName = "KJB Reader (macOS)";
+			productReference = 43D98C2A30667A300063AA97 /* KJB Reader.app */;
+			productType = "com.apple.product-type.application";
+		};
+		43D98C3530667A300063AA97 /* KJB Reader Extension (iOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 43D98C5630667A300063AA97 /* Build configuration list for PBXNativeTarget "KJB Reader Extension (iOS)" */;
+			buildPhases = (
+				43D98C3230667A300063AA97 /* Sources */,
+				43D98C3330667A300063AA97 /* Frameworks */,
+				43D98C3430667A300063AA97 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "KJB Reader Extension (iOS)";
+			packageProductDependencies = (
+			);
+			productName = "KJB Reader Extension (iOS)";
+			productReference = 43D98C3630667A300063AA97 /* KJB Reader Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		43D98C3F30667A300063AA97 /* KJB Reader Extension (macOS) */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 43D98C5D30667A300063AA97 /* Build configuration list for PBXNativeTarget "KJB Reader Extension (macOS)" */;
+			buildPhases = (
+				43D98C3C30667A300063AA97 /* Sources */,
+				43D98C3D30667A300063AA97 /* Frameworks */,
+				43D98C3E30667A300063AA97 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "KJB Reader Extension (macOS)";
+			packageProductDependencies = (
+			);
+			productName = "KJB Reader Extension (macOS)";
+			productReference = 43D98C4030667A300063AA97 /* KJB Reader Extension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		43D98C0530667A290063AA97 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 2600;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					43D98C1730667A300063AA97 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+					43D98C2930667A300063AA97 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+					43D98C3530667A300063AA97 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+					43D98C3F30667A300063AA97 = {
+						CreatedOnToolsVersion = 26.0.1;
+					};
+				};
+			};
+			buildConfigurationList = 43D98C0830667A290063AA97 /* Build configuration list for PBXProject "KJB Reader" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 43D98C0430667A290063AA97;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 43D98C1930667A300063AA97 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				43D98C1730667A300063AA97 /* KJB Reader (iOS) */,
+				43D98C2930667A300063AA97 /* KJB Reader (macOS) */,
+				43D98C3530667A300063AA97 /* KJB Reader Extension (iOS) */,
+				43D98C3F30667A300063AA97 /* KJB Reader Extension (macOS) */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		43D98C1630667A300063AA97 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				43D98C4830667A300063AA97 /* Icon.png in Resources */,
+				43D98C2130667A300063AA97 /* LaunchScreen.storyboard in Resources */,
+				43D98C4630667A300063AA97 /* Main.html in Resources */,
+				43D98C4C30667A300063AA97 /* Script.js in Resources */,
+				43D98C5030667A300063AA97 /* Assets.xcassets in Resources */,
+				43D98C2430667A300063AA97 /* Main.storyboard in Resources */,
+				43D98C4A30667A300063AA97 /* Style.css in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		43D98C2830667A300063AA97 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				43D98C4930667A300063AA97 /* Icon.png in Resources */,
+				43D98C4B30667A300063AA97 /* Style.css in Resources */,
+				43D98C3030667A300063AA97 /* Main.storyboard in Resources */,
+				43D98C4D30667A300063AA97 /* Script.js in Resources */,
+				43D98C5130667A300063AA97 /* Assets.xcassets in Resources */,
+				43D98C4730667A300063AA97 /* Main.html in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		43D98C3430667A300063AA97 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				43D98C8730667A310063AA97 /* kjb-local.js in Resources */,
+				43D98C8E30667A310063AA97 /* icons in Resources */,
+				43D98C9030667A310063AA97 /* manifest.json in Resources */,
+				43D98C8930667A310063AA97 /* background.js in Resources */,
+				43D98C9330667A310063AA97 /* content.js in Resources */,
+				43D98C9530667A310063AA97 /* kjb-pce.txt in Resources */,
+				43D98C8B30667A310063AA97 /* print.html in Resources */,
+				43D98C8F30667A310063AA97 /* sidebar.css in Resources */,
+				43D98C9230667A310063AA97 /* _locales in Resources */,
+				43D98C9730667A310063AA97 /* print.js in Resources */,
+				43D98C9630667A310063AA97 /* sidebar.html in Resources */,
+				43D98C9130667A310063AA97 /* print.css in Resources */,
+				43D98C9430667A310063AA97 /* api.js in Resources */,
+				43D98C8C30667A310063AA97 /* prepaint.js in Resources */,
+				43D98C8D30667A310063AA97 /* toolbar.html in Resources */,
+				43D98C8830667A310063AA97 /* content.css in Resources */,
+				43D98C8A30667A310063AA97 /* sidebar.js in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		43D98C3E30667A300063AA97 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				43D98C7630667A310063AA97 /* kjb-local.js in Resources */,
+				43D98C7D30667A310063AA97 /* icons in Resources */,
+				43D98C7F30667A310063AA97 /* manifest.json in Resources */,
+				43D98C7830667A310063AA97 /* background.js in Resources */,
+				43D98C8230667A310063AA97 /* content.js in Resources */,
+				43D98C8430667A310063AA97 /* kjb-pce.txt in Resources */,
+				43D98C7A30667A310063AA97 /* print.html in Resources */,
+				43D98C7E30667A310063AA97 /* sidebar.css in Resources */,
+				43D98C8130667A310063AA97 /* _locales in Resources */,
+				43D98C8630667A310063AA97 /* print.js in Resources */,
+				43D98C8530667A310063AA97 /* sidebar.html in Resources */,
+				43D98C8030667A310063AA97 /* print.css in Resources */,
+				43D98C8330667A310063AA97 /* api.js in Resources */,
+				43D98C7B30667A310063AA97 /* prepaint.js in Resources */,
+				43D98C7C30667A310063AA97 /* toolbar.html in Resources */,
+				43D98C7730667A310063AA97 /* content.css in Resources */,
+				43D98C7930667A310063AA97 /* sidebar.js in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		43D98C1430667A300063AA97 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				43D98C4E30667A300063AA97 /* ViewController.swift in Sources */,
+				43D98C1C30667A300063AA97 /* AppDelegate.swift in Sources */,
+				43D98C1E30667A300063AA97 /* SceneDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		43D98C2630667A300063AA97 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				43D98C4F30667A300063AA97 /* ViewController.swift in Sources */,
+				43D98C2D30667A300063AA97 /* AppDelegate.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		43D98C3230667A300063AA97 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				43D98C5230667A300063AA97 /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		43D98C3C30667A300063AA97 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				43D98C5330667A300063AA97 /* SafariWebExtensionHandler.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		43D98C3930667A300063AA97 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 43D98C3530667A300063AA97 /* KJB Reader Extension (iOS) */;
+			targetProxy = 43D98C3830667A300063AA97 /* PBXContainerItemProxy */;
+		};
+		43D98C4330667A300063AA97 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 43D98C3F30667A300063AA97 /* KJB Reader Extension (macOS) */;
+			targetProxy = 43D98C4230667A300063AA97 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		43D98C0B30667A2B0063AA97 /* Main.html */ = {
+			isa = PBXVariantGroup;
+			children = (
+				43D98C0C30667A2B0063AA97 /* Base */,
+			);
+			name = Main.html;
+			sourceTree = "<group>";
+		};
+		43D98C1F30667A300063AA97 /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				43D98C2030667A300063AA97 /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		43D98C2230667A300063AA97 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				43D98C2330667A300063AA97 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		43D98C2E30667A300063AA97 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				43D98C2F30667A300063AA97 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		43D98C5430667A300063AA97 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		43D98C5530667A300063AA97 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		43D98C5730667A300063AA97 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {'CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]' = NO;
+
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = BUB5PPW2B4;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "KJB Reader Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = "0.4.273";
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.kingjamesbiblereader.kjbreaderforsafari.Extension";
+				PRODUCT_NAME = "KJB Reader Extension";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		43D98C5830667A300063AA97 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {'CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]' = NO;
+
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = BUB5PPW2B4;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "KJB Reader Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = "0.4.273";
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.kingjamesbiblereader.kjbreaderforsafari.Extension";
+				PRODUCT_NAME = "KJB Reader Extension";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		43D98C5B30667A300063AA97 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {'CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]' = NO;
+
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = BUB5PPW2B4;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "KJB Panel";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = "0.4.273";
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.kingjamesbiblereader.kjbreaderforsafari";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				PRODUCT_NAME = "KJB Reader";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		43D98C5C30667A300063AA97 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {'CODE_SIGNING_ALLOWED[sdk=iphonesimulator*]' = NO;
+
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = BUB5PPW2B4;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "iOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "KJB Panel";
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = "0.4.273";
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.kingjamesbiblereader.kjbreaderforsafari";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				PRODUCT_NAME = "KJB Reader";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		43D98C5E30667A300063AA97 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "KJB Reader Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = "0.4.273";
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.kingjamesbiblereader.kjbreaderforsafari.Extension";
+				PROVISIONING_PROFILE_SPECIFIER = "KJB Reader for Safari Ext Distribution";
+				PRODUCT_NAME = "KJB Reader Extension";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		43D98C5F30667A300063AA97 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (Extension)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "KJB Reader Extension";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@executable_path/../../../../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = "0.4.273";
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.kingjamesbiblereader.kjbreaderforsafari.Extension";
+				PROVISIONING_PROFILE_SPECIFIER = "KJB Reader for Safari Ext Distribution";
+				PRODUCT_NAME = "KJB Reader Extension";
+				SDKROOT = macosx;
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		43D98C6230667A300063AA97 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "KJB Panel";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = "0.4.273";
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.kingjamesbiblereader.kjbreaderforsafari";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.reference";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				PROVISIONING_PROFILE_SPECIFIER = "KJB Reader for Safari Distribution";
+				PRODUCT_NAME = "KJB Panel";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		43D98C6330667A300063AA97 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Manual;
+				CURRENT_PROJECT_VERSION = 1;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_OUTGOING_NETWORK_CONNECTIONS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = "macOS (App)/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = "KJB Panel";
+				INFOPLIST_KEY_NSMainStoryboardFile = Main;
+				INFOPLIST_KEY_NSPrincipalClass = NSApplication;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.14;
+				MARKETING_VERSION = "0.4.273";
+				OTHER_LDFLAGS = (
+					"-framework",
+					SafariServices,
+					"-framework",
+					WebKit,
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "com.kingjamesbiblereader.kjbreaderforsafari";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.reference";
+				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+				PROVISIONING_PROFILE_SPECIFIER = "KJB Reader for Safari Distribution";
+				PRODUCT_NAME = "KJB Panel";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = macosx;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		43D98C0830667A290063AA97 /* Build configuration list for PBXProject "KJB Reader" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				43D98C5430667A300063AA97 /* Debug */,
+				43D98C5530667A300063AA97 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		43D98C5630667A300063AA97 /* Build configuration list for PBXNativeTarget "KJB Reader Extension (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				43D98C5730667A300063AA97 /* Debug */,
+				43D98C5830667A300063AA97 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		43D98C5A30667A300063AA97 /* Build configuration list for PBXNativeTarget "KJB Reader (iOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				43D98C5B30667A300063AA97 /* Debug */,
+				43D98C5C30667A300063AA97 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		43D98C5D30667A300063AA97 /* Build configuration list for PBXNativeTarget "KJB Reader Extension (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				43D98C5E30667A300063AA97 /* Debug */,
+				43D98C5F30667A300063AA97 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		43D98C6130667A300063AA97 /* Build configuration list for PBXNativeTarget "KJB Reader (macOS)" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				43D98C6230667A300063AA97 /* Debug */,
+				43D98C6330667A300063AA97 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 43D98C0530667A290063AA97 /* Project object */;
+}

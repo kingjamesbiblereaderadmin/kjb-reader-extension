@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="sidebar.css">
+  <!-- Must stay a blocking script in <head>: it applies the saved interface
+       scale before first paint. MV3 CSP forbids inline scripts, hence a file. -->
+  <script src="prepaint.js"></script>
+</head>
+<body>
+  <div id="app">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-title">
+        <img src="icons/icon48.png" alt="KJB" class="header-logo" onerror="this.style.display='none'">
+        <h1>KJB Reader<span class="header-suffix"> - SidePanel</span></h1>
+      </div>
+      <div class="header-actions">
+        <div class="ui-scale-controls" role="group" aria-label="Interface size">
+          <button class="btn-scale" id="btn-zoom-out" type="button" title="Decrease interface size" aria-label="Decrease interface size">A−</button>
+          <button class="btn-scale btn-scale-value" id="btn-zoom-reset" type="button" title="Reset interface size" aria-label="Reset interface size to 100 percent">100%</button>
+          <button class="btn-scale" id="btn-zoom-in" type="button" title="Increase interface size" aria-label="Increase interface size">A+</button>
+        </div>
+        <button class="btn-icon" id="btn-website" type="button" title="Open KJB Reader website" aria-label="Open KJB Reader website">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+            <path d="M15 3h6v6"/>
+            <path d="M10 14 21 3"/>
+          </svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Verse Banner: 2 Timothy 2:15 -->
+    <div id="daily-verse" class="daily-verse">
+      <div class="daily-verse-content">
+        <div class="daily-verse-label">2 Timothy 2:15</div>
+        <div class="daily-verse-text">Study to shew thyself approved unto God, a workman that needeth not to be ashamed, rightly dividing the word of truth.</div>
+        <div class="daily-verse-actions">
+          <button class="btn-text" id="btn-daily-read">Read chapter ▸</button>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Search Bar -->
+    <div class="search-section">
+      <div class="search-bar">
+        <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/>
+          <path d="m21 21-4.35-4.35"/>
+        </svg>
+        <input type="text" id="search-input" placeholder="Search verses or keywords (e.g. Romans 3:25)" autocomplete="off">
+      </div>
+
+      <!-- Advanced Search Toggle -->
+      <div class="advanced-toggle">
+        <button id="btn-advanced" class="btn-text">Advanced search ▸</button>
+      </div>
+
+      <!-- Advanced Search Panel (collapsible) -->
+      <div id="advanced-panel" class="advanced-panel hidden">
+        <div class="form-row">
+          <label>
+            <input type="checkbox" id="opt-whole-word">
+            Match whole word only
+          </label>
+        </div>
+        <div class="form-row">
+          <label class="label-block">Testament</label>
+          <select id="opt-testament">
+            <option value="all">All</option>
+            <option value="old">Old Testament</option>
+            <option value="new">New Testament</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label class="label-block">Book filter</label>
+          <input type="text" id="opt-book" placeholder="e.g. John, Romans..." list="book-suggestions">
+          <datalist id="book-suggestions"></datalist>
+        </div>
+        <div class="form-row">
+          <label>
+            <input type="checkbox" id="opt-case-sensitive">
+            Case sensitive
+          </label>
+        </div>
+        <div class="form-row">
+          <label>
+            <input type="checkbox" id="opt-wildcard" checked>
+            Wildcard search (? = any char, * = any string)
+          </label>
+        </div>
+        <div class="form-hint">
+          Use <code>?</code> for single char, <code>*</code> for multiple. e.g. "lov?" finds love, live...<br>
+          Search for literal <code>¶</code> or <code>[son]</code> by disabling wildcards.
+        </div>
+      </div>
+    </div>
+
+    <!-- Result Count -->
+    <div id="result-count" class="result-count"></div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab active" data-tab="results">Results</button>
+      <button class="tab" data-tab="read">Read</button>
+      <button class="tab" data-tab="gospel">Gospel</button>
+      <button class="tab" data-tab="resources">Resources</button>
+    </div>
+
+    <!-- Read controls bar (detached from scroll area, only visible on Read tab) -->
+    <div id="read-controls" class="read-controls" style="display:none;">
+      <div id="read-book-title-bar" class="read-book-title-bar"></div>
+      <div id="read-nav-bar" class="read-nav-bar">
+        <button class="btn-text" id="read-prev">◀ Prev</button>
+        <select id="read-book-dropdown" class="read-dropdown" title="Select book"></select>
+        <select id="read-chapter-dropdown" class="read-dropdown" title="Select chapter"></select>
+        <button class="btn-text" id="read-next">Next ▶</button>
+      </div>
+      <div class="read-toolbar-bar">
+        <button class="btn-text" id="read-copy" title="Copy chapter">📋 Copy</button>
+        <button class="btn-text" id="read-print" title="Print chapter">🖨 Print</button>
+        <button class="btn-text" id="read-open-web">Open ↗</button>
+      </div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content-area">
+      <!-- Results controls bar -->
+      <div id="results-controls" class="results-controls" style="display:none;">
+        <div class="results-toolbar-bar">
+          <button class="btn-text" id="results-select" title="Toggle multi-select">Select</button>
+          <button class="btn-text" id="results-copy-all" title="Copy all shown verses" style="display:none;">📋 Copy All</button>
+          <button class="btn-text" id="results-copy-selected" title="Copy selected verses" style="display:none;">📋 Copy Selected</button>
+          <button class="btn-text" id="results-clear-selected" title="Clear selection" style="display:none;">Clear</button>
+        </div>
+      </div>
+
+      <!-- Results Tab -->
+      <div id="tab-results" class="tab-content active">
+        <div id="results-book-hint" class="results-book-hint" style="display:none;"></div>
+        <div id="results-list" class="results-list">
+          <div class="empty-state">
+            <p>Search for a verse reference or keyword to get started.</p>
+            <p class="hint">Try "1 Corinthians 15:1-4" or search for "Romans 3:25"</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Read Mode Tab -->
+      <div id="tab-read" class="tab-content">
+        <div id="read-content" class="read-content">
+          <div class="empty-state">
+            <p>Read mode — search for a verse reference to load a chapter.</p>
+            <p class="hint">Or pick a book: <select id="read-book-select" class="read-book-select"></select></p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gospel Tab -->
+      <div id="tab-gospel" class="tab-content">
+        <div id="gospel-content" class="info-content"></div>
+      </div>
+
+      <!-- Resources Tab -->
+      <div id="tab-resources" class="tab-content">
+        <div id="resources-content" class="info-content"></div>
+      </div>
+
+
+      <!-- Loading replaces the current content so stale verses never remain visible. -->
+      <div id="loading" class="loading hidden" role="status" aria-live="polite">
+        <div class="spinner"></div>
+        <p>Searching...</p>
+      </div>
+    </div>
+
+    <!-- Scroll-to-top button (outside content-area so it stays fixed at the visible panel bottom) -->
+    <button id="scroll-top-btn" class="scroll-top-btn hidden" title="Jump to top" aria-label="Jump to top">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 19V5M5 12l7-7 7 7"/>
+      </svg>
+    </button>
+    <!-- Legal Links -->
+    <div class="legal-links-bar">
+      <a href="https://kingjamesbiblereader.com" id="link-website">kingjamesbiblereader.com</a>
+      <span class="legal-sep">·</span>
+      <a href="#" id="link-privacy">Privacy</a>
+      <span class="legal-sep">·</span>
+      <a href="#" id="link-terms">Terms</a>
+      <span class="legal-sep">·</span>
+      <a href="mailto:kingjamesbiblereader@outlook.sg">Contact</a>
+    </div>
+  </div>
+
+  <script src="kjb-local.js"></script>
+  <script src="api.js"></script>
+  <script src="sidebar.js"></script>
+</body>
+</html>

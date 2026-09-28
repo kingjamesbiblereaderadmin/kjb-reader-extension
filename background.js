@@ -6,13 +6,6 @@
 const isFirefox = typeof browser !== "undefined" && typeof browser.sidebarAction !== "undefined";
 const hasChromeSidePanel = !isFirefox && typeof chrome !== "undefined" && typeof chrome.sidePanel !== "undefined" && !!chrome.sidePanel.setPanelBehavior;
 const isOpera = !isFirefox && !hasChromeSidePanel;
-// EDGE OVERLAY BAN (2026-09-28): an Edge update made chrome.sidePanel.open()
-// reject even while the docked panel is open. The overlay fallback then got
-// injected INTO THE PAGE right beside the open panel — the literal duplicate
-// panel the user has been fighting, reproduced on every version back to
-// v0.4.146 (it is Edge's behavior change, not our regression). Chrome's
-// sidePanel.open() keeps behaving, so only Edge bans the in-page overlay.
-const isEdge = /Edg\//.test((navigator && navigator.userAgent) || "");
 const api = isFirefox ? browser : chrome;
 
 // Track which tabs are in PWA/standalone mode (side panel unavailable)
@@ -112,14 +105,8 @@ function openLookup(tabId, text) {
     setSidePanelOpen(true);
   }).catch(() => {
     if (!tabId) return;
-    chrome.storage.local.get(["kjbPanelHeartbeat"], (d) => {
-      const hb = (d && d.kjbPanelHeartbeat) || 0;
-      if (Date.now() - hb < 6500) {
-        console.log("[KJB Background] sidePanel.open rejected but panel is live — no fallback");
-        return;
-      }
-      openFallbackSurface(text, tabId);
-    });
+    console.log("[KJB Background] context-menu open refused — ack-wait fallback");
+    fallbackAfterReject(text, tabId);
   });
 }
 
@@ -260,24 +247,49 @@ function claimSurface(kind) {
   return true;
 }
 
+// --- Ack-wait fallback (v0.4.281, restored from the v0.4.146 behaviour) ---
+// sidePanel.open() rejecting does NOT prove the panel is closed — Edge rejects
+// spuriously while the panel is open and healthy. But the KJB_SIDEBAR_LOOKUP
+// push sent earlier makes a live panel announce (KJB_PANEL_ALIVE) and ack
+// (KJB_ACK_LOOKUP) within milliseconds, because message delivery is never
+// throttled the way the panel's heartbeat timers can be. So: wait briefly for
+// that acknowledgement and only surface a fallback overlay if NOTHING
+// answered. A rejection also NEVER marks the tab standalone — that marking is
+// what poisoned every later click on the tab in v0.4.279/280.
+let ackWaiter = null;
+function notePanelAck() {
+  if (ackWaiter) ackWaiter.acked = true;
+}
+function fallbackAfterReject(text, tabId) {
+  if (tabId === null || tabId === undefined) return;
+  const waiter = { acked: false };
+  ackWaiter = waiter;
+  setTimeout(() => {
+    if (ackWaiter === waiter) ackWaiter = null;
+    if (waiter.acked) {
+      console.log("[KJB Background] panel acked the lookup after rejection — no fallback surface");
+      return;
+    }
+    // Belt and braces: re-read the storage heartbeat too.
+    chrome.storage.local.get(["kjbPanelHeartbeat"], (d) => {
+      const hb = (d && d.kjbPanelHeartbeat) || 0;
+      if (Date.now() - hb < 6500) {
+        console.log("[KJB Background] panel heartbeat fresh after rejection — no fallback surface");
+        return;
+      }
+      if (!claimSurface("overlay")) return;
+      console.log("[KJB Background] no panel answered — in-page overlay fallback");
+      api.tabs.sendMessage(tabId, {
+        type: "KJB_INJECT_OVERLAY", text: text || null, force: false, reason: "panel-reject"
+      }, { frameId: 0 }).catch(() => {});
+    });
+  }, 500);
+}
+
 async function openFallbackSurface(text, tabId, standaloneHint) {
   // The hint matters: a restarted service worker loses standaloneTabs, and
   // without it a PWA/mobile tab would wrongly get a popup window.
-  // On Edge the in-page overlay is BANNED entirely (see isEdge comment): if
-  // the heartbeat shows the panel is live, silently route there; otherwise
-  // fall through to the popup lookup window, which can never duplicate the
-  // docked panel inside the page.
-  if (isEdge) {
-    try {
-      const hbData = await chrome.storage.local.get(["kjbPanelHeartbeat"]);
-      const hb = (hbData && hbData.kjbPanelHeartbeat) || 0;
-      if (Date.now() - hb < 6500) {
-        console.log("[KJB Background] Edge: panel is live — routing to panel, no surface");
-        return;
-      }
-    } catch (_) {}
-    console.log("[KJB Background] Edge: overlay banned — popup lookup window instead");
-  } else if (tabId !== null && (standaloneHint || standaloneTabs.has(tabId))) {
+  if (tabId !== null && (standaloneHint || standaloneTabs.has(tabId))) {
     // If the docked panel is alive it always wins over an overlay — even on
     // a tab previously marked standalone (Edge mis-marks tabs when
     // sidePanel.open rejects spuriously). The verse has already been pushed
@@ -495,14 +507,13 @@ api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       }).catch((err) => {
         settled = true;
         console.log("[KJB Background] sidePanel.open refused (" +
-          ((err && err.message) || "no gesture") + ") — fallback");
-        standaloneTabs.add(tabId);
-        openFallbackSurface(msg.text, tabId, true);
+          ((err && err.message) || "no gesture") + ") — ack-wait fallback");
+        fallbackAfterReject(msg.text, tabId);
       });
     } catch (err) {
       settled = true;
       console.log("[KJB Background] sidePanel.open threw:", err && err.message);
-      openFallbackSurface(msg.text, tabId, false);
+      fallbackAfterReject(msg.text, tabId);
     }
 
     // Watchdog: if the promise somehow never settles (Chrome bug), fall
@@ -510,7 +521,7 @@ api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     setTimeout(() => {
       if (!settled) {
         console.log("[KJB Background] sidePanel.open watchdog — no settle in 5s, fallback");
-        openFallbackSurface(msg.text, tabId, false);
+        fallbackAfterReject(msg.text, tabId);
       }
     }, 5000);
 
@@ -546,6 +557,7 @@ api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
   if (msg.type === "KJB_PANEL_ALIVE") {
     lastPanelAliveTs = Date.now();
+    notePanelAck();
     // The side panel itself reported in. Trust this above everything else:
     // mark it open and tell every tab to drop any overlay it injected.
     setSidePanelOpen(true);
@@ -581,6 +593,7 @@ api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.type === "KJB_ACK_LOOKUP") {
+    notePanelAck();
     // The panel delivered this exact verse already. Clear it only if the
     // timestamps match, so a newer verse that arrived meanwhile survives.
     if (msg.ts && msg.ts === pendingVerseTs) {

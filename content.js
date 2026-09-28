@@ -2,7 +2,7 @@
 // reinjectContentScripts() in the background may inject this file into a tab
 // that already has it (after an extension update); without this guard the
 // top-level `const` declarations would throw "already declared".
-const KJB_CONTENT_VERSION = "0.4.279";
+const KJB_CONTENT_VERSION = "0.4.281";
 
 // A plain boolean guard here was a serious bug: after an extension update the
 // background re-injects this file into already-open tabs, and the boolean made
@@ -92,6 +92,10 @@ function overlayAllowedHere(reason) {
   if (isStandalone) return true;                   // genuine PWA/mobile (detected locally)
   if (reason === "standalone") return true;        // background determined this tab is standalone
   if (reason === "window-failed") return true;     // nothing else left to try
+  // v0.4.281: sidePanel.open() rejected AND no panel acked the lookup within
+  // the ack-wait — the browser reports a side panel but none is answering.
+  // This is the v0.4.146 behaviour: the overlay is the fallback surface.
+  if (reason === "panel-reject") return true;
   console.log('[KJB Reader] overlay REFUSED — this browser has a side panel (reason=' + reason + ')');
   return false;
 }
@@ -419,17 +423,6 @@ function showStaleNotice() {
 
 let overlayAuthorizedUntil = 0;
 function injectSidebarOverlay(force) {
-  // EDGE OVERLAY BAN (2026-09-28): a recent Edge update makes the panel
-  // surface unreliable while chrome.sidePanel.open() rejects spuriously,
-  // and the overlay injected beside the open docked panel is the literal
-  // "duplicate panel" the user has fought on every version since v0.4.146.
-  // Edge is banned from the in-page overlay entirely — lookups there route
-  // to the docked panel or a popup lookup window (background.js isEdge).
-  // Firefox/Opera keep the overlay: it is their only side-panel substitute.
-  if (/Edg\//.test(navigator.userAgent)) {
-    console.log("[KJB Reader] Edge: in-page overlay banned");
-    return;
-  }
   if (!extensionAlive()) {
     console.log('[KJB Reader] orphaned content script — standing down instead of injecting');
     showStaleNotice();
@@ -993,16 +986,19 @@ function handleVerseClick(ref, link) {
     return;
   }
 
-  // Firefox has no Chrome side panel to clash with, so it may inject at once.
-  if (isFirefox) {
-    console.log('[KJB Reader] → overlay (Firefox)');
-    injectSidebarOverlay();
+  // Firefox and standalone/PWA/mobile windows have no usable docked panel on
+  // THIS window — inject the in-page overlay directly, exactly as v0.4.146
+  // did. No background round-trip, no routing decision to get wrong:
+  // click verse, it opens.
+  if (isFirefox || isStandalone) {
+    // Standalone windows pass force=true: no panel exists on THIS window, so
+    // a heartbeat from a panel elsewhere must not cancel the overlay. Firefox
+    // keeps the 600ms proof-wait in case the native sidebar is open.
+    console.log('[KJB Reader] → overlay (direct, no docked panel here)');
+    injectSidebarOverlay(!!isStandalone);
     notify();
     return;
   }
-  // Standalone/PWA/mobile no longer inject here. The background already knows
-  // this tab is standalone (KJB_STANDALONE_MODE) and will send a forced overlay
-  // if — and only if — no side panel answers. One decision, one place.
 
   // (B) Cached state says the panel is open — go straight there, no overlay.
   if (panelOpen) {

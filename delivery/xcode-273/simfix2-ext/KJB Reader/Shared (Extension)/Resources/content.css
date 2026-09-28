@@ -1,0 +1,33 @@
+/* Paint clickable references without changing the host page DOM. */
+::highlight(kjb-verse-links) {
+  color: var(--kjb-ref-color, inherit);
+  text-decoration-line: underline;
+  text-decoration-style: dotted;
+  text-decoration-color: var(--kjb-ref-underline, currentColor);
+  text-underline-offset: 0.12em;
+}
+
+::highlight(kjb-verse-link-hover) {
+  color: var(--kjb-ref-color, inherit);
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-color: var(--kjb-ref-underline, currentColor);
+  text-underline-offset: 0.12em;
+}
+
+/* KJB Reader - subtle interaction layer for detected verse references. */
+/* Preserve the host page's typography and layout; change only link affordance. */
+kjb-link.kjb-link {
+  all: unset !important;
+  display: inline !important;
+  color: var(--kjb-ref-color, inherit) !important;
+  text-decoration-line: underline !important;
+  text-decoration-style: dotted !important;
+  text-decoration-color: var(--kjb-ref-underline, currentColor) !important;
+  text-underline-offset: 0.12em !important;
+  cursor: pointer !important;
+}
+
+kjb-link.kjb-link:hover {
+  text-decoration-style: solid !important;
+}

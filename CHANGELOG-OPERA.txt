@@ -1,3 +1,12 @@
+WHAT'S NEW IN v0.4.281 (September 28, 2026)
+
+- Verse clicks open the reader on the first click again, the way v0.4.146 did. When the side panel cannot open or fails to answer a lookup, the in-page reader now steps in — but only after the side panel has been given a brief chance to acknowledge the verse, so nothing appears twice. Tabs are never mis-flagged by a failed panel open.
+- Standalone/PWA windows and Firefox open the in-page reader directly on click, with no routing round-trip.
+
+WHAT'S NEW IN v0.4.280 (September 28, 2026)
+
+- On Microsoft Edge, verse lookups are back to the classic behavior: clicking a reference opens the docked side panel, and the in-page reader appears only when no panel is available — the same flow as Chrome. The separate popup lookup window fallback is gone.
+
 WHAT'S NEW IN v0.4.277 (September 27, 2026)
 
 - Wildcard search highlighting now follows the Match word option: with Match word on, a wildcard pattern like "lov?" only highlights whole words, exactly matching the results list.
