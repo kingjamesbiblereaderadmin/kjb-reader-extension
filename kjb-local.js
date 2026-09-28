@@ -546,14 +546,19 @@ async function fetchAndParsePCE() {
       text2 = pilcrow + repair.full;
     }
 
+    // A hyphen or apostrophe that JOINS two bracketed words merges them into
+    // ONE bracket: "[Ben]-[hadad]" -> "[Ben-hadad]", "[man]'[s]" -> "[man's]"
+    // (Deut 24:6). The joined span is a single supplied unit, so the italic
+    // covers the joiner and copy shows one bracket.
+    text2 = text2.replace(/\](['\u2019-])\[/g, "$1");
+
     // Punctuation attached to a bracketed (italic) word belongs INSIDE the
     // bracket with it, on screen and in plain-text copy. The source already
     // prints ":" ";" "?" inside ("[it:]", "[them;]", "[it?]") but leaves "," and
     // "." outside ("[was],", "set [themselves] [in] [array]."). Moving trailing
     // , . ; : ! ? inside makes the italic span cover the punctuation visually
-    // and the copy show "[was,]". A hyphen still joins two bracketed words
-    // ("[Ben]-[hadad]") and ")" belongs to the sentence ("[above:])"), so they
-    // stay outside.
+    // and the copy show "[was,]". ")" belongs to the sentence ("[above:])"),
+    // so it stays outside.
     text2 = text2.replace(/\]([.,;:!?]+)/g, "$1]");
 
     if (!data[currentBook]) data[currentBook] = {};
@@ -594,7 +599,7 @@ async function fetchAndParsePCE() {
       const subMatch = /^¶\s+(.+)$/.exec(trimmed);
       if (subMatch) {
         if (!data.__subscriptions) data.__subscriptions = {};
-        data.__subscriptions[`${currentBook}:${currentChapter}`] = subMatch[1].trim().replace(/\]([.,;:!?]+)/g, "$1]");
+        data.__subscriptions[`${currentBook}:${currentChapter}`] = subMatch[1].trim().replace(/\](['\u2019-])\[/g, "$1").replace(/\]([.,;:!?]+)/g, "$1]");
         pendingLines = [];
         titleBook = null;
         continue;
@@ -611,7 +616,7 @@ async function fetchAndParsePCE() {
       const knownTitle = PSALM_SUPERSCRIPTIONS[currentChapter];
       if (knownTitle && normLine(trimmed) === normLine(knownTitle)) {
         if (!data.__superscriptions) data.__superscriptions = {};
-        data.__superscriptions[`Psalms:${currentChapter}`] = trimmed.replace(/\]([.,;:!?]+)/g, "$1]");
+        data.__superscriptions[`Psalms:${currentChapter}`] = trimmed.replace(/\](['\u2019-])\[/g, "$1").replace(/\]([.,;:!?]+)/g, "$1]");
         continue;
       }
     }
