@@ -156,6 +156,26 @@ jobs:
           print("configured ids:", ids, "| manual App Store signing for macOS and iOS")
           PY
 
+      - name: Sync extension identifier in app template
+        run: |
+          python3 - <<'PY'
+          import os, re, pathlib
+          app = os.environ['APP_NAME']
+          pbx = pathlib.Path(app, app + '.xcodeproj', 'project.pbxproj').read_text()
+          ids = set(re.findall(r'PRODUCT_BUNDLE_IDENTIFIER = "?([^";]+)"?;', pbx))
+          ext = next(i for i in ids if i.endswith('.Extension'))
+          changed = 0
+          for swift in pathlib.Path(app).rglob('ViewController.swift'):
+              text = swift.read_text()
+              text, n = re.subn(r'let extensionBundleIdentifier = "[^"]*"',
+                                'let extensionBundleIdentifier = "' + ext + '"', text)
+              assert n == 1, str(swift) + ': expected one extensionBundleIdentifier declaration, found ' + str(n)
+              swift.write_text(text)
+              changed += 1
+          assert changed >= 1, 'No ViewController.swift found'
+          print('Synced extensionBundleIdentifier to ' + ext + ' in ' + str(changed) + ' file(s)')
+          PY
+
       - name: Package the configured Xcode project for download
         run: |
           zip -qry KJB-Reader-Xcode-v0.4.272.zip "$APP_NAME"             -x '*/.DS_Store' '*/xcuserdata/*' '*/DerivedData/*'
