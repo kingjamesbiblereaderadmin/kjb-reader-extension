@@ -1,3 +1,12 @@
+WHAT'S NEW IN v0.4.284 (October 3, 2026)
+- Fixed click interception on sites that layer UI over verse references
+  (Facebook's post/comment dialogs and "Write a comment..." placeholders,
+  sticky headers, dropdown menus, nav links, cookie bars, embedded
+  content): the reader no longer steals those clicks, so compose boxes
+  keep taking focus and stay typable after navigating around a page.
+  Clicks on a reference's own visible text still open the reader exactly
+  as before.
+
 WHAT'S NEW IN v0.4.283 (October 3, 2026)
 - Fixed reply/compose boxes on X (Twitter), Facebook, TikTok and other social
   sites stealing-focus or becoming untypable: a verse reference in the post
