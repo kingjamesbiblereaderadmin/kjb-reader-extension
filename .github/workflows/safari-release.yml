@@ -11,6 +11,15 @@ on:
         description: "Upload the macOS .pkg and iOS .ipa to App Store Connect"
         type: boolean
         default: false
+      build_number:
+        description: "Unique build number (blank = use the run number)"
+        required: false
+        default: ""
+      push_for_review:
+        description: "After upload: create the App Store versions, attach the builds, and submit for review"
+        type: boolean
+        default: false
+
 jobs:
   build:
     runs-on: macos-15
@@ -82,7 +91,7 @@ jobs:
           IOS_APP_PROF = "KJB Reader iOS App Store"
           IOS_EXT_PROF = "KJB Reader iOS Extension App Store"
           import json as _json
-          VER = "2." + os.environ["GITHUB_RUN_NUMBER"]
+          VER = _json.load(open("manifest.json"))["version"]
           def repl(m):
               block = m.group(0)
               bm = re.search(r'PRODUCT_BUNDLE_IDENTIFIER = \"?([^\";]+)\"?;', block)
@@ -154,26 +163,6 @@ jobs:
           assert out.count('CODE_SIGN_STYLE = Manual;') >= 2
           assert 'KJB Reader iOS App Store' in out and 'KJB Reader iOS Extension App Store' in out
           print("configured ids:", ids, "| manual App Store signing for macOS and iOS")
-          PY
-
-      - name: Sync extension identifier in app template
-        run: |
-          python3 - <<'PY'
-          import os, re, pathlib
-          app = os.environ['APP_NAME']
-          pbx = pathlib.Path(app, app + '.xcodeproj', 'project.pbxproj').read_text()
-          ids = set(re.findall(r'PRODUCT_BUNDLE_IDENTIFIER = "?([^";]+)"?;', pbx))
-          ext = next(i for i in ids if i.endswith('.Extension'))
-          changed = 0
-          for swift in pathlib.Path(app).rglob('ViewController.swift'):
-              text = swift.read_text()
-              text, n = re.subn(r'let extensionBundleIdentifier = "[^"]*"',
-                                'let extensionBundleIdentifier = "' + ext + '"', text)
-              assert n == 1, str(swift) + ': expected one extensionBundleIdentifier declaration, found ' + str(n)
-              swift.write_text(text)
-              changed += 1
-          assert changed >= 1, 'No ViewController.swift found'
-          print('Synced extensionBundleIdentifier to ' + ext + ' in ' + str(changed) + ' file(s)')
           PY
 
       - name: Package the configured Xcode project for download
@@ -262,7 +251,7 @@ jobs:
         if: env.HAS_SIGNING == 'true'
         env:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          BUILD_NUM: ${{ github.run_number }}
+          BUILD_NUM: ${{ github.event.inputs.build_number != '' && github.event.inputs.build_number || github.run_number }}
         run: |
           set -eu
           PROJ="$PWD/$APP_NAME/$APP_NAME.xcodeproj"
@@ -300,7 +289,7 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-          BUILD_NUM: ${{ github.run_number }}
+          BUILD_NUM: ${{ github.event.inputs.build_number != '' && github.event.inputs.build_number || github.run_number }}
         run: |
           set -eu
           PROJ="$PWD/$APP_NAME/$APP_NAME.xcodeproj"
@@ -354,7 +343,7 @@ jobs:
         env:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-          BUILD_NUM: ${{ github.run_number }}
+          BUILD_NUM: ${{ github.event.inputs.build_number != '' && github.event.inputs.build_number || github.run_number }}
         run: |
           set -eu
           VER=$(python3 -c "import json;print(json.load(open('manifest.json'))['version'])")
@@ -375,6 +364,23 @@ jobs:
             --file "$IPA" \
             --apiKey "$ASC_KEY_ID" \
             --apiIssuer "$ASC_ISSUER_ID"
+
+
+      - name: Create versions, attach builds, and submit for App Review
+        if: env.HAS_SIGNING == 'true' && github.event.inputs.upload == 'true' && github.event.inputs.push_for_review == 'true'
+        env:
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          ASC_KEY_PATH: ${{ runner.temp }}/AuthKey.p8
+          APP_BUNDLE_ID: ${{ env.BUNDLE_ID }}
+          BUILD_NUM: ${{ github.event.inputs.build_number != '' && github.event.inputs.build_number || github.run_number }}
+        run: |
+          set -eu
+          python3 -m pip install --quiet --user 'pyjwt[crypto]'
+          VER=$(python3 -c "import json;print(json.load(open('manifest.json'))['version'])")
+          cp "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8" "$ASC_KEY_PATH"
+          chmod 600 "$ASC_KEY_PATH"
+          python3 scripts/asc_submit_review.py "$VER" "$BUILD_NUM"
 
       - name: Attach macOS and iOS packages as workflow artifacts
         if: env.HAS_SIGNING == 'true'
