@@ -2,7 +2,7 @@
 // reinjectContentScripts() in the background may inject this file into a tab
 // that already has it (after an extension update); without this guard the
 // top-level `const` declarations would throw "already declared".
-const KJB_CONTENT_VERSION = "0.4.282";
+const KJB_CONTENT_VERSION = "0.4.283";
 
 // A plain boolean guard here was a serious bug: after an extension update the
 // background re-injects this file into already-open tabs, and the boolean made
@@ -1309,14 +1309,71 @@ function isKjbEntryStillValid(entry) {
 // the browser to start a text selection, which swallows the click event and
 // makes the user have to click multiple times.
 let kjbLastHitEntry = null;
+// --- Compose-box fringe protection (v0.4.283) ---
+// Social editors (X/Twitter, Facebook, TikTok, Discord...) wrap the editable
+// div in a compose surface: padding, avatar rows, placeholder rows. A verse
+// reference in the post directly above has a padded hit zone that can reach
+// a few pixels into that surface, and sites focus their editor from clicks
+// anywhere inside it. Taking those clicks killed caret placement (the box
+// "wouldn't let me type") and popped the reader open over the page.
+// Rule: a hit that lands on the reference's OWN text always wins, but a hit
+// that exists only thanks to the padding fringe loses to any editable
+// within a small margin. The candidate list is TTL-cached and the scan only
+// runs once a hit exists, so pointer-move hit testing stays cheap.
+const KJB_EDITABLE_MARGIN = 24;
+let kjbEditableListCache = null;
+let kjbEditableListAt = 0;
+function kjbEditableCandidates() {
+  const now = Date.now();
+  if (kjbEditableListCache && now - kjbEditableListAt < 250) return kjbEditableListCache;
+  const sel = 'input, textarea, [contenteditable], [contenteditable=""], [contenteditable="true"], [role="textbox"]';
+  const list = [];
+  try { document.querySelectorAll(sel).forEach(el => list.push(el)); } catch (_) {}
+  try {
+    for (const sr of getAllShadowRoots(document)) {
+      sr.querySelectorAll(sel).forEach(el => list.push(el));
+    }
+  } catch (_) {}
+  kjbEditableListCache = list;
+  kjbEditableListAt = now;
+  return list;
+}
+function isPointNearEditable(x, y) {
+  const M = KJB_EDITABLE_MARGIN;
+  for (const el of kjbEditableCandidates()) {
+    if (!el.isConnected) continue;
+    let r = null;
+    try { r = el.getBoundingClientRect(); } catch (_) { continue; }
+    if (r.width === 0 && r.height === 0) continue;
+    if (x >= r.left - M && x <= r.right + M && y >= r.top - M && y <= r.bottom + M) return true;
+  }
+  return false;
+}
+// True when the point sits inside the reference's actual painted text rects
+// (not merely the padded expansion around them).
+function kjbPointOnEntryRects(entry, x, y) {
+  try {
+    const occ = entry.occId;
+    const rects = kjbHighlightEntries
+      .filter(en => en.occId === occ && en.range.startContainer.isConnected)
+      .flatMap(en => Array.from(en.range.getClientRects()));
+    if (!rects.length) return true;
+    return rects.some(r => x >= r.left && x <= r.right && y >= r.top && y <= r.bottom);
+  } catch (_) { return true; }
+}
+
 function findKjbHit(x, y) {
   // Try geometric detection first (covers padded area around text).
   let entry = findKjbHighlightAtPoint(x, y);
-  if (entry && isKjbEntryStillValid(entry)) return entry;
   // Fall back to text-position detection (handles dead zones, transforms).
-  entry = findKjbHighlightByTextPoint(x, y);
-  if (entry && isKjbEntryStillValid(entry)) return entry;
-  return null;
+  if (!entry || !isKjbEntryStillValid(entry)) entry = findKjbHighlightByTextPoint(x, y);
+  if (!entry || !isKjbEntryStillValid(entry)) return null;
+  // Padding-fringe hits near a compose box belong to the compose box:
+  // the box must stay typable. Hits on the reference's own text are
+  // unaffected, so references in the post above a reply box remain
+  // clickable.
+  if (!kjbPointOnEntryRects(entry, x, y) && isPointNearEditable(x, y)) return null;
+  return entry;
 }
 // Returns true if the event target is (or is inside) an interactive element
 // like a button, select, input, textarea, or ARIA role="button". We skip
@@ -1350,6 +1407,13 @@ function isInteractiveTarget(e) {
   return false;
 }
 
+// Point-based editable check. e.target can lie about what the user is
+// actually clicking (editor overlay layers, shadow DOM, pseudo-element
+// hit boxes), and after a page re-renders a stale verse-hit rect can sit
+// right over a compose box. This asks the document what is at the exact
+// coordinate and walks up — crossing shadow roots — looking for anything
+// editable. If the click point is editable, the verse handlers must never
+// intercept: focusing a comment box always wins.
 // Point-based editable check. e.target can lie about what the user is
 // actually clicking (editor overlay layers, shadow DOM, pseudo-element
 // hit boxes), and after a page re-renders a stale verse-hit rect can sit
