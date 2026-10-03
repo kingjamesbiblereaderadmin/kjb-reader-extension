@@ -1,3 +1,10 @@
+WHAT'S NEW IN v0.4.283 (October 3, 2026)
+- Fixed reply/compose boxes on X (Twitter), Facebook, TikTok and other social
+  sites stealing-focus or becoming untypable: a verse reference in the post
+  above a reply box had a small invisible click fringe that could reach into
+  the compose box, blocking caret placement and popping the reader open.
+  Clicks on a reference's own text are unchanged and still open the reader.
+
 ## v0.4.274 (September 27, 2026)
 
 - Personal Ministry Links in the Resources tab now include TikTok, Instagram and Discord, and the Rumble link points to rumble.com/user/Godisgracious1031.
