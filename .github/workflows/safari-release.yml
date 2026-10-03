@@ -15,11 +15,6 @@ on:
         description: "Unique build number (blank = use the run number)"
         required: false
         default: ""
-      push_for_review:
-        description: "After upload: create the App Store versions, attach the builds, and submit for review"
-        type: boolean
-        default: false
-
 jobs:
   build:
     runs-on: macos-15
@@ -365,25 +360,6 @@ jobs:
             --apiKey "$ASC_KEY_ID" \
             --apiIssuer "$ASC_ISSUER_ID"
 
-
-      - name: Create versions, attach builds, and submit for App Review
-        if: env.HAS_SIGNING == 'true' && github.event.inputs.upload == 'true' && github.event.inputs.push_for_review == 'true'
-        env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-          ASC_KEY_PATH: ${{ runner.temp }}/AuthKey.p8
-          APP_BUNDLE_ID: ${{ env.BUNDLE_ID }}
-          BUILD_NUM: ${{ github.event.inputs.build_number != '' && github.event.inputs.build_number || github.run_number }}
-        run: |
-          set -eu
-          # The runner's Homebrew Python is externally managed (PEP 668);
-          # bare pip installs fail, so use a throwaway venv.
-          python3 -m venv "$RUNNER_TEMP/ascvenv"
-          "$RUNNER_TEMP/ascvenv/bin/pip" install --quiet 'pyjwt[crypto]'
-          VER=$(python3 -c "import json;print(json.load(open('manifest.json'))['version'])")
-          cp "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8" "$ASC_KEY_PATH"
-          chmod 600 "$ASC_KEY_PATH"
-          "$RUNNER_TEMP/ascvenv/bin/python" scripts/asc_submit_review.py "$VER" "$BUILD_NUM"
 
       - name: Attach macOS and iOS packages as workflow artifacts
         if: env.HAS_SIGNING == 'true'
