@@ -376,11 +376,14 @@ jobs:
           BUILD_NUM: ${{ github.event.inputs.build_number != '' && github.event.inputs.build_number || github.run_number }}
         run: |
           set -eu
-          python3 -m pip install --quiet --user 'pyjwt[crypto]'
+          # The runner's Homebrew Python is externally managed (PEP 668);
+          # bare pip installs fail, so use a throwaway venv.
+          python3 -m venv "$RUNNER_TEMP/ascvenv"
+          "$RUNNER_TEMP/ascvenv/bin/pip" install --quiet 'pyjwt[crypto]'
           VER=$(python3 -c "import json;print(json.load(open('manifest.json'))['version'])")
           cp "$HOME/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8" "$ASC_KEY_PATH"
           chmod 600 "$ASC_KEY_PATH"
-          python3 scripts/asc_submit_review.py "$VER" "$BUILD_NUM"
+          "$RUNNER_TEMP/ascvenv/bin/python" scripts/asc_submit_review.py "$VER" "$BUILD_NUM"
 
       - name: Attach macOS and iOS packages as workflow artifacts
         if: env.HAS_SIGNING == 'true'
