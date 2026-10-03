@@ -4,6 +4,10 @@ v0.4.274 — September 27, 2026
 KJB Reader — Version History
 ============================
 
+v0.4.284 (October 3, 2026)
+• Verse-reference click detection now respects what's actually on top of the page, so layered UI (comment dialogs, "Write a comment..." placeholders, sticky headers, dropdown menus, nav links, cookie bars) keeps its clicks and compose boxes stay typable; clicking a reference's own visible text still opens the reader
+• Includes the compose-box fringe protection from v0.4.283
+
 v0.4.273 (September 25, 2026)
 • Punctuation attached to a bracketed (italic) word now sits inside the brackets on screen and when copying
 • Updated the Verified KJB Preachers list with corrected and expanded links
