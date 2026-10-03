@@ -2,7 +2,7 @@
 // reinjectContentScripts() in the background may inject this file into a tab
 // that already has it (after an extension update); without this guard the
 // top-level `const` declarations would throw "already declared".
-const KJB_CONTENT_VERSION = "0.4.283";
+const KJB_CONTENT_VERSION = "0.4.284";
 
 // A plain boolean guard here was a serious bug: after an extension update the
 // background re-injects this file into already-open tabs, and the boolean made
@@ -1362,12 +1362,88 @@ function kjbPointOnEntryRects(entry, x, y) {
   } catch (_) { return true; }
 }
 
+// --- Z-order occlusion check (v0.4.284) ---
+// The geometric hit-test only reads painted text RECTS — it never asks what
+// element the browser itself would put under the pointer. Facebook's post
+// composer is a modal dialog over the feed, comment boxes open under posts
+// that hold painted references, sticky headers, reaction bars, dropdown
+// menus, our own in-page overlay and SPA re-renders can all sit ABOVE a
+// reference that still paints its rects at those coordinates. Taking those
+// clicks (mousedown preventDefault) killed caret placement and focus for
+// the element the user actually clicked — the "typed, moved on, and then it
+// won't let me type" report — and could pop the reader open from behind a
+// dialog. Rule: a hit only counts when the element the browser would really
+// deliver the click to is (an ancestor of) the reference's own text.
+// elementsFromPoint ignores pointer-events:none elements, so click-through
+// layers stay transparent to this check exactly as they are to the browser.
+
+// Shadow-piercing elementFromPoint: elementFromPoint stops at shadow hosts,
+// so an editable or overlay hidden inside a shadow root would otherwise look
+// like the host itself. Descend while the host exposes a shadow root.
+function kjbDeepElementFromPoint(x, y) {
+  let el = null;
+  try { el = document.elementFromPoint(x, y); } catch (_) { return null; }
+  const seen = new Set();
+  while (el && el.shadowRoot && !seen.has(el)) {
+    seen.add(el);
+    let inner = null;
+    try { inner = el.shadowRoot.elementFromPoint(x, y); } catch (_) { break; }
+    if (!inner || inner === el) break;
+    el = inner;
+  }
+  return el;
+}
+
+// Every element that CONTAINS this occurrence's own text (its ancestor
+// chain, crossing shadow-DOM boundaries, up to the document root).
+function kjbOccOwners(occId) {
+  const owners = new Set();
+  for (const en of kjbHighlightEntries) {
+    if (en.occId !== occId) continue;
+    for (const node of [en.range.startContainer, en.range.endContainer]) {
+      let el = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
+      let guard = 0;
+      while (el && guard++ < 64) {
+        if (el.nodeType !== Node.ELEMENT_NODE) break;
+        owners.add(el);
+        const root = el.getRootNode && el.getRootNode();
+        if (root && root.host) { el = root.host; continue; }
+        el = el.parentElement;
+      }
+    }
+  }
+  return owners;
+}
+
+// True when the click at (x, y) would genuinely land on the reference's own
+// text: the deepest element at the point must be one of the reference's
+// containers (the block/inline element holding the text, or an ancestor box
+// around it). Anything else painted on top — dialog, scrim, sticky header,
+// overlay, a compose box that re-rendered over the spot — occludes the
+// reference and the click belongs to that element, never to us.
+function kjbPointUnoccluded(entry, x, y) {
+  const top = kjbDeepElementFromPoint(x, y);
+  if (!top) return true; // off-document point: keep legacy behavior
+  // DIRECT membership only. Walking up from the top element would hit the
+  // shared ancestors (body/html) that own every reference on the page and
+  // the check would never reject anything. The browser delivers the click
+  // to `top`; the reference is genuinely reachable only when `top` itself
+  // is one of its own containers (the block/inline element holding the
+  // text, or an ancestor box like body when the point is in empty space
+  // next to the text — body is in the owner set via the ref's chain).
+  return kjbOccOwners(entry.occId).has(top);
+}
+
 function findKjbHit(x, y) {
   // Try geometric detection first (covers padded area around text).
   let entry = findKjbHighlightAtPoint(x, y);
   // Fall back to text-position detection (handles dead zones, transforms).
   if (!entry || !isKjbEntryStillValid(entry)) entry = findKjbHighlightByTextPoint(x, y);
   if (!entry || !isKjbEntryStillValid(entry)) return null;
+  // The point may be covered by a dialog, scrim, sticky header, overlay or
+  // re-rendered compose box that paints above the reference. The browser
+  // would deliver the click to that element — so must we.
+  if (!kjbPointUnoccluded(entry, x, y)) return null;
   // Padding-fringe hits near a compose box belong to the compose box:
   // the box must stay typable. Hits on the reference's own text are
   // unaffected, so references in the post above a reply box remain
@@ -1422,8 +1498,7 @@ function isInteractiveTarget(e) {
 // editable. If the click point is editable, the verse handlers must never
 // intercept: focusing a comment box always wins.
 function isEditablePoint(x, y) {
-  let el = null;
-  try { el = document.elementFromPoint(x, y); } catch (_) {}
+  let el = kjbDeepElementFromPoint(x, y); // pierce shadow hosts (v0.4.284)
   if (!el) return false;
   if (document.designMode === "on") return true;
   let guard = 0;
