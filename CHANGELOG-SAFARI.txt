@@ -1,3 +1,10 @@
+WHAT'S NEW IN v0.4.283 (October 3, 2026)
+- Fixed reply/compose boxes on X (Twitter), Facebook, TikTok and other social
+  sites stealing-focus or becoming untypable: a verse reference in the post
+  above a reply box had a small invisible click fringe that could reach into
+  the compose box, blocking caret placement and popping the reader open.
+  Clicks on a reference's own text are unchanged and still open the reader.
+
 WHAT'S NEW IN v0.4.282 (September 28, 2026)
 
 - Supplied words joined by an apostrophe or hyphen now share one set of italic brackets, matching the printed page: "he taketh [a] [man's] life" and "[Ben-hadad]" instead of split brackets like "[a] [man]'[s]" and "[Ben]-[hadad]". Copy and search treat the joined words the same way.
