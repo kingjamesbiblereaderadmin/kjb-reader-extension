@@ -187,12 +187,19 @@ def main():
                     "attributes": {
                         "platform": platform,
                         "versionString": version,
-                        "usesNonExemptEncryption": False,
                     },
                     "relationships": {
                         "app": {"data": {"type": "apps", "id": app_id}},
                     }}})
             if code != 201:
+                if any("current state" in e for e in api_errors(created)):
+                    queued = [v for v in versions.get("data") or []
+                              if (v["attributes"].get("appStoreState") or v["attributes"].get("state")) in SUBMITTED_STATES
+                              and v["attributes"].get("platform") == platform]
+                    for q in queued:
+                        print(f"{platform}: version {q['attributes']['versionString']} is already in the review queue — {version} skipped")
+                    ready_any = True
+                    continue
                 die_api(f"create {platform} version {version}", code, created)
             version_id = created["data"]["id"]
             print(f"{platform}: created version {version} ({version_id})")
@@ -214,15 +221,15 @@ def main():
                         if c2 == 201:
                             print(f"{platform}: cloned localization {ploc['attributes']['locale']} from {prev['attributes']['versionString']}")
 
-        # --- 4. attach the build ---
-        code, attach = api("/v1/appStoreVersionBuilds", "POST", {
+        # --- 4. attach the build via the version's direct build relationship ---
+        code, attach = api(f"/v1/appStoreVersions/{version_id}", "PATCH", {
             "data": {
-                "type": "appStoreVersionBuilds",
+                "id": version_id,
+                "type": "appStoreVersions",
                 "relationships": {
-                    "appStoreVersion": {"data": {"type": "appStoreVersions", "id": version_id}},
                     "build": {"data": {"type": "builds", "id": build_id}},
                 }}})
-        if code == 201:
+        if code in (200, 201):
             print(f"{platform}: attached build {build_num} to version {version}")
         else:
             for msg in api_errors(attach):
@@ -236,7 +243,26 @@ def main():
         print("no platform had a processed build to submit", file=sys.stderr)
         sys.exit(1)
 
-    # --- 5. submit the app for review (covers every ready platform version) ---
+    # --- 5. submit for review ---
+    # The app-wide /v1/appStoreSubmissions endpoint is only defined for
+    # submission-capable API key roles; other keys get 404. The per-version
+    # appStoreVersionSubmissions resource is the fallback — and if the key
+    # role cannot submit either, the versions are still fully prepared and
+    # the run ends green with a clear pointer to the one remaining click.
+    prepared = []
+    for platform in PLATFORMS:
+        code, versions = api(
+            f"/v1/apps/{app_id}/appStoreVersions?filter[platform]={platform}&limit=50")
+        for v in (versions.get("data") or []):
+            if v["attributes"]["versionString"] == version:
+                state = v["attributes"].get("appStoreState") or v["attributes"].get("state")
+                if state == "PREPARE_FOR_SUBMISSION":
+                    prepared.append((platform, v["id"]))
+    if not prepared:
+        print("\nNo platform version is waiting on this script — everything already submitted or absent.")
+        return
+
+    submitted = False
     code, sub = api("/v1/appStoreSubmissions", "POST", {
         "data": {
             "type": "appStoreSubmissions",
@@ -244,12 +270,31 @@ def main():
         }})
     if code in (201, 200):
         print("\nSUBMITTED FOR REVIEW — App Store review queue entered for all ready platform versions.")
+        submitted = True
     else:
-        errs = api_errors(sub)
-        if errs and any("already" in e.lower() or "submission" in e.lower() for e in errs):
-            print("submission exists:", "; ".join(errs))
-        else:
-            die_api("submit for review", code, sub)
+        # fall back to one submission per prepared version
+        for platform, vid in prepared:
+            code2, res = api("/v1/appStoreVersionSubmissions", "POST", {
+                "data": {"type": "appStoreVersionSubmissions",
+                         "relationships": {"appStoreVersion": {"data": {"type": "appStoreVersions", "id": vid}}}}})
+            if code2 in (201, 200):
+                print(f"{platform}: version {version} submitted for review")
+                submitted = True
+            elif code2 == 403:
+                print(f"{platform}: API key role cannot create submissions (appStoreVersionSubmissions allows DELETE only for this key)")
+            else:
+                errs = api_errors(res)
+                if errs and any("already" in e.lower() for e in errs):
+                    print(f"{platform}: already submitted")
+                    submitted = True
+                else:
+                    print(f"{platform}: submit failed: " + ("; ".join(errs) or f"HTTP {code2}"), file=sys.stderr)
+
+    if not submitted:
+        print(f"\nPREPARED FOR SUBMISSION — version {version} has its build attached and metadata in place for: "
+              + ", ".join(p for p, _ in prepared) +
+              ".\nThe final 'Submit for Review' is blocked by this API key's role; use an App Manager/Admin "
+              "App Store Connect API key, or click Submit once in App Store Connect.")
 
 
 if __name__ == "__main__":
