@@ -2,7 +2,8 @@
 // reinjectContentScripts() in the background may inject this file into a tab
 // that already has it (after an extension update); without this guard the
 // top-level `const` declarations would throw "already declared".
-const KJB_CONTENT_VERSION = "0.4.284";
+
+const KJB_CONTENT_VERSION = "0.4.288";
 
 // A plain boolean guard here was a serious bug: after an extension update the
 // background re-injects this file into already-open tabs, and the boolean made
@@ -25,6 +26,9 @@ if (window.__kjbReaderContentVersion === KJB_CONTENT_VERSION) {
     const stale = document.getElementById("kjb-sidebar-overlay");
     if (stale) stale.remove();
   } catch (e) {}
+
+
+
 
 // KJB Reader - Content Script
 // Detects Bible verse references on web pages and makes them clickable.
@@ -203,7 +207,7 @@ const BOOK_NAMES = [
   "Colossians", "Thessalonians", "Timothy", "Titus", "Philemon",
   "Hebrews", "James", "Peter", "Jude", "Revelation", "Apocalypse",
   // Standard abbreviations
-  "Gen", "Exod", "Lev", "Num", "Deut", "Josh", "Judg", "Ruth",
+  "Gen", "Exod", "Lev", "Num", "Deut", "Deu", "Josh", "Judg", "Ruth",
   "Sam", "Kgs", "Chr", "Ezr", "Neh", "Esth", "Ps", "Pss",
   "Prov", "Eccl", "Song", "Sng", "Cant", "Isa", "Jer", "Lam",
   "Ezek", "Eze", "Dan", "Hos", "Joel", "Amos", "Obad", "Jon",
@@ -221,7 +225,7 @@ const BOOK_FULL_NAMES = {
   "Exodus": "Exodus", "Exod": "Exodus",
   "Leviticus": "Leviticus", "Lev": "Leviticus", "Lv": "Leviticus",
   "Numbers": "Numbers", "Num": "Numbers",
-  "Deuteronomy": "Deuteronomy", "Deut": "Deuteronomy", "Dt": "Deuteronomy",
+  "Deuteronomy": "Deuteronomy", "Deut": "Deuteronomy", "Deu": "Deuteronomy", "Dt": "Deuteronomy",
   "Joshua": "Joshua", "Josh": "Joshua",
   "Judges": "Judges", "Judg": "Judges", "Jdg": "Judges",
   "Ruth": "Ruth",
@@ -1434,12 +1438,43 @@ function kjbPointUnoccluded(entry, x, y) {
   return kjbOccOwners(entry.occId).has(top);
 }
 
+// Confirmed 2026-10-04: BibleGateway's autosuggest renders the query
+// ("Romans 5:1") inside the suggestion list; the scanner paints it and the
+// click handler then swallows the suggestion click and opens the reader
+// instead of running the site's search. Site suggestion/autocomplete UI must
+// always win over a painted reference. Signature: id/class/role on the
+// click-point element OR ANY of its ancestors (crossing shadow roots).
+const KJB_SUGGESTIVE_UI_RE =
+  /(^|[\s_-])(suggest|suggestion|autocomplete|auto-suggest|autosuggest|typeahead|predictive|ac_results|ui-autocomplete|ui-menu|dropdown-menu|listbox|combobox|menu-item|menuitem|option)([\s_-]|$)/i;
+function kjbPointInsideSuggestiveUI(x, y) {
+  let el = kjbDeepElementFromPoint(x, y);
+  let guard = 0;
+  while (el && guard++ < 64) {
+    if (el.nodeType !== Node.ELEMENT_NODE) break;
+    let sig = "";
+    try {
+      sig = ((el.id || "") + " " +
+        (typeof el.className === "string" ? el.className : "") + " " +
+        (el.getAttribute("role") || ""));
+    } catch (_) {}
+    if (KJB_SUGGESTIVE_UI_RE.test(sig)) return true;
+    const root = el.getRootNode && el.getRootNode();
+    if (root && root.host) { el = root.host; continue; }
+    el = el.parentElement;
+  }
+  return false;
+}
+
 function findKjbHit(x, y) {
   // Try geometric detection first (covers padded area around text).
   let entry = findKjbHighlightAtPoint(x, y);
   // Fall back to text-position detection (handles dead zones, transforms).
   if (!entry || !isKjbEntryStillValid(entry)) entry = findKjbHighlightByTextPoint(x, y);
   if (!entry || !isKjbEntryStillValid(entry)) return null;
+  // Site suggestion/autocomplete UI (BibleGateway passage suggestions, X/Twitter
+  // mention dropdowns, Google-style typeaheads) must never have its clicks
+  // captured by a painted reference inside it.
+  if (kjbPointInsideSuggestiveUI(x, y)) return null;
   // The point may be covered by a dialog, scrim, sticky header, overlay or
   // re-rendered compose box that paints above the reference. The browser
   // would deliver the click to that element — so must we.

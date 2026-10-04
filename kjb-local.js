@@ -74,7 +74,7 @@ const BOOK_ALIASES = {
   "Ex": "Exodus",
   "Lev": "Leviticus",
   "Num": "Numbers",
-  "Deut": "Deuteronomy",
+  "Deut": "Deuteronomy", "Deu": "Deuteronomy",
   "Josh": "Joshua",
   "Judg": "Judges",
   "Ruth": "Ruth",

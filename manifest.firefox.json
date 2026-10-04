@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "0.4.284",
+  "version": "0.4.288",
   "description": "__MSG_extDescription__",
   "browser_specific_settings": {
     "gecko": {
@@ -43,6 +43,7 @@
         "<all_urls>"
       ],
       "js": [
+        "kjb-guard.js",
         "content.js"
       ],
       "css": [

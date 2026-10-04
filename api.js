@@ -221,7 +221,7 @@ const KJB_API = (() => {
     "1ti": "1 Timothy", "2ti": "2 Timothy",
     "1pe": "1 Peter", "2pe": "2 Peter",
     "jd": "Jude", "ec": "Ecclesiastes", "prv": "Proverbs",
-    "exo": "Exodus", "jos": "Joshua", "jdg": "Judges",
+    "exo": "Exodus", "deu": "Deuteronomy", "jos": "Joshua", "jdg": "Judges",
     "neh": "Nehemiah", "est": "Esther",
     "jonh": "Jonah", "nah": "Nahum", "zep": "Zephaniah",
     "zec": "Zechariah", "mal": "Malachi", "ob": "Obadiah",
