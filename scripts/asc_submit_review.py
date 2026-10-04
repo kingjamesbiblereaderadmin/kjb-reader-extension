@@ -193,13 +193,27 @@ def main():
                     }}})
             if code != 201:
                 if any("current state" in e for e in api_errors(created)):
+                    # Apple allows only ONE editable version per platform, so the
+                    # blocker may be an old PREPARE_FOR_SUBMISSION leftover — not
+                    # a version in the review queue. Report both cases precisely.
+                    def vstate(v):
+                        return v["attributes"].get("appStoreState") or v["attributes"].get("state")
+                    editable = [v for v in versions.get("data") or []
+                                 if vstate(v) in EDITABLE_STATES
+                                 and v["attributes"].get("platform") == platform]
                     queued = [v for v in versions.get("data") or []
-                              if (v["attributes"].get("appStoreState") or v["attributes"].get("state")) in SUBMITTED_STATES
+                              if vstate(v) in SUBMITTED_STATES
                               and v["attributes"].get("platform") == platform]
+                    for q in editable:
+                        print(f"{platform}: editable version {q['attributes']['versionString']} ({vstate(q)}) is blocking creation — "
+                              f"rename it to {version} or delete it, then re-run")
                     for q in queued:
-                        print(f"{platform}: version {q['attributes']['versionString']} is already in the review queue — {version} skipped")
-                    ready_any = True
-                    continue
+                        print(f"{platform}: version {q['attributes']['versionString']} is already in the review queue")
+                    if not editable:
+                        ready_any = True
+                        continue
+                    else:
+                        sys.exit(1)
                 die_api(f"create {platform} version {version}", code, created)
             version_id = created["data"]["id"]
             print(f"{platform}: created version {version} ({version_id})")
