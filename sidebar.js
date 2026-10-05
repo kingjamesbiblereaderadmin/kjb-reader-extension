@@ -3156,7 +3156,7 @@
         <div class="info-section">
           <h3>KJB Knights — Personal Server</h3>
           <p>A personal Discord server for me and my friends. Feel free to join us for Bible study and fellowship.</p>
-          <p><a href="#" class="info-link" data-url="https://discord.gg/368wTn9pFw">Join KJB Knights ↗</a></p>
+          <p><a href="#" class="info-link" data-url="https://discord.gg/wNSSCABPrv">Join KJB Knights ↗</a></p>
         </div>
 
         <div class="info-section">
