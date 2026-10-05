@@ -1,3 +1,7 @@
+WHAT'S NEW IN v0.4.289 (October 5, 2026)
+- Updated the KJB Knights Discord invite link in the Resources tab
+  (the previous invite had expired).
+
 WHAT'S NEW IN v0.4.284 (October 3, 2026)
 - Fixed click interception on sites that layer UI over verse references
   (Facebook's post/comment dialogs and "Write a comment..." placeholders,
