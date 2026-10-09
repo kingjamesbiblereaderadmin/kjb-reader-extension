@@ -75,6 +75,19 @@ jobs:
           cp "$PWD/store-assets/kjb-1024.png" "$IOS_ICON"
           test "$(sips -g pixelWidth "$IOS_ICON" | awk '/pixelWidth/{print $2}')" = "1024"
           test "$(sips -g pixelHeight "$IOS_ICON" | awk '/pixelHeight/{print $2}')" = "1024"
+          # App Store icons must have NO alpha channel (Apple rejects them).
+          test "$(sips -g hasAlpha "$IOS_ICON" | awk '/hasAlpha/{print $2}')" = "no"
+          # Force every other icon from the committed masters so the packager's
+          # white-padded versions never ship: macOS app icon set, in-app icons,
+          # and the Safari extension toolbar icons.
+          SET="$PWD/$APP_NAME/Shared (App)/Assets.xcassets/AppIcon.appiconset"
+          cp store-assets/mac-icons/mac-icon-*.png "$SET/"
+          cp store-assets/app-icon128.png "$PWD/$APP_NAME/Shared (App)/Assets.xcassets/LargeIcon.imageset/icon128.png"
+          cp store-assets/app-icon128.png "$PWD/$APP_NAME/Shared (App)/Resources/Icon.png" || true
+          for f in icon16.png icon48.png icon128.png kjb-512.png; do
+            cp "icons/$f" "$PWD/$APP_NAME/Shared (Extension)/Resources/icons/$f" || true
+          done
+          echo "App icons forced from store-assets/"
 
       - name: Configure exact bundle IDs, versions, platforms, and signing
         env:
