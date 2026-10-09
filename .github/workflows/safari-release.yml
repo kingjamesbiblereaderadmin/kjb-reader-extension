@@ -244,13 +244,7 @@ jobs:
           # extract the signing-identity serial with python-cryptography instead.
           python3 -m venv /tmp/certvenv
           /tmp/certvenv/bin/pip install --quiet cryptography
-          IOS_CERTIFICATE_SERIAL=$(/tmp/certvenv/bin/python <<'PYEOF'
-import os
-from cryptography.hazmat.primitives.serialization import pkcs12
-k, cert, extra = pkcs12.load_key_and_certificates(open('app.p12','rb').read(), os.environ['P12PW'].encode())
-print(format(cert.serial_number, 'X'))
-PYEOF
-)
+          IOS_CERTIFICATE_SERIAL=$(/tmp/certvenv/bin/python -c 'import os;from cryptography.hazmat.primitives.serialization import pkcs12 as p;print(format(p.load_key_and_certificates(open("app.p12","rb").read(),os.environ["P12PW"].encode())[1].serial_number,"X"))')
           test -n "$IOS_CERTIFICATE_SERIAL"
           echo "IOS_CERTIFICATE_SERIAL=$IOS_CERTIFICATE_SERIAL" >> "$GITHUB_ENV"
           security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | tr '\n' ' ')
