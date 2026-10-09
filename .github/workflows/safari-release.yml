@@ -88,8 +88,10 @@ jobs:
           cp store-assets/mac-icons/mac-icon-*.png "$SET/"
           cp store-assets/app-icon128.png "$PWD/$APP_NAME/Shared (App)/Assets.xcassets/LargeIcon.imageset/icon128.png"
           cp store-assets/app-icon128.png "$PWD/$APP_NAME/Shared (App)/Resources/Icon.png" || true
+          # Safari (iOS/macOS) keeps the NEW hand-drawn icon even though the
+          # Chrome/Edge/Firefox/Opera extension icons stay on the old design.
           for f in icon16.png icon48.png icon128.png kjb-512.png; do
-            cp "icons/$f" "$PWD/$APP_NAME/Shared (Extension)/Resources/icons/$f" || true
+            cp "store-assets/ext-icons/$f" "$PWD/$APP_NAME/Shared (Extension)/Resources/icons/$f" || true
           done
           echo "App icons forced from store-assets/"
 
