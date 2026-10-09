@@ -15,6 +15,10 @@ on:
         description: "Unique build number (blank = use the run number)"
         required: false
         default: ""
+      macos_version:
+        description: "macOS marketing version override (blank = manifest version). Must be higher than the last approved macOS version."
+        required: false
+        default: ""
 jobs:
   build:
     runs-on: macos-15
@@ -74,6 +78,7 @@ jobs:
 
       - name: Configure exact bundle IDs, versions, platforms, and signing
         run: |
+          MACOS_VERSION="${{ github.event.inputs.macos_version }}"
           python3 - <<'PY'
           import os, re
           app = os.environ["APP_NAME"]
@@ -87,6 +92,10 @@ jobs:
           IOS_EXT_PROF = "KJB Reader iOS Extension App Store"
           import json as _json
           VER = _json.load(open("manifest.json"))["version"]
+          # macOS may need to move ahead of the manifest version (e.g. a
+          # 0.4.289 macOS build was already approved, so the next upload
+          # must carry a higher CFBundleShortVersionString).
+          MV = (os.environ.get("MACOS_VERSION") or "").strip() or VER
           def repl(m):
               block = m.group(0)
               bm = re.search(r'PRODUCT_BUNDLE_IDENTIFIER = \"?([^\";]+)\"?;', block)
@@ -98,7 +107,7 @@ jobs:
               block = re.sub(r'PRODUCT_BUNDLE_IDENTIFIER = \"?[^\";]+\"?;',
                              'PRODUCT_BUNDLE_IDENTIFIER = "' + bid + '";', block)
               block = re.sub(r'MARKETING_VERSION = [^;]*;',
-                             'MARKETING_VERSION = "%s";' % VER, block)
+                             'MARKETING_VERSION = "%s";' % (VER if is_ios else MV), block)
               if is_ios:
                   # iOS and iPadOS are supported from Safari 17 onward. This
                   # also guarantees CSS Highlight API support for painted,
@@ -360,17 +369,25 @@ jobs:
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
           BUILD_NUM: ${{ github.event.inputs.build_number != '' && github.event.inputs.build_number || github.run_number }}
         run: |
-          set -eu
+          set -euo pipefail
           VER=$(python3 -c "import json;print(json.load(open('manifest.json'))['version'])")
-          echo "Uploading macOS v$VER build $BUILD_NUM (Apple ID 6813502666)"
+          MV="${{ github.event.inputs.macos_version }}"
+          [ -n "$MV" ] || MV="$VER"
+          echo "Uploading macOS v$MV build $BUILD_NUM (Apple ID 6813502666)"
+          # altool prints "ERROR:" and still exits 0 in some Xcode versions,
+          # so grep the transcript too.
           xcrun altool --upload-package dist/*.pkg \
             --type macos \
             --apple-id "6813502666" \
             --bundle-id "$BUNDLE_ID" \
             --bundle-version "$BUILD_NUM" \
-            --bundle-short-version-string "$VER" \
+            --bundle-short-version-string "$MV" \
             --apiKey "$ASC_KEY_ID" \
-            --apiIssuer "$ASC_ISSUER_ID"
+            --apiIssuer "$ASC_ISSUER_ID" 2>&1 | tee macos-upload.log
+          if grep -q "ERROR" macos-upload.log; then
+            echo "::error title=macOS upload::altool reported an error uploading the macOS package"
+            exit 1
+          fi
           IPA=$(find dist/ios-export -maxdepth 1 -name '*.ipa' -print -quit)
           test -n "$IPA"
           echo "Uploading iOS/iPadOS v$VER build $BUILD_NUM"
@@ -378,7 +395,11 @@ jobs:
             --type ios \
             --file "$IPA" \
             --apiKey "$ASC_KEY_ID" \
-            --apiIssuer "$ASC_ISSUER_ID"
+            --apiIssuer "$ASC_ISSUER_ID" 2>&1 | tee ios-upload.log
+          if grep -q "ERROR" ios-upload.log; then
+            echo "::error title=iOS upload::altool reported an error uploading the iOS app"
+            exit 1
+          fi
 
 
       - name: Attach macOS and iOS packages as workflow artifacts
