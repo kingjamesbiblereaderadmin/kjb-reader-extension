@@ -3,7 +3,7 @@
 // that already has it (after an extension update); without this guard the
 // top-level `const` declarations would throw "already declared".
 
-const KJB_CONTENT_VERSION = "0.4.289";
+const KJB_CONTENT_VERSION = "0.4.290";
 
 // A plain boolean guard here was a serious bug: after an extension update the
 // background re-injects this file into already-open tabs, and the boolean made

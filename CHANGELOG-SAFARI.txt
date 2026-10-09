@@ -1,3 +1,7 @@
+WHAT'S NEW IN v1.0 (October 9, 2026)
+- New hand-drawn KJB Reader app icon for iOS and macOS.
+- Version 1.0 marks the stable Safari App Store release.
+
 WHAT'S NEW IN v0.4.289 (October 5, 2026)
 - Updated the KJB Knights Discord invite link in the Resources tab
   (the previous invite had expired).

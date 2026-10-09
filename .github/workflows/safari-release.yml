@@ -19,6 +19,10 @@ on:
         description: "macOS marketing version override (blank = manifest version). Must be higher than the last approved macOS version."
         required: false
         default: ""
+      ios_version:
+        description: "iOS marketing version override (blank = manifest version)."
+        required: false
+        default: ""
 jobs:
   build:
     runs-on: macos-15
@@ -92,6 +96,7 @@ jobs:
       - name: Configure exact bundle IDs, versions, platforms, and signing
         env:
           MACOS_VERSION: ${{ github.event.inputs.macos_version }}
+          IOS_VERSION: ${{ github.event.inputs.ios_version }}
         run: |
           python3 - <<'PY'
           import os, re
@@ -110,6 +115,7 @@ jobs:
           # 0.4.289 macOS build was already approved, so the next upload
           # must carry a higher CFBundleShortVersionString).
           MV = (os.environ.get("MACOS_VERSION") or "").strip() or VER
+          IV = (os.environ.get("IOS_VERSION") or "").strip() or VER
           def repl(m):
               block = m.group(0)
               bm = re.search(r'PRODUCT_BUNDLE_IDENTIFIER = \"?([^\";]+)\"?;', block)
@@ -121,7 +127,7 @@ jobs:
               block = re.sub(r'PRODUCT_BUNDLE_IDENTIFIER = \"?[^\";]+\"?;',
                              'PRODUCT_BUNDLE_IDENTIFIER = "' + bid + '";', block)
               block = re.sub(r'MARKETING_VERSION = [^;]*;',
-                             'MARKETING_VERSION = "%s";' % (VER if is_ios else MV), block)
+                             'MARKETING_VERSION = "%s";' % (IV if is_ios else MV), block)
               if is_ios:
                   # iOS and iPadOS are supported from Safari 17 onward. This
                   # also guarantees CSS Highlight API support for painted,
@@ -387,6 +393,8 @@ jobs:
           VER=$(python3 -c "import json;print(json.load(open('manifest.json'))['version'])")
           MV="${{ github.event.inputs.macos_version }}"
           [ -n "$MV" ] || MV="$VER"
+          IV="${{ github.event.inputs.ios_version }}"
+          [ -n "$IV" ] || IV="$VER"
           echo "Uploading macOS v$MV build $BUILD_NUM (Apple ID 6813502666)"
           # altool prints "ERROR:" and still exits 0 in some Xcode versions,
           # so grep the transcript too.
@@ -404,7 +412,7 @@ jobs:
           fi
           IPA=$(find dist/ios-export -maxdepth 1 -name '*.ipa' -print -quit)
           test -n "$IPA"
-          echo "Uploading iOS/iPadOS v$VER build $BUILD_NUM"
+          echo "Uploading iOS/iPadOS v$IV build $BUILD_NUM"
           xcrun altool --upload-app \
             --type ios \
             --file "$IPA" \

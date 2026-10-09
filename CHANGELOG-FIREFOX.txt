@@ -1,3 +1,8 @@
+WHAT'S NEW IN v0.4.290 (October 9, 2026)
+- New hand-drawn KJB Reader icon across the toolbar and app.
+- Safari App Store release moves to version 1.0 (iOS and macOS);
+  the extension engine is unchanged.
+
 WHAT'S NEW IN v0.4.289 (October 5, 2026)
 - Updated the KJB Knights Discord invite link in the Resources tab
   (the previous invite had expired).
