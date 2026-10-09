@@ -35,10 +35,10 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Select Xcode 27
+      - name: Select Xcode 27.1
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: "27.0"
+          xcode-version: "27.1"
 
       - name: Build the Safari extension package
         run: ./build.sh safari
@@ -231,6 +231,7 @@ jobs:
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
           set -eu
+          export P12PW="$MAC_APP_P12_PASSWORD"
           KEYCHAIN=ci.keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN"
@@ -239,8 +240,15 @@ jobs:
           echo -n "$MAC_INSTALLER_P12" | base64 --decode -o installer.p12
           security import app.p12 -P "$MAC_APP_P12_PASSWORD" -A -k "$KEYCHAIN"
           security import installer.p12 -P "$MAC_INSTALLER_P12_PASSWORD" -A -k "$KEYCHAIN"
-          IOS_CERTIFICATE_SERIAL=$(openssl pkcs12 -in app.p12 -clcerts -nokeys -passin pass:"$MAC_APP_P12_PASSWORD" 2>/dev/null \
-            | openssl x509 -noout -serial | sed 's/^serial=//')
+          # OpenSSL 3.6 (macOS 27 image) cannot parse Apple API-minted p12s;
+          # extract the signing-identity serial with python-cryptography instead.
+          python3 -m venv /tmp/certvenv
+          /tmp/certvenv/bin/pip install --quiet cryptography
+          IOS_CERTIFICATE_SERIAL=$(/tmp/certvenv/bin/python -c "
+import os
+from cryptography.hazmat.primitives.serialization import pkcs12
+k, cert, extra = pkcs12.load_key_and_certificates(open('app.p12','rb').read(), os.environ['P12PW'].encode())
+print(format(cert.serial_number, 'X'))" )
           test -n "$IOS_CERTIFICATE_SERIAL"
           echo "IOS_CERTIFICATE_SERIAL=$IOS_CERTIFICATE_SERIAL" >> "$GITHUB_ENV"
           security list-keychains -d user -s "$KEYCHAIN" $(security list-keychains -d user | tr '\n' ' ')
