@@ -1,5 +1,8 @@
+WHAT'S NEW IN v0.4.292 (October 9, 2026)
+- Updated the extension toolbar icon to the hand-drawn KJB Reader icon.
+
 WHAT'S NEW IN v0.4.291 (October 9, 2026)
-- Restored the classic extension toolbar icon.
+- Updated the extension toolbar icon.
 
 WHAT'S NEW IN v0.4.290 (October 9, 2026)
 - Safari App Store release moves to version 1.0 (iOS and macOS);
