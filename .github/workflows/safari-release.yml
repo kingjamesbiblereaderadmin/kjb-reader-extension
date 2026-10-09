@@ -77,8 +77,9 @@ jobs:
           test "$(sips -g pixelHeight "$IOS_ICON" | awk '/pixelHeight/{print $2}')" = "1024"
 
       - name: Configure exact bundle IDs, versions, platforms, and signing
+        env:
+          MACOS_VERSION: ${{ github.event.inputs.macos_version }}
         run: |
-          MACOS_VERSION="${{ github.event.inputs.macos_version }}"
           python3 - <<'PY'
           import os, re
           app = os.environ["APP_NAME"]
