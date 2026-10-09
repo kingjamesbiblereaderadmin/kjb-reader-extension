@@ -1,3 +1,6 @@
+WHAT'S NEW IN v0.4.291 (October 9, 2026)
+- Restored the classic extension toolbar icon.
+
 WHAT'S NEW IN v0.4.290 (October 9, 2026)
 - Safari App Store release moves to version 1.0 (iOS and macOS);
   the extension engine is unchanged.
