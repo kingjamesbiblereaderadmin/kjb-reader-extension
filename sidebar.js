@@ -2607,7 +2607,7 @@
     updateCopyRefsUI();
   }
   function updateCopyRefsUI() {
-    const label = copyRefsOn ? "Refs: On" : "Refs: Off";
+    const label = copyRefsOn ? "Copy: Full" : "Copy: Plain";
     for (const id of ["results-copy-refs", "select-copy-refs"]) {
       const b = document.getElementById(id);
       if (b) b.textContent = label;
@@ -2685,7 +2685,7 @@
       bar.className = "results-select-bar";
       bar.innerHTML = '<span class="results-select-count">No verses selected</span>' +
         '<div class="select-bar-actions">' +
-        '<button class="btn-text" id="select-copy-refs" title="When off, copying several verses omits the book name and verse numbers">Refs: On</button>' +
+        '<button class="btn-text" id="select-copy-refs" title="Copy format for several verses. Full = book name, verse numbers and citation. Plain = verse text only.">Copy: Full</button>' +
         '<button class="btn-text btn-copy-go" id="select-copy-go">\u{1F4CB} Copy</button>' +
         '<button class="btn-text" id="select-cancel">Cancel</button>' +
         '</div>';
