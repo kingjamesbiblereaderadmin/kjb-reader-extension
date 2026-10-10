@@ -1,3 +1,6 @@
+WHAT'S NEW IN v0.4.298 (October 10, 2026)
+- Opera: zoom controls and website button now stay centered in the header at every panel width.
+
 WHAT'S NEW IN v0.4.297 (October 10, 2026)
 - Opera: the side panel header now shows just the centered zoom controls and website button; the browser's own sidebar bar provides the title.
 

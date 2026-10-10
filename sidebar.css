@@ -82,7 +82,10 @@ body {
    it); the remaining zoom + website controls sit centered in the header. */
 html.kjb-opera-panel .header-title { display: none; }
 html.kjb-opera-panel .header { justify-content: center; }
-html.kjb-opera-panel #app.kjb-stack .header { justify-content: center; }
+/* The narrow-panel stack rule (#app.kjb-stack .header-actions) left-aligns the
+   row; Opera wants the zoom + website controls centered at every width. */
+html.kjb-opera-panel .header-actions,
+html.kjb-opera-panel #app.kjb-stack .header-actions { justify-content: center; }
 
 .header {
   display: flex;
