@@ -2505,7 +2505,9 @@
       // since rendering converts [brackets] into <em> tags for display —
       // the raw attribute keeps the brackets plain-text copy needs.
       const bodyText = mergeAdjacentItalics((card.dataset.text || (card.querySelector(".result-verse-body")?.textContent || "")).trim().replace(/\s+/g, ' '));
-      text += (copyRefsOn && verseNum ? verseNum.textContent + " " : "") + bodyText + "\n";
+      // Each verse sits on its own bulleted line so verses stay visually
+      // distinct when a copied block is pasted elsewhere (2026-10-10).
+      text += "\u2022 " + (copyRefsOn && verseNum ? verseNum.textContent + " " : "") + bodyText + "\n";
       const footer = card.querySelector(".result-card-structural-footer");
       if (footer) {
         text += "\n" + centerLine(bracketedTextFromElement(footer)) + "\n";
@@ -2765,7 +2767,7 @@
             let plain = "";
             g.verses.forEach(v => {
               if (v.header) plain += centerLine(v.header) + "\n\n";
-              plain += v.text + "\n";
+              plain += "\u2022 " + v.text + "\n";
               if (v.footer) plain += "\n" + centerLine(v.footer) + "\n";
             });
             parts.push(plain.replace(/[\s]+$/, ''));
@@ -2774,7 +2776,7 @@
             let block = centerLine(fullTitle) + "\n" + centerLine(`Chapter ${g.chapter}`) + "\n\n";
             g.verses.forEach(v => {
               if (v.header) block += centerLine(v.header) + "\n\n";
-              block += v.verse + " " + v.text + "\n";
+              block += "\u2022 " + v.verse + " " + v.text + "\n";
               if (v.footer) block += "\n" + centerLine(v.footer) + "\n";
             });
             parts.push(block.replace(/[\s]+$/, ''));

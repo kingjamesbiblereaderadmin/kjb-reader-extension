@@ -1,3 +1,6 @@
+WHAT'S NEW IN v0.4.300 (October 10, 2026)
+- Copy All and multi-verse block copies now list each verse on its own bulleted line.
+
 WHAT'S NEW IN v0.4.299 (October 10, 2026)
 - The multi-verse copy setting is now labeled "Copy: Full / Copy: Plain" for clarity.
 
