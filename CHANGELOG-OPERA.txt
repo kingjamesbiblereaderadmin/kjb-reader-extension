@@ -1,3 +1,6 @@
+WHAT'S NEW IN v0.4.295 (October 10, 2026)
+- The KJB logo now sits inside the panel header; the duplicate title text is gone (your browser's panel bar shows the name).
+
 WHAT'S NEW IN v0.4.294 (October 10, 2026)
 - Removed the duplicate in-panel branding header; your browser's own side panel title bar now provides the branding.
 
