@@ -1,3 +1,6 @@
+WHAT'S NEW IN v0.4.296 (October 10, 2026)
+- New copy setting: turn "Refs" off to copy plain verse text without book names and verse numbers when copying more than one verse.
+
 WHAT'S NEW IN v0.4.295 (October 10, 2026)
 - The KJB logo now sits inside the panel header; the duplicate title text is gone (your browser's panel bar shows the name).
 

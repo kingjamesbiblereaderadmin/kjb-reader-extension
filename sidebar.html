@@ -12,9 +12,10 @@
   <div id="app">
     <!-- Header -->
     <header class="header">
-      <!-- 2026-10-10: title text removed (the browser's own panel bar shows it);
-           the KJB logo stays inside the app, controls on the right. -->
-      <img src="icons/icon48.png" alt="KJB" class="header-logo" onerror="this.style.display='none'">
+      <div class="header-title">
+        <img src="icons/icon48.png" alt="KJB" class="header-logo" onerror="this.style.display='none'">
+        <h1>KJB Reader<span class="header-suffix"> - SidePanel</span></h1>
+      </div>
       <div class="header-actions">
         <div class="ui-scale-controls" role="group" aria-label="Interface size">
           <button class="btn-scale" id="btn-zoom-out" type="button" title="Decrease interface size" aria-label="Decrease interface size">A−</button>
@@ -134,6 +135,7 @@
           <button class="btn-text" id="results-copy-all" title="Copy all shown verses" style="display:none;">📋 Copy All</button>
           <button class="btn-text" id="results-copy-selected" title="Copy selected verses" style="display:none;">📋 Copy Selected</button>
           <button class="btn-text" id="results-clear-selected" title="Clear selection" style="display:none;">Clear</button>
+        <button class="btn-text" id="results-copy-refs" title="When off, copying several verses omits the book name and verse numbers">Refs: On</button>
         </div>
       </div>
 

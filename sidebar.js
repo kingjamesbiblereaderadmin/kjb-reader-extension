@@ -972,6 +972,8 @@
     if (resultsSelectBtn) {
       resultsSelectBtn.addEventListener("click", () => toggleResultsSelectMode());
     }
+    const resultsCopyRefsBtn = document.getElementById("results-copy-refs");
+    if (resultsCopyRefsBtn) resultsCopyRefsBtn.addEventListener("click", () => setCopyRefs(!copyRefsOn));
     const resultsCopyAllBtn = document.getElementById("results-copy-all");
     if (resultsCopyAllBtn) {
       resultsCopyAllBtn.addEventListener("click", () => {
@@ -2488,7 +2490,7 @@
     }
     // Multi-verse: the centered chapter block, matching the Read tab's
     // "Copy Chapter" — full title and "Chapter N" centered over the verses.
-    const fullTitle = BOOK_FULL_TITLES[book] || book;
+    const fullTitle = copyRefsOn ? (BOOK_FULL_TITLES[book] || book) : "";
     let text = fullTitle ? centerLine(fullTitle) + "\n" + centerLine(`Chapter ${chapter}`) + "\n\n" : "";
     cards.forEach(card => {
       const structHeader = card.querySelector(".result-card-superscription, .result-card-hebrew-name");
@@ -2500,7 +2502,7 @@
       // since rendering converts [brackets] into <em> tags for display —
       // the raw attribute keeps the brackets plain-text copy needs.
       const bodyText = mergeAdjacentItalics((card.dataset.text || (card.querySelector(".result-verse-body")?.textContent || "")).trim().replace(/\s+/g, ' '));
-      text += (verseNum ? verseNum.textContent + " " : "") + bodyText + "\n";
+      text += (copyRefsOn && verseNum ? verseNum.textContent + " " : "") + bodyText + "\n";
       const footer = card.querySelector(".result-card-structural-footer");
       if (footer) {
         text += "\n" + centerLine(bracketedTextFromElement(footer)) + "\n";
@@ -2583,6 +2585,32 @@
   let resultsSelectMode = false;
   const selectedRefs = new Set();
 
+  // Copy settings (2026-10-10): multi-verse copies normally include the book
+  // name and verse numbers (chapter title block, numbered lines, range
+  // references). Some users want plain verse text instead. "Refs" is a saved
+  // toggle; when it is OFF, copying more than one verse emits the verses'
+  // text only — no title, no "Chapter N", no verse numbers, no citation.
+  // Psalm/colophon lines stay either way: they are part of the text, not the
+  // citation. Single-verse copies keep their classic "text" - ref (KJB) format.
+  let copyRefsOn = true;
+  try {
+    chrome.storage.local.get("kjbCopyRefs", (r) => {
+      if (r && typeof r.kjbCopyRefs === "boolean") { copyRefsOn = r.kjbCopyRefs; updateCopyRefsUI(); }
+    });
+  } catch (e) {}
+  function setCopyRefs(on) {
+    copyRefsOn = !!on;
+    try { chrome.storage.local.set({ kjbCopyRefs: copyRefsOn }); } catch (e) {}
+    updateCopyRefsUI();
+  }
+  function updateCopyRefsUI() {
+    const label = copyRefsOn ? "Refs: On" : "Refs: Off";
+    for (const id of ["results-copy-refs", "select-copy-refs"]) {
+      const b = document.getElementById(id);
+      if (b) b.textContent = label;
+    }
+  }
+
   function toggleResultsSelectMode() {
     resultsSelectMode = !resultsSelectMode;
     const selectBtn = document.getElementById("results-select");
@@ -2654,11 +2682,14 @@
       bar.className = "results-select-bar";
       bar.innerHTML = '<span class="results-select-count">No verses selected</span>' +
         '<div class="select-bar-actions">' +
+        '<button class="btn-text" id="select-copy-refs" title="When off, copying several verses omits the book name and verse numbers">Refs: On</button>' +
         '<button class="btn-text btn-copy-go" id="select-copy-go">\u{1F4CB} Copy</button>' +
         '<button class="btn-text" id="select-cancel">Cancel</button>' +
         '</div>';
       document.getElementById("tab-results").appendChild(bar);
       bar.querySelector("#select-copy-go").addEventListener("click", copySelectedVerses);
+      bar.querySelector("#select-copy-refs").addEventListener("click", () => setCopyRefs(!copyRefsOn));
+      updateCopyRefsUI();
       bar.querySelector("#select-cancel").addEventListener("click", () => toggleResultsSelectMode());
     }
     bar.style.display = "";
@@ -2726,14 +2757,25 @@
           // it copies as a whole like "Copy All" instead: centered title and
           // "Chapter N", then one verse per line with its verse number — the
           // numbers make the gaps explicit.
-          const fullTitle = BOOK_FULL_TITLES[g.book] || g.book;
-          let block = centerLine(fullTitle) + "\n" + centerLine(`Chapter ${g.chapter}`) + "\n\n";
-          g.verses.forEach(v => {
-            if (v.header) block += centerLine(v.header) + "\n\n";
-            block += v.verse + " " + v.text + "\n";
-            if (v.footer) block += "\n" + centerLine(v.footer) + "\n";
-          });
-          parts.push(block.replace(/[\s]+$/, ''));
+          if (!copyRefsOn) {
+            // Refs off: verse text only, no title/chapter header, no numbers.
+            let plain = "";
+            g.verses.forEach(v => {
+              if (v.header) plain += centerLine(v.header) + "\n\n";
+              plain += v.text + "\n";
+              if (v.footer) plain += "\n" + centerLine(v.footer) + "\n";
+            });
+            parts.push(plain.replace(/[\s]+$/, ''));
+          } else {
+            const fullTitle = BOOK_FULL_TITLES[g.book] || g.book;
+            let block = centerLine(fullTitle) + "\n" + centerLine(`Chapter ${g.chapter}`) + "\n\n";
+            g.verses.forEach(v => {
+              if (v.header) block += centerLine(v.header) + "\n\n";
+              block += v.verse + " " + v.text + "\n";
+              if (v.footer) block += "\n" + centerLine(v.footer) + "\n";
+            });
+            parts.push(block.replace(/[\s]+$/, ''));
+          }
         } else {
           // Consecutive selections keep the consolidated paragraph with a
           // range reference.
@@ -2743,7 +2785,9 @@
           const refStr = first === last
             ? g.book + " " + g.chapter + ":" + first
             : g.book + " " + g.chapter + ":" + first + "-" + last;
-          parts.push("\u201c" + headerLine + combined + footerBit + "\u201d - " + refStr + " (KJB)");
+          parts.push(copyRefsOn
+            ? "\u201c" + headerLine + combined + footerBit + "\u201d - " + refStr + " (KJB)"
+            : headerLine + combined + footerBit);
         }
       }
     }
