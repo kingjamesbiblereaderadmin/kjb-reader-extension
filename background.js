@@ -453,7 +453,29 @@ api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     const panelAlreadyOpen = sidePanelPort || (hbAge < 6500);
 
     if (panelAlreadyOpen) {
-      console.log("[KJB Background] side panel already open — skipping sidePanel.open");
+      // v0.4.301: "believed open" is no longer trusted blindly. Chrome can
+      // keep a user-closed panel's document alive (it keeps heartbeating,
+      // receiving messages and acking while invisible — verified on Chrome
+      // 153, where sidePanel.open() silently no-ops against it), and the
+      // port/heartbeat belief can also go stale after a service-worker
+      // restart. Two safeguards:
+      //   (1) retry sidePanel.open() — verified a silent no-op when the
+      //       panel is genuinely open, and the only way to re-show a panel
+      //       the browser actually closed (Edge excluded: its open() can
+      //       reject/flash against a live panel).
+      //   (2) run the ack-wait: the lookup was already pushed above; if
+      //       nothing acks it, the in-page overlay appears so the click
+      //       always pays off visibly.
+      console.log("[KJB Background] side panel believed open — open() retry + ack-wait");
+      const isEdgeUa = /Edg\//.test(msg.userAgent || "");
+      if (hasChromeSidePanel && !isEdgeUa && tabId !== null) {
+        try {
+          chrome.sidePanel.open({ tabId }).then(() => {
+            setSidePanelOpen(true);
+          }).catch(() => {});
+        } catch (e) {}
+      }
+      fallbackAfterReject(msg.text, tabId);
       sendResponse({ ok: true, hasSidePanel: hasChromeSidePanel });
       return;
     }

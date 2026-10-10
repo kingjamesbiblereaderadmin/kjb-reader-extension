@@ -1042,6 +1042,10 @@
     // Show read controls bar only on Read tab (only if a chapter is loaded)
     const readCtrls = document.getElementById("read-controls");
     if (readCtrls) readCtrls.style.display = (tabName === "read" && document.getElementById("read-content").querySelector(".read-verses")) ? "" : "none";
+    // The results toolbar (Select / Copy: Full / Copy All / Clear) belongs to
+    // the Results tab only — never show it over Gospel or Resources (2026-10-10).
+    const resultsCtrlsAll = document.getElementById("results-controls");
+    if (resultsCtrlsAll) resultsCtrlsAll.style.display = (tabName === "results" && resultsList.querySelector(".result-card")) ? "" : "none";
     // Scroll to top of content area (the actual scrollable container)
     const contentArea = document.querySelector(".content-area");
     if (contentArea) contentArea.scrollTop = 0;
@@ -2494,7 +2498,10 @@
     // Multi-verse: the centered chapter block, matching the Read tab's
     // "Copy Chapter" — full title and "Chapter N" centered over the verses.
     const fullTitle = copyRefsOn ? (BOOK_FULL_TITLES[book] || book) : "";
-    let text = fullTitle ? centerLine(fullTitle) + "\n" + centerLine(`Chapter ${chapter}`) + "\n\n" : "";
+    // One bullet marks the whole copied group (2026-10-10) — the verses
+    // themselves stay plain lines so the bullet marks the section, not
+    // every verse.
+    let text = "\u2022 " + (fullTitle ? centerLine(fullTitle) + "\n" + centerLine(`Chapter ${chapter}`) + "\n\n" : "");
     cards.forEach(card => {
       const structHeader = card.querySelector(".result-card-superscription, .result-card-hebrew-name");
       if (structHeader) {
@@ -2505,9 +2512,7 @@
       // since rendering converts [brackets] into <em> tags for display —
       // the raw attribute keeps the brackets plain-text copy needs.
       const bodyText = mergeAdjacentItalics((card.dataset.text || (card.querySelector(".result-verse-body")?.textContent || "")).trim().replace(/\s+/g, ' '));
-      // Each verse sits on its own bulleted line so verses stay visually
-      // distinct when a copied block is pasted elsewhere (2026-10-10).
-      text += "\u2022 " + (copyRefsOn && verseNum ? verseNum.textContent + " " : "") + bodyText + "\n";
+      text += (copyRefsOn && verseNum ? verseNum.textContent + " " : "") + bodyText + "\n";
       const footer = card.querySelector(".result-card-structural-footer");
       if (footer) {
         text += "\n" + centerLine(bracketedTextFromElement(footer)) + "\n";
@@ -2764,19 +2769,21 @@
           // numbers make the gaps explicit.
           if (!copyRefsOn) {
             // Refs off: verse text only, no title/chapter header, no numbers.
-            let plain = "";
+            // One bullet marks the whole group (2026-10-10).
+            let plain = "\u2022 ";
             g.verses.forEach(v => {
               if (v.header) plain += centerLine(v.header) + "\n\n";
-              plain += "\u2022 " + v.text + "\n";
+              plain += v.text + "\n";
               if (v.footer) plain += "\n" + centerLine(v.footer) + "\n";
             });
             parts.push(plain.replace(/[\s]+$/, ''));
           } else {
             const fullTitle = BOOK_FULL_TITLES[g.book] || g.book;
-            let block = centerLine(fullTitle) + "\n" + centerLine(`Chapter ${g.chapter}`) + "\n\n";
+            // One bullet marks the whole group (2026-10-10).
+            let block = "\u2022 " + centerLine(fullTitle) + "\n" + centerLine(`Chapter ${g.chapter}`) + "\n\n";
             g.verses.forEach(v => {
               if (v.header) block += centerLine(v.header) + "\n\n";
-              block += "\u2022 " + v.verse + " " + v.text + "\n";
+              block += v.verse + " " + v.text + "\n";
               if (v.footer) block += "\n" + centerLine(v.footer) + "\n";
             });
             parts.push(block.replace(/[\s]+$/, ''));

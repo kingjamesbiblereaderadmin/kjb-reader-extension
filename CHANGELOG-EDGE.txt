@@ -1,3 +1,8 @@
+WHAT'S NEW IN v0.4.301 (October 10, 2026)
+- Fixed verse clicks sometimes needing several attempts to open the side panel after it had been opened and closed once.
+- The copy toolbar no longer appears on the Gospel and Resources tabs.
+- Copied verse groups now carry one bullet for the whole group instead of a bullet on every verse.
+
 WHAT'S NEW IN v0.4.300 (October 10, 2026)
 - Copy All and multi-verse block copies now list each verse on its own bulleted line.
 
