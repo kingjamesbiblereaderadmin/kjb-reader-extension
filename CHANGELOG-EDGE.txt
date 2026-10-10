@@ -1,3 +1,6 @@
+WHAT'S NEW IN v0.4.293 (October 10, 2026)
+- Fixed the SidePanel header crowding the A-/100%/A+ zoom controls: the title now gets its own row on narrower panels.
+
 WHAT'S NEW IN v0.4.292 (October 9, 2026)
 - Updated the extension toolbar icon to the hand-drawn KJB Reader icon.
 

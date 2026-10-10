@@ -442,7 +442,7 @@
   // Pure, so the geometry can be tested without a browser.
   // Same thresholds as the @container tiers in sidebar.css. Derived from the
   // header's ~202px of fixed furniture (see the comment there).
-  const STACK_LAYOUT_PX = 380;   // title needs its own row to keep full size
+  const STACK_LAYOUT_PX = 500;   // title needs its own row to keep full size
   const TIGHT_LAYOUT_PX = 300;   // trim header padding a little
   // Below this much effective height the panel cannot show its header, search
   // strip, tabs, a usable read area and the footer at the same time, so it
