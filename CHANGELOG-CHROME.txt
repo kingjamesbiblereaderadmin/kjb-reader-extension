@@ -1,3 +1,6 @@
+WHAT'S NEW IN v0.4.297 (October 10, 2026)
+- Opera: the side panel header now shows just the centered zoom controls and website button; the browser's own sidebar bar provides the title.
+
 WHAT'S NEW IN v0.4.296 (October 10, 2026)
 - New copy setting: turn "Refs" off to copy plain verse text without book names and verse numbers when copying more than one verse.
 

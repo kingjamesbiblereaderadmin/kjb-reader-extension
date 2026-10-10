@@ -44,6 +44,9 @@
            function (b) { return /Microsoft Edge/i.test(b.brand); }
          )))) {
       document.documentElement.classList.add("kjb-edge-panel");
+    if (/OPR\//i.test(navigator.userAgent) && !/[?&]ctx=overlay/.test(location.search) && !/[?&]win=1/.test(location.search)) {
+      document.documentElement.classList.add("kjb-opera-panel");
+    }
     }
   } catch (e) {}
   console.log("[KJB Sidebar] context:", KJB_IS_OVERLAY ? "OVERLAY (no presence)" : (KJB_IS_LOOKUP_WINDOW ? "LOOKUP WINDOW (no presence)" : "SIDE PANEL"));

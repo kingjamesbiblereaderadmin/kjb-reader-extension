@@ -41,6 +41,17 @@
       document.documentElement.classList.add("kjb-edge-panel");
     }
 
+    // Opera 2026-10-10: the owner wants Opera's panel to carry no in-panel
+    // branding — the browser's own sidebar bar owns the title — with the
+    // zoom controls and the website button centered in the header instead.
+    var isOpera = /OPR\//i.test(navigator.userAgent) ||
+      !!(navigator.userAgentData && (navigator.userAgentData.brands || []).some(
+        function (b) { return /Opera/i.test(b.brand); }
+      ));
+    if (isOpera && !isOverlay && !isLookupWindow) {
+      document.documentElement.classList.add("kjb-opera-panel");
+    }
+
     var raw = parseFloat(localStorage.getItem("kjbUiScale"));
     var scale = (!raw || raw < 0.75 || raw > 1.5) ? 1 : raw;
 

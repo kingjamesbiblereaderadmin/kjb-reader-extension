@@ -78,6 +78,12 @@ body {
 }
 
 /* Header */
+/* Opera 2026-10-10: no in-panel logo/title (the browser's sidebar bar owns
+   it); the remaining zoom + website controls sit centered in the header. */
+html.kjb-opera-panel .header-title { display: none; }
+html.kjb-opera-panel .header { justify-content: center; }
+html.kjb-opera-panel #app.kjb-stack .header { justify-content: center; }
+
 .header {
   display: flex;
   align-items: center;
