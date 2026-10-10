@@ -1,3 +1,6 @@
+WHAT'S NEW IN v0.4.294 (October 10, 2026)
+- Removed the duplicate in-panel branding header; your browser's own side panel title bar now provides the branding.
+
 WHAT'S NEW IN v0.4.293 (October 10, 2026)
 - Fixed the SidePanel header crowding the A-/100%/A+ zoom controls: the title now gets its own row on narrower panels.
 
