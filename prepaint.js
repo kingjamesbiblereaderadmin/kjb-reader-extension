@@ -52,6 +52,16 @@
       document.documentElement.classList.add("kjb-opera-panel");
     }
 
+    // Chrome 2026-10-10: same centre treatment as Opera — the native side
+    // panel header (icon + name + close) carries the identity, so the panel
+    // drops its in-panel logo/title and centres the zoom + website controls.
+    // Edge KEEPS the in-panel branding (kjb-edge-panel) — the owner wants the
+    // title visible inside Edge's sidebar.
+    var isChrome = !isEdge && !isOpera && /Chrome\//i.test(navigator.userAgent);
+    if (isChrome && !isOverlay && !isLookupWindow) {
+      document.documentElement.classList.add("kjb-chrome-panel");
+    }
+
     var raw = parseFloat(localStorage.getItem("kjbUiScale"));
     var scale = (!raw || raw < 0.75 || raw > 1.5) ? 1 : raw;
 

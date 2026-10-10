@@ -1,3 +1,6 @@
+WHAT'S NEW IN v0.4.302 (October 10, 2026)
+- Chrome's side panel now shows only the centred zoom controls and website button, matching Opera — the browser's own panel header carries the name. Edge keeps the in-panel logo and title.
+
 WHAT'S NEW IN v0.4.301 (October 10, 2026)
 - Fixed verse clicks sometimes needing several attempts to open the side panel after it had been opened and closed once.
 - The copy toolbar no longer appears on the Gospel and Resources tabs.

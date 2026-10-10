@@ -1,3 +1,6 @@
+WHAT'S NEW IN v0.4.302 (October 10, 2026)
+- No user-visible change (Chrome-only header alignment update).
+
 WHAT'S NEW IN v0.4.301 (October 10, 2026)
 - The copy toolbar no longer appears on the Gospel and Resources tabs.
 - Copied verse groups now carry one bullet for the whole group instead of a bullet on every verse.

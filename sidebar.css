@@ -78,14 +78,19 @@ body {
 }
 
 /* Header */
-/* Opera 2026-10-10: no in-panel logo/title (the browser's sidebar bar owns
-   it); the remaining zoom + website controls sit centered in the header. */
-html.kjb-opera-panel .header-title { display: none; }
-html.kjb-opera-panel .header { justify-content: center; }
+/* Opera + Chrome 2026-10-10: no in-panel logo/title (the browser's own side
+   panel header owns the identity); the remaining zoom + website controls sit
+   centered in the header. Edge keeps its in-panel branding (kjb-edge-panel). */
+html.kjb-opera-panel .header-title,
+html.kjb-chrome-panel .header-title { display: none; }
+html.kjb-opera-panel .header,
+html.kjb-chrome-panel .header { justify-content: center; }
 /* The narrow-panel stack rule (#app.kjb-stack .header-actions) left-aligns the
-   row; Opera wants the zoom + website controls centered at every width. */
+   row; Opera/Chrome want the zoom + website controls centered at every width. */
 html.kjb-opera-panel .header-actions,
-html.kjb-opera-panel #app.kjb-stack .header-actions { justify-content: center; }
+html.kjb-opera-panel #app.kjb-stack .header-actions,
+html.kjb-chrome-panel .header-actions,
+html.kjb-chrome-panel #app.kjb-stack .header-actions { justify-content: center; }
 
 .header {
   display: flex;

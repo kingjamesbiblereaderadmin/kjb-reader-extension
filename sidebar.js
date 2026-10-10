@@ -44,9 +44,21 @@
            function (b) { return /Microsoft Edge/i.test(b.brand); }
          )))) {
       document.documentElement.classList.add("kjb-edge-panel");
-    if (/OPR\//i.test(navigator.userAgent) && !/[?&]ctx=overlay/.test(location.search) && !/[?&]win=1/.test(location.search)) {
+    }
+    if (KJB_IS_SIDE_PANEL &&
+        /OPR\//i.test(navigator.userAgent) &&
+        !/[?&]ctx=overlay/.test(location.search) && !/[?&]win=1/.test(location.search)) {
       document.documentElement.classList.add("kjb-opera-panel");
     }
+    // Chrome 2026-10-10: mirror of prepaint — Chrome gets Opera's centre
+    // treatment (no in-panel logo/title, centred zoom + website controls);
+    // Edge keeps its in-panel branding.
+    if (KJB_IS_SIDE_PANEL &&
+        /Chrome\//i.test(navigator.userAgent) &&
+        !/Edg\//i.test(navigator.userAgent) &&
+        !/OPR\//i.test(navigator.userAgent) &&
+        !/[?&]ctx=overlay/.test(location.search) && !/[?&]win=1/.test(location.search)) {
+      document.documentElement.classList.add("kjb-chrome-panel");
     }
   } catch (e) {}
   console.log("[KJB Sidebar] context:", KJB_IS_OVERLAY ? "OVERLAY (no presence)" : (KJB_IS_LOOKUP_WINDOW ? "LOOKUP WINDOW (no presence)" : "SIDE PANEL"));
