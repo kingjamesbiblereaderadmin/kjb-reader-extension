@@ -2507,6 +2507,41 @@
       const footerText = footer ? " " + bracketedTextFromElement(footer) : "";
       return `\u201c${headerLine}${plainText}${footerText}\u201d - ${ref} (KJB)`;
     }
+    if (!copyRefsOn) {
+      // Copy: Plain multi-verse (2026-10-12) — one flowing paragraph, not a
+      // line per verse: verses join with single spaces (a pilcrow-led verse
+      // keeps its "¶ " paragraph mark followed by a space, exactly as the
+      // source prints it), and the whole text is wrapped in quotes with the
+      // group's reference and (KJB), matching the single-verse copy format.
+      let headerLine = "";
+      let footerText = "";
+      let firstVerse = null, lastVerse = null;
+      const parts = [];
+      cards.forEach(card => {
+        const structHeader = card.querySelector(".result-card-superscription, .result-card-hebrew-name");
+        if (structHeader && !headerLine) {
+          headerLine = centerLine(bracketedTextFromElement(structHeader), 1) + "\n";
+        }
+        const vm = String(card.dataset.ref || "").match(/(\d+)$/);
+        if (vm) {
+          const vn = parseInt(vm[1], 10);
+          if (firstVerse === null || vn < firstVerse) firstVerse = vn;
+          if (lastVerse === null || vn > lastVerse) lastVerse = vn;
+        }
+        // Prefer the raw source text (data-text) over the rendered DOM text,
+        // since rendering converts [brackets] into <em> tags for display —
+        // the raw attribute keeps the brackets plain-text copy needs.
+        parts.push(mergeAdjacentItalics((card.dataset.text || (card.querySelector(".result-verse-body")?.textContent || "")).trim().replace(/\s+/g, ' ')));
+        const footer = card.querySelector(".result-card-structural-footer");
+        if (footer) footerText = " " + bracketedTextFromElement(footer);
+      });
+      const refStr = firstVerse === null
+        ? (book + " " + chapter).trim()
+        : (lastVerse > firstVerse
+          ? book + " " + chapter + ":" + firstVerse + "-" + lastVerse
+          : book + " " + chapter + ":" + firstVerse);
+      return "\u201c" + headerLine + parts.join(" ") + footerText + "\u201d - " + refStr + " (KJB)";
+    }
     // Multi-verse: the centered chapter block, matching the Read tab's
     // "Copy Chapter" — full title and "Chapter N" centered over the verses.
     const fullTitle = copyRefsOn ? (BOOK_FULL_TITLES[book] || book) : "";
@@ -2780,15 +2815,18 @@
           // "Chapter N", then one verse per line with its verse number — the
           // numbers make the gaps explicit.
           if (!copyRefsOn) {
-            // Refs off: verse text only, no title/chapter header, no numbers.
-            // One bullet marks the whole group (2026-10-10).
-            let plain = "\u2022 ";
-            g.verses.forEach(v => {
-              if (v.header) plain += centerLine(v.header) + "\n\n";
-              plain += v.text + "\n";
-              if (v.footer) plain += "\n" + centerLine(v.footer) + "\n";
-            });
-            parts.push(plain.replace(/[\s]+$/, ''));
+            // Copy: Plain (2026-10-12) — the same flowing-paragraph format as
+            // consecutive selections: verses join with single spaces (pilcrow-
+            // led verses keep their "¶ " mark with a space), no per-verse
+            // lines or numbers, and the whole text is quoted with the range
+            // reference and (KJB).
+            const combinedPlain = g.verses.map(v => v.text).join(" ");
+            const fp = g.verses[0].verse;
+            const lp = g.verses[g.verses.length - 1].verse;
+            const plainRefStr = fp === lp
+              ? g.book + " " + g.chapter + ":" + fp
+              : g.book + " " + g.chapter + ":" + fp + "-" + lp;
+            parts.push("\u201c" + headerLine + combinedPlain + footerBit + "\u201d - " + plainRefStr + " (KJB)");
           } else {
             const fullTitle = BOOK_FULL_TITLES[g.book] || g.book;
             // One bullet marks the whole group (2026-10-10).
@@ -2809,9 +2847,10 @@
           const refStr = first === last
             ? g.book + " " + g.chapter + ":" + first
             : g.book + " " + g.chapter + ":" + first + "-" + last;
-          parts.push(copyRefsOn
-            ? "\u201c" + headerLine + combined + footerBit + "\u201d - " + refStr + " (KJB)"
-            : headerLine + combined + footerBit);
+          // Copy: Plain uses the same quoted paragraph (2026-10-12) — the
+          // whole text is in quotes with the verse ref and (KJB), exactly
+          // like the single-verse copy format.
+          parts.push("\u201c" + headerLine + combined + footerBit + "\u201d - " + refStr + " (KJB)");
         }
       }
     }
