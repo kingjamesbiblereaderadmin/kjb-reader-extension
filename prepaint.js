@@ -41,6 +41,13 @@
       document.documentElement.classList.add("kjb-edge-panel");
     }
 
+    // Mobile 2026-10-13: computed BEFORE the Opera/Chrome checks — every
+    // mobile Chromium browser (Chrome, Edge "EdgA/", Samsung) reports
+    // "Chrome/" in its UA yet has NO browser side-panel header of its own:
+    // the overlay IS the interface, so the centre-only treatment below
+    // must never apply there (it was hiding the logo/title on phones).
+    var isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
+
     // Opera 2026-10-10: the owner wants Opera's panel to carry no in-panel
     // branding — the browser's own sidebar bar owns the title — with the
     // zoom controls and the website button centered in the header instead.
@@ -48,7 +55,7 @@
       !!(navigator.userAgentData && (navigator.userAgentData.brands || []).some(
         function (b) { return /Opera/i.test(b.brand); }
       ));
-    if (isOpera && !isOverlay && !isLookupWindow) {
+    if (isOpera && !isOverlay && !isLookupWindow && !isMobile) {
       document.documentElement.classList.add("kjb-opera-panel");
     }
 
@@ -58,16 +65,16 @@
     // Edge KEEPS the in-panel branding (kjb-edge-panel) — the owner wants the
     // title visible inside Edge's sidebar.
     var isChrome = !isEdge && !isOpera && /Chrome\//i.test(navigator.userAgent);
-    if (isChrome && !isOverlay && !isLookupWindow) {
+    if (isChrome && !isOverlay && !isLookupWindow && !isMobile) {
       document.documentElement.classList.add("kjb-chrome-panel");
     }
 
     // Mobile 2026-10-13: mobile has no browser header of its own — the
     // overlay IS the interface — so the in-panel logo + title must stay.
     // sidebar.css pairs this tag with the stacked-header rules: on a
-    // phone-width panel the zoom + website controls right-align under the
-    // branding instead of hugging the left edge.
-    if (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)) {
+    // phone-width panel the header stays ONE row — logo + title left, zoom
+    // + website controls right-aligned beside the branding.
+    if (isMobile) {
       document.documentElement.classList.add("kjb-mobile");
     }
 

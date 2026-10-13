@@ -182,6 +182,17 @@ html.kjb-mobile #app.kjb-stack .header {
 }
 html.kjb-mobile #app.kjb-stack .header-actions { justify-content: flex-end; }
 
+/* 2026-10-13 fix: mobile must always beat the chrome/opera centre-only
+   treatment. Mobile Chromium UAs (Edge Android "EdgA/", Samsung, Chrome)
+   also match "Chrome/", so kjb-chrome-panel/kjb-opera-panel can coexist with
+   kjb-mobile (prepaint.js now gates them off mobile, but stale scripts or
+   cached classes must not regress the phone header either). Equal
+   specificity + later source order wins at every width, not just inside
+   the container query. */
+html.kjb-mobile .header-title { display: flex; }
+html.kjb-mobile .header { justify-content: space-between; }
+html.kjb-mobile .header-actions { justify-content: flex-end; }
+
 /* Mild padding relief only — nothing is ever hidden. */
 @container (max-width: 300px) {
   .header { padding: 10px 10px; }
