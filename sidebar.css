@@ -163,12 +163,22 @@ html.kjb-chrome-panel #app.kjb-stack .header-actions { justify-content: center; 
 #app.kjb-stack .header-actions { justify-content: flex-start; }
 
 /* Mobile 2026-10-13: mobile has no browser header of its own — the overlay
-   IS the interface — so the in-panel logo + title stay (the panel classes
-   above never tag the overlay). When the header stacks on a phone-width
-   panel, the zoom + website controls right-align instead of hugging the
-   left edge. */
+   IS the interface — so the in-panel logo + title stay. The header stays on
+   ONE row (logo + title left, zoom + website controls right) even at
+   phone width, overriding the narrow-panel stack rule; fitHeaderTitle()
+   remains the safety net that shrinks the title font if the row is tight. */
 @container (max-width: 500px) {
+  html.kjb-mobile .header {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+  }
   html.kjb-mobile .header-actions { justify-content: flex-end; }
+}
+html.kjb-mobile #app.kjb-stack .header {
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
 }
 html.kjb-mobile #app.kjb-stack .header-actions { justify-content: flex-end; }
 
