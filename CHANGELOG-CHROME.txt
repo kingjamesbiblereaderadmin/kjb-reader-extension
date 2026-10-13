@@ -1,3 +1,6 @@
+WHAT'S NEW IN v0.4.304 (October 13, 2026)
+- Mobile header keeps the in-panel logo and "KJB Reader - SidePanel" title (mobile has no browser header of its own), and the zoom controls and website button now right-align beneath the branding.
+
 WHAT'S NEW IN v0.4.302 (October 10, 2026)
 - Chrome's side panel now shows only the centred zoom controls and website button, matching Opera — the browser's own panel header carries the name. Edge keeps the in-panel logo and title.
 

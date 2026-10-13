@@ -1,3 +1,6 @@
+WHAT'S NEW IN v0.4.304 (October 13, 2026)
+- Mobile header keeps the in-panel logo and "KJB Reader - SidePanel" title (mobile has no browser header of its own), and the zoom controls and website button now right-align beneath the branding.
+
 WHAT'S NEW IN v1.0 (October 9, 2026)
 - New hand-drawn KJB Reader app icon for iOS and macOS.
 - Version 1.0 marks the stable Safari App Store release.

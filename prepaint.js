@@ -62,6 +62,15 @@
       document.documentElement.classList.add("kjb-chrome-panel");
     }
 
+    // Mobile 2026-10-13: mobile has no browser header of its own — the
+    // overlay IS the interface — so the in-panel logo + title must stay.
+    // sidebar.css pairs this tag with the stacked-header rules: on a
+    // phone-width panel the zoom + website controls right-align under the
+    // branding instead of hugging the left edge.
+    if (/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)) {
+      document.documentElement.classList.add("kjb-mobile");
+    }
+
     var raw = parseFloat(localStorage.getItem("kjbUiScale"));
     var scale = (!raw || raw < 0.75 || raw > 1.5) ? 1 : raw;
 

@@ -60,6 +60,11 @@
         !/[?&]ctx=overlay/.test(location.search) && !/[?&]win=1/.test(location.search)) {
       document.documentElement.classList.add("kjb-chrome-panel");
     }
+    // Mobile 2026-10-13: mirror of prepaint — tags the document so the
+    // stacked header keeps the logo/title and right-aligns the controls.
+    if (KJB_IS_MOBILE) {
+      document.documentElement.classList.add("kjb-mobile");
+    }
   } catch (e) {}
   console.log("[KJB Sidebar] context:", KJB_IS_OVERLAY ? "OVERLAY (no presence)" : (KJB_IS_LOOKUP_WINDOW ? "LOOKUP WINDOW (no presence)" : "SIDE PANEL"));
 
