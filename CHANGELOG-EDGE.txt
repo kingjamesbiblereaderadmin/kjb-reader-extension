@@ -1,3 +1,9 @@
+WHAT'S NEW IN v0.4.306 (October 13, 2026)
+- Edge's side panel header now stays on one row: logo and "KJB Reader - SidePanel" title on the left, zoom controls and website button right-aligned, instead of stacking in narrow panels.
+
+WHAT'S NEW IN v0.4.305 (October 13, 2026)
+- Fix: mobile browsers (Edge on Android, Chrome, Samsung, Opera Mobile) were picking up the desktop Chrome centre-only styling, which hid the in-panel logo and title on phones. Mobile now always keeps the logo and "KJB Reader - SidePanel" title on one header row, with the zoom controls and website button right-aligned. Desktop panels unchanged.
+
 WHAT'S NEW IN v0.4.304 (October 13, 2026)
 - Mobile keeps the in-panel logo and "KJB Reader - SidePanel" title on one header row (mobile has no browser header of its own), with the zoom controls and website button right-aligned beside the branding.
 

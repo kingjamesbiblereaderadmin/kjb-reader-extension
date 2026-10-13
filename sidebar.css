@@ -193,6 +193,25 @@ html.kjb-mobile .header-title { display: flex; }
 html.kjb-mobile .header { justify-content: space-between; }
 html.kjb-mobile .header-actions { justify-content: flex-end; }
 
+/* 2026-10-13: Edge's docked panel keeps the in-panel logo + title AND now
+   stays on ONE row (branding left, zoom + website controls right-aligned)
+   instead of the narrow-panel stack. fitHeaderTitle() still shrinks the
+   title font if the row is tight. */
+@container (max-width: 500px) {
+  html.kjb-edge-panel .header {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+  }
+  html.kjb-edge-panel .header-actions { justify-content: flex-end; }
+}
+html.kjb-edge-panel #app.kjb-stack .header {
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+}
+html.kjb-edge-panel #app.kjb-stack .header-actions { justify-content: flex-end; }
+
 /* Mild padding relief only — nothing is ever hidden. */
 @container (max-width: 300px) {
   .header { padding: 10px 10px; }
