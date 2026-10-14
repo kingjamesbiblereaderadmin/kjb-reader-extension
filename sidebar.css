@@ -196,21 +196,29 @@ html.kjb-mobile .header-actions { justify-content: flex-end; }
 /* 2026-10-13: Edge's docked panel keeps the in-panel logo + title AND now
    stays on ONE row (branding left, zoom + website controls right-aligned)
    instead of the narrow-panel stack. fitHeaderTitle() still shrinks the
-   title font if the row is tight. */
+   title font if the row is tight.
+   2026-10-15: Firefox + desktop Safari keep the same in-panel branding
+   policy, so kjb-brand-panel (set on Edge, Firefox and desktop Safari
+   panels by prepaint.js + the sidebar.js mirror) extends the ONE-ROW
+   narrow-header treatment to all three. */
 @container (max-width: 500px) {
-  html.kjb-edge-panel .header {
+  html.kjb-edge-panel .header,
+  html.kjb-brand-panel .header {
     flex-direction: row;
     align-items: center;
     gap: 14px;
   }
-  html.kjb-edge-panel .header-actions { justify-content: flex-end; }
+  html.kjb-edge-panel .header-actions,
+  html.kjb-brand-panel .header-actions { justify-content: flex-end; }
 }
-html.kjb-edge-panel #app.kjb-stack .header {
+html.kjb-edge-panel #app.kjb-stack .header,
+html.kjb-brand-panel #app.kjb-stack .header {
   flex-direction: row;
   align-items: center;
   gap: 14px;
 }
-html.kjb-edge-panel #app.kjb-stack .header-actions { justify-content: flex-end; }
+html.kjb-edge-panel #app.kjb-stack .header-actions,
+html.kjb-brand-panel #app.kjb-stack .header-actions { justify-content: flex-end; }
 
 /* Mild padding relief only — nothing is ever hidden. */
 @container (max-width: 300px) {

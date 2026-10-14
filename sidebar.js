@@ -44,6 +44,7 @@
            function (b) { return /Microsoft Edge/i.test(b.brand); }
          )))) {
       document.documentElement.classList.add("kjb-edge-panel");
+      document.documentElement.classList.add("kjb-brand-panel");
     }
     if (KJB_IS_SIDE_PANEL && !KJB_IS_MOBILE &&
         /OPR\//i.test(navigator.userAgent) &&
@@ -59,6 +60,13 @@
         !/OPR\//i.test(navigator.userAgent) &&
         !/[?&]ctx=overlay/.test(location.search) && !/[?&]win=1/.test(location.search)) {
       document.documentElement.classList.add("kjb-chrome-panel");
+    }
+    // Firefox + desktop Safari 2026-10-15: mirror of prepaint — they keep
+    // the in-panel branding like Edge and share the one-row narrow-header
+    // treatment (kjb-brand-panel).
+    if (KJB_IS_SIDE_PANEL && !KJB_IS_MOBILE &&
+        (KJB_IS_SAFARI || /Firefox\/|FxiOS/i.test(navigator.userAgent))) {
+      document.documentElement.classList.add("kjb-brand-panel");
     }
     // Mobile 2026-10-13: mirror of prepaint — tags the document so the
     // stacked header keeps the logo/title and right-aligns the controls.

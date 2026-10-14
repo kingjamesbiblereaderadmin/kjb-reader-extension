@@ -39,6 +39,7 @@
       ));
     if (isEdge && !isOverlay && !isLookupWindow) {
       document.documentElement.classList.add("kjb-edge-panel");
+      document.documentElement.classList.add("kjb-brand-panel");
     }
 
     // Mobile 2026-10-13: computed BEFORE the Opera/Chrome checks — every
@@ -67,6 +68,17 @@
     var isChrome = !isEdge && !isOpera && /Chrome\//i.test(navigator.userAgent);
     if (isChrome && !isOverlay && !isLookupWindow && !isMobile) {
       document.documentElement.classList.add("kjb-chrome-panel");
+    }
+
+    // Firefox + desktop Safari 2026-10-15: they keep the in-panel logo +
+    // title exactly like Edge, so they join the ONE-ROW narrow-header
+    // treatment via kjb-brand-panel (sidebar.css keeps the header on a
+    // single row instead of stacking title over zoom controls).
+    var isFirefox = /Firefox\//i.test(navigator.userAgent) || /FxiOS/i.test(navigator.userAgent);
+    var isSafariDesktop = /Safari\//i.test(navigator.userAgent) &&
+      !/Chrome|Chromium|CriOS|Edg|OPR|Firefox|FxiOS/i.test(navigator.userAgent);
+    if ((isFirefox || isSafariDesktop) && !isOverlay && !isLookupWindow && !isMobile) {
+      document.documentElement.classList.add("kjb-brand-panel");
     }
 
     // Mobile 2026-10-13: mobile has no browser header of its own — the
