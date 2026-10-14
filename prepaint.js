@@ -60,14 +60,14 @@
       document.documentElement.classList.add("kjb-opera-panel");
     }
 
-    // Chrome 2026-10-10: same centre treatment as Opera — the native side
-    // panel header (icon + name + close) carries the identity, so the panel
-    // drops its in-panel logo/title and centres the zoom + website controls.
-    // Edge KEEPS the in-panel branding (kjb-edge-panel) — the owner wants the
-    // title visible inside Edge's sidebar.
+    // Chrome 2026-10-15: Chrome now KEEPS the in-panel logo + title like
+    // Edge/Firefox/Safari (owner request) and shares their ONE-ROW narrow
+    // header treatment via kjb-brand-panel. The old "match Opera, no
+    // in-panel branding" centre treatment is retired for Chrome — Opera
+    // alone stays centre-only.
     var isChrome = !isEdge && !isOpera && /Chrome\//i.test(navigator.userAgent);
     if (isChrome && !isOverlay && !isLookupWindow && !isMobile) {
-      document.documentElement.classList.add("kjb-chrome-panel");
+      document.documentElement.classList.add("kjb-brand-panel");
     }
 
     // Firefox + desktop Safari 2026-10-15: they keep the in-panel logo +

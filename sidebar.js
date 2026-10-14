@@ -51,15 +51,14 @@
         !/[?&]ctx=overlay/.test(location.search) && !/[?&]win=1/.test(location.search)) {
       document.documentElement.classList.add("kjb-opera-panel");
     }
-    // Chrome 2026-10-10: mirror of prepaint — Chrome gets Opera's centre
-    // treatment (no in-panel logo/title, centred zoom + website controls);
-    // Edge keeps its in-panel branding.
+    // Chrome 2026-10-15: mirror of prepaint — Chrome now keeps the in-panel
+    // logo + title like Edge/Firefox/Safari and shares the one-row narrow
+    // header treatment (kjb-brand-panel). Opera alone stays centre-only.
     if (KJB_IS_SIDE_PANEL && !KJB_IS_MOBILE &&
         /Chrome\//i.test(navigator.userAgent) &&
         !/Edg\//i.test(navigator.userAgent) &&
-        !/OPR\//i.test(navigator.userAgent) &&
-        !/[?&]ctx=overlay/.test(location.search) && !/[?&]win=1/.test(location.search)) {
-      document.documentElement.classList.add("kjb-chrome-panel");
+        !/OPR\//i.test(navigator.userAgent)) {
+      document.documentElement.classList.add("kjb-brand-panel");
     }
     // Firefox + desktop Safari 2026-10-15: mirror of prepaint — they keep
     // the in-panel branding like Edge and share the one-row narrow-header
