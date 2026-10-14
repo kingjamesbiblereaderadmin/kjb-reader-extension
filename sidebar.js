@@ -3266,12 +3266,6 @@
         </div>
 
         <div class="info-section">
-          <h3>KJB Knights — Personal Server</h3>
-          <p>A personal Discord server for me and my friends. Feel free to join us for Bible study and fellowship.</p>
-          <p><a href="#" class="info-link" data-url="https://discord.gg/wNSSCABPrv">Join KJB Knights ↗</a></p>
-        </div>
-
-        <div class="info-section">
           <h3>KJB Defence</h3>
           <p>A dedicated collection of resources defending the King James Bible and exposing the corruption of modern versions.</p>
           <p><a href="#" class="info-link" data-url="https://kingjamesbiblereader.com/kjb-defence">Open KJB Defence ↗</a></p>

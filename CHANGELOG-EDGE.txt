@@ -1,3 +1,6 @@
+WHAT'S NEW IN v0.4.307 (October 15, 2026)
+- Removed the KJB Knights personal Discord server section from the Resources tab. The KJB Reader Discord bot remains.
+
 WHAT'S NEW IN v0.4.306 (October 13, 2026)
 - Edge's side panel header now stays on one row: logo and "KJB Reader - SidePanel" title on the left, zoom controls and website button right-aligned, instead of stacking in narrow panels.
 
