@@ -168,14 +168,14 @@ html.kjb-opera-panel #app.kjb-stack .header-actions { justify-content: center; }
   html.kjb-mobile .header {
     flex-direction: row;
     align-items: center;
-    gap: 14px;
+    gap: 8px;
   }
   html.kjb-mobile .header-actions { justify-content: flex-end; }
 }
 html.kjb-mobile #app.kjb-stack .header {
   flex-direction: row;
   align-items: center;
-  gap: 14px;
+  gap: 8px;
 }
 html.kjb-mobile #app.kjb-stack .header-actions { justify-content: flex-end; }
 
@@ -203,7 +203,7 @@ html.kjb-mobile .header-actions { justify-content: flex-end; }
   html.kjb-brand-panel .header {
     flex-direction: row;
     align-items: center;
-    gap: 14px;
+    gap: 8px;
   }
   html.kjb-edge-panel .header-actions,
   html.kjb-brand-panel .header-actions { justify-content: flex-end; }
@@ -212,7 +212,7 @@ html.kjb-edge-panel #app.kjb-stack .header,
 html.kjb-brand-panel #app.kjb-stack .header {
   flex-direction: row;
   align-items: center;
-  gap: 14px;
+  gap: 8px;
 }
 html.kjb-edge-panel #app.kjb-stack .header-actions,
 html.kjb-brand-panel #app.kjb-stack .header-actions { justify-content: flex-end; }

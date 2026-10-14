@@ -529,24 +529,31 @@
   // guessed pixel table: the browser knows the real text width, including the
   // user's font and letter-spacing, which no estimate can.
   const HEADER_TITLE_BASE_PX = 14;
-  const HEADER_TITLE_MIN_PX = 10;
+  // 2026-10-15: floor lowered 10 -> 8. At heavy zoom the title used to stop
+  // shrinking at 10px and then drop the " - SidePanel" suffix, showing a
+  // clipped "KJB Reader". The owner wants the FULL title to stay readable:
+  // keep shrinking down to 8px before the suffix-hide safety net fires.
+  const HEADER_TITLE_MIN_PX = 7;
   function fitHeaderTitle() {
     try {
       const h1 = document.querySelector(".header h1");
       if (!h1) return;
+      const suffix = h1.querySelector(".header-suffix");
+      // 2026-10-15: reset the suffix BEFORE measuring. The old order measured
+      // while the suffix was still hidden by an earlier pass, so every refit
+      // measured "KJB Reader" alone, never shrank for the full title, and the
+      // suffix stayed hidden forever once zoom had once clipped it.
       h1.style.fontSize = HEADER_TITLE_BASE_PX + "px";
-      // scrollWidth is the natural text width; clientWidth is the box it got.
+      if (suffix) suffix.style.display = "";
+      // scrollWidth is the natural width of the FULL title; clientWidth is
+      // the box it got.
       const natural = h1.scrollWidth;
       const available = h1.clientWidth;
       const size = computeFittedFontSize(natural, available, HEADER_TITLE_BASE_PX, HEADER_TITLE_MIN_PX);
       if (size !== HEADER_TITLE_BASE_PX) h1.style.fontSize = size + "px";
       // Only if even the minimum size overflows does the branding suffix go —
       // the brand name itself is never cut.
-      const suffix = h1.querySelector(".header-suffix");
-      if (suffix) {
-        suffix.style.display = "";
-        if (h1.scrollWidth > h1.clientWidth + 1) suffix.style.display = "none";
-      }
+      if (suffix && h1.scrollWidth > h1.clientWidth + 1) suffix.style.display = "none";
     } catch (e) {}
   }
 
