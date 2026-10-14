@@ -1,3 +1,7 @@
+WHAT'S NEW IN v0.4.308 (October 15, 2026)
+- Resources tab links and preachers now render and copy as bullet points.
+- Gospel tab: "Copy" now copies just the gospel; the new "Copy All" button copies the whole page, including the extra resources and preachers sections.
+
 WHAT'S NEW IN v0.4.307 (October 15, 2026)
 - Removed the KJB Knights personal Discord server section from the Resources tab. The KJB Reader Discord bot remains.
 

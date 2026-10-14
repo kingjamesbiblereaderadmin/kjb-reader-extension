@@ -3131,7 +3131,8 @@
     setHTML(el, `
       <div class="info-page">
         <div class="info-toolbar">
-          <button class="btn-text" id="gospel-copy" title="Copy all text">📋 Copy</button>
+          <button class="btn-text" id="gospel-copy" title="Copy just the gospel">📋 Copy</button>
+          <button class="btn-text" id="gospel-copy-all" title="Copy everything, including the extra resources and preachers">📋 Copy All</button>
           <button class="btn-text" id="gospel-print" title="Print this page">🖨 Print</button>
         </div>
         <h2>How to be Saved</h2>
@@ -3181,27 +3182,27 @@
           <p><a href="#" class="info-link" data-url="https://www.youtube.com/results?search_query=robert+breaker+gospel+that+saves">THE GOSPEL THAT SAVES — Robert Breaker (YouTube)</a></p>
         </div>
 
-        <div class="info-section">
+        <div class="info-section gospel-extra">
           <h3>KJBI.org — Free Online Bible College</h3>
           <p>King James Bible Institute by Robert Breaker & Robert Potthoff — a free online Bible college for those who want to go deeper in God's Word.</p>
           <p><a href="#" class="info-link" data-url="https://kjbi.org">Visit KJBI.org ↗</a></p>
         </div>
 
-        <div class="info-section">
+        <div class="info-section gospel-extra">
           <h3>Verified KJB Preachers</h3>
-          <div class="preacher-list">
-            <div class="preacher"><strong>Robert Breaker</strong> — KJB missionary evangelist, rightly dividing the word of truth. Also preaches in Spanish<br><a href="#" class="info-link" data-url="https://www.youtube.com/@Robertbreaker3">YouTube</a> · <a href="#" class="info-link" data-url="https://www.instagram.com/robertbreaker3/">Instagram</a> · <a href="#" class="info-link" data-url="https://www.tiktok.com/@robertbreaker3">TikTok</a> · <a href="#" class="info-link" data-url="https://x.com/Robert_Breaker">X</a> · <a href="#" class="info-link" data-url="https://www.facebook.com/thecloudchurch.org/">Facebook</a> · <a href="#" class="info-link" data-url="https://thecloudchurch.org">thecloudchurch.org</a> · <a href="#" class="info-link" data-url="https://laiglesiadelanube.com">laiglesiadelanube.com</a> · <a href="#" class="info-link" data-url="https://spanishbibleissue.com">spanishbibleissue.com</a></div>
-            <div class="preacher"><strong>Robert Potthoff</strong> — Big Red Preacher, KJB soul winner<br><a href="#" class="info-link" data-url="https://www.facebook.com/people/Mission-1611/61570948244190/">Facebook</a> · <a href="#" class="info-link" data-url="https://www.instagram.com/big_red_preacher">Instagram</a> · <a href="#" class="info-link" data-url="https://www.tiktok.com/@mission1611grace">TikTok</a> · <a href="#" class="info-link" data-url="https://mission1611.com">mission1611.com</a></div>
-            <div class="preacher"><strong>Ryan Poff</strong> — Seed of Hope Church, KJB pastor and preacher<br><a href="#" class="info-link" data-url="https://www.seedofhopechurch.org/">seedofhopechurch.org</a> · <a href="#" class="info-link" data-url="https://youtube.com/@ryan_poff">YouTube</a> · <a href="#" class="info-link" data-url="https://www.tiktok.com/@ryan_sohc">TikTok</a> · <a href="#" class="info-link" data-url="https://m.facebook.com/profile.php?id=61590619977678">Facebook</a></div>
-            <div class="preacher"><strong>Skyler (AV1611 Ministry)</strong> — AV1611 Ministry, KJB defence and preaching<br><a href="#" class="info-link" data-url="https://youtube.com/@av1611ministries">YouTube</a></div>
-            <div class="preacher"><strong>Crown of Thorns</strong> — KJB preaching ministry on YouTube<br><a href="#" class="info-link" data-url="https://www.youtube.com/@CrownOfThorns">YouTube</a></div>
-            <div class="preacher"><strong>Paul Johnson</strong> — Biblical Salvation, KJB preaching and Bible teaching<br><a href="#" class="info-link" data-url="https://www.tiktok.com/@pauljohnson9632">TikTok</a> · <a href="#" class="info-link" data-url="https://youtube.com/@biblicalsalvation">YouTube</a></div>
-            <div class="preacher"><strong>CPR Missions</strong> — Church Planting and Revival Missions, soul winning and church planting<br><a href="#" class="info-link" data-url="https://www.youtube.com/channel/UCWBR5DmAi2XPMFRtb-wqHwg">YouTube</a> · <a href="#" class="info-link" data-url="https://www.tiktok.com/@cprmissions">TikTok</a> · <a href="#" class="info-link" data-url="https://www.facebook.com/CPRmission/">Facebook</a> · <a href="#" class="info-link" data-url="https://www.instagram.com/cprmissions/">Instagram</a></div>
-            <div class="preacher"><strong>James Bray</strong> — KJB preacher and Bible teacher<br><a href="#" class="info-link" data-url="https://youtube.com/@jamesbrayall3">YouTube</a> · <a href="#" class="info-link" data-url="https://www.tiktok.com/@james.brayall.iii7">TikTok</a></div>
-          </div>
+          <ul class="preacher-list">
+            <li class="preacher"><strong>Robert Breaker</strong> — KJB missionary evangelist, rightly dividing the word of truth. Also preaches in Spanish<br><a href="#" class="info-link" data-url="https://www.youtube.com/@Robertbreaker3">YouTube</a> · <a href="#" class="info-link" data-url="https://www.instagram.com/robertbreaker3/">Instagram</a> · <a href="#" class="info-link" data-url="https://www.tiktok.com/@robertbreaker3">TikTok</a> · <a href="#" class="info-link" data-url="https://x.com/Robert_Breaker">X</a> · <a href="#" class="info-link" data-url="https://www.facebook.com/thecloudchurch.org/">Facebook</a> · <a href="#" class="info-link" data-url="https://thecloudchurch.org">thecloudchurch.org</a> · <a href="#" class="info-link" data-url="https://laiglesiadelanube.com">laiglesiadelanube.com</a> · <a href="#" class="info-link" data-url="https://spanishbibleissue.com">spanishbibleissue.com</a></li>
+            <li class="preacher"><strong>Robert Potthoff</strong> — Big Red Preacher, KJB soul winner<br><a href="#" class="info-link" data-url="https://www.facebook.com/people/Mission-1611/61570948244190/">Facebook</a> · <a href="#" class="info-link" data-url="https://www.instagram.com/big_red_preacher">Instagram</a> · <a href="#" class="info-link" data-url="https://www.tiktok.com/@mission1611grace">TikTok</a> · <a href="#" class="info-link" data-url="https://mission1611.com">mission1611.com</a></li>
+            <li class="preacher"><strong>Ryan Poff</strong> — Seed of Hope Church, KJB pastor and preacher<br><a href="#" class="info-link" data-url="https://www.seedofhopechurch.org/">seedofhopechurch.org</a> · <a href="#" class="info-link" data-url="https://youtube.com/@ryan_poff">YouTube</a> · <a href="#" class="info-link" data-url="https://www.tiktok.com/@ryan_sohc">TikTok</a> · <a href="#" class="info-link" data-url="https://m.facebook.com/profile.php?id=61590619977678">Facebook</a></li>
+            <li class="preacher"><strong>Skyler (AV1611 Ministry)</strong> — AV1611 Ministry, KJB defence and preaching<br><a href="#" class="info-link" data-url="https://youtube.com/@av1611ministries">YouTube</a></li>
+            <li class="preacher"><strong>Crown of Thorns</strong> — KJB preaching ministry on YouTube<br><a href="#" class="info-link" data-url="https://www.youtube.com/@CrownOfThorns">YouTube</a></li>
+            <li class="preacher"><strong>Paul Johnson</strong> — Biblical Salvation, KJB preaching and Bible teaching<br><a href="#" class="info-link" data-url="https://www.tiktok.com/@pauljohnson9632">TikTok</a> · <a href="#" class="info-link" data-url="https://youtube.com/@biblicalsalvation">YouTube</a></li>
+            <li class="preacher"><strong>CPR Missions</strong> — Church Planting and Revival Missions, soul winning and church planting<br><a href="#" class="info-link" data-url="https://www.youtube.com/channel/UCWBR5DmAi2XPMFRtb-wqHwg">YouTube</a> · <a href="#" class="info-link" data-url="https://www.tiktok.com/@cprmissions">TikTok</a> · <a href="#" class="info-link" data-url="https://www.facebook.com/CPRmission/">Facebook</a> · <a href="#" class="info-link" data-url="https://www.instagram.com/cprmissions/">Instagram</a></li>
+            <li class="preacher"><strong>James Bray</strong> — KJB preacher and Bible teacher<br><a href="#" class="info-link" data-url="https://youtube.com/@jamesbrayall3">YouTube</a> · <a href="#" class="info-link" data-url="https://www.tiktok.com/@james.brayall.iii7">TikTok</a></li>
+          </ul>
         </div>
 
-        <div class="info-section">
+        <div class="info-section gospel-extra">
           <h3>Contact</h3>
           <p><a href="mailto:kingjamesbiblereader@outlook.sg" class="info-link">kingjamesbiblereader@outlook.sg</a></p>
         </div>
@@ -3219,17 +3220,30 @@
     makeVerseRefsClickable(el);
 
     // Copy button
+    // Copy = gospel only (the .gospel-extra sections are stripped).
+    // Copy All = the whole page, extras included.
+    const gospelCopyFeedback = (btn, ok, label) => {
+      btn.textContent = ok ? "✅ Copied!" : "✗ Failed";
+      setTimeout(() => { btn.textContent = label; }, 1500);
+    };
     document.getElementById("gospel-copy").addEventListener("click", () => {
-      const text = infoPageToText(el.querySelector(".info-page"));
+      const clone = el.querySelector(".info-page").cloneNode(true);
+      clone.querySelectorAll(".gospel-extra").forEach((n) => n.remove());
+      const text = infoPageToText(clone);
       copyToClipboard(text).then(() => {
-        const btn = document.getElementById("gospel-copy");
-        btn.textContent = "✅ Copied!";
-        setTimeout(() => { btn.textContent = "📋 Copy"; }, 1500);
+        gospelCopyFeedback(document.getElementById("gospel-copy"), true, "📋 Copy");
       }).catch((e) => {
         console.warn("[KJB] Copy failed:", e);
-        const btn = document.getElementById("gospel-copy");
-        btn.textContent = "✗ Failed";
-        setTimeout(() => { btn.textContent = "📋 Copy"; }, 1500);
+        gospelCopyFeedback(document.getElementById("gospel-copy"), false, "📋 Copy");
+      });
+    });
+    document.getElementById("gospel-copy-all").addEventListener("click", () => {
+      const text = infoPageToText(el.querySelector(".info-page"));
+      copyToClipboard(text).then(() => {
+        gospelCopyFeedback(document.getElementById("gospel-copy-all"), true, "📋 Copy All");
+      }).catch((e) => {
+        console.warn("[KJB] Copy All failed:", e);
+        gospelCopyFeedback(document.getElementById("gospel-copy-all"), false, "📋 Copy All");
       });
     });
 
@@ -3256,51 +3270,51 @@
         <div class="info-section">
           <h3>KJBI.org — Free Online Bible College</h3>
           <p>King James Bible Institute by Robert Breaker & Robert Potthoff — a free online Bible college for those who want to go deeper in God's Word.</p>
-          <p><a href="#" class="info-link" data-url="https://kjbi.org">Visit KJBI.org ↗</a></p>
+          <ul class="info-list"><li><a href="#" class="info-link" data-url="https://kjbi.org">Visit KJBI.org ↗</a></li></ul>
         </div>
 
         <div class="info-section">
           <h3>KJB Discord Bot</h3>
           <p>Use the KJB Reader bot in your own Discord account or add it to a server for daily verses and verse search directly in Discord.</p>
-          <p><a href="#" class="info-link" data-url="https://kingjamesbiblereader.com/discord">Add to Discord ↗</a></p>
+          <ul class="info-list"><li><a href="#" class="info-link" data-url="https://kingjamesbiblereader.com/discord">Add to Discord ↗</a></li></ul>
         </div>
 
         <div class="info-section">
           <h3>KJB Defence</h3>
           <p>A dedicated collection of resources defending the King James Bible and exposing the corruption of modern versions.</p>
-          <p><a href="#" class="info-link" data-url="https://kingjamesbiblereader.com/kjb-defence">Open KJB Defence ↗</a></p>
+          <ul class="info-list"><li><a href="#" class="info-link" data-url="https://kingjamesbiblereader.com/kjb-defence">Open KJB Defence ↗</a></li></ul>
         </div>
 
         <div class="info-section">
           <h3>Verified KJB Preachers</h3>
-          <div class="preacher-list">
-            <div class="preacher"><strong>Robert Breaker</strong> — KJB missionary evangelist, rightly dividing the word of truth. Also preaches in Spanish<br><a href="#" class="info-link" data-url="https://www.youtube.com/@Robertbreaker3">YouTube</a> · <a href="#" class="info-link" data-url="https://www.instagram.com/robertbreaker3/">Instagram</a> · <a href="#" class="info-link" data-url="https://www.tiktok.com/@robertbreaker3">TikTok</a> · <a href="#" class="info-link" data-url="https://x.com/Robert_Breaker">X</a> · <a href="#" class="info-link" data-url="https://www.facebook.com/thecloudchurch.org/">Facebook</a> · <a href="#" class="info-link" data-url="https://thecloudchurch.org">thecloudchurch.org</a> · <a href="#" class="info-link" data-url="https://laiglesiadelanube.com">laiglesiadelanube.com</a> · <a href="#" class="info-link" data-url="https://spanishbibleissue.com">spanishbibleissue.com</a></div>
-            <div class="preacher"><strong>Robert Potthoff</strong> — Big Red Preacher, KJB soul winner<br><a href="#" class="info-link" data-url="https://www.facebook.com/people/Mission-1611/61570948244190/">Facebook</a> · <a href="#" class="info-link" data-url="https://www.instagram.com/big_red_preacher">Instagram</a> · <a href="#" class="info-link" data-url="https://www.tiktok.com/@mission1611grace">TikTok</a> · <a href="#" class="info-link" data-url="https://mission1611.com">mission1611.com</a></div>
-            <div class="preacher"><strong>Ryan Poff</strong> — Seed of Hope Church, KJB pastor and preacher<br><a href="#" class="info-link" data-url="https://www.seedofhopechurch.org/">seedofhopechurch.org</a> · <a href="#" class="info-link" data-url="https://youtube.com/@ryan_poff">YouTube</a> · <a href="#" class="info-link" data-url="https://www.tiktok.com/@ryan_sohc">TikTok</a> · <a href="#" class="info-link" data-url="https://m.facebook.com/profile.php?id=61590619977678">Facebook</a></div>
-            <div class="preacher"><strong>Skyler (AV1611 Ministry)</strong> — AV1611 Ministry, KJB defence and preaching<br><a href="#" class="info-link" data-url="https://youtube.com/@av1611ministries">YouTube</a></div>
-            <div class="preacher"><strong>Crown of Thorns</strong> — KJB preaching ministry on YouTube<br><a href="#" class="info-link" data-url="https://www.youtube.com/@CrownOfThorns">YouTube</a></div>
-            <div class="preacher"><strong>Paul Johnson</strong> — Biblical Salvation, KJB preaching and Bible teaching<br><a href="#" class="info-link" data-url="https://www.tiktok.com/@pauljohnson9632">TikTok</a> · <a href="#" class="info-link" data-url="https://youtube.com/@biblicalsalvation">YouTube</a></div>
-            <div class="preacher"><strong>CPR Missions</strong> — Church Planting and Revival Missions, soul winning and church planting<br><a href="#" class="info-link" data-url="https://www.youtube.com/channel/UCWBR5DmAi2XPMFRtb-wqHwg">YouTube</a> · <a href="#" class="info-link" data-url="https://www.tiktok.com/@cprmissions">TikTok</a> · <a href="#" class="info-link" data-url="https://www.facebook.com/CPRmission/">Facebook</a> · <a href="#" class="info-link" data-url="https://www.instagram.com/cprmissions/">Instagram</a></div>
-            <div class="preacher"><strong>James Bray</strong> — KJB preacher and Bible teacher<br><a href="#" class="info-link" data-url="https://youtube.com/@jamesbrayall3">YouTube</a> · <a href="#" class="info-link" data-url="https://www.tiktok.com/@james.brayall.iii7">TikTok</a></div>
-          </div>
+          <ul class="preacher-list">
+            <li class="preacher"><strong>Robert Breaker</strong> — KJB missionary evangelist, rightly dividing the word of truth. Also preaches in Spanish<br><a href="#" class="info-link" data-url="https://www.youtube.com/@Robertbreaker3">YouTube</a> · <a href="#" class="info-link" data-url="https://www.instagram.com/robertbreaker3/">Instagram</a> · <a href="#" class="info-link" data-url="https://www.tiktok.com/@robertbreaker3">TikTok</a> · <a href="#" class="info-link" data-url="https://x.com/Robert_Breaker">X</a> · <a href="#" class="info-link" data-url="https://www.facebook.com/thecloudchurch.org/">Facebook</a> · <a href="#" class="info-link" data-url="https://thecloudchurch.org">thecloudchurch.org</a> · <a href="#" class="info-link" data-url="https://laiglesiadelanube.com">laiglesiadelanube.com</a> · <a href="#" class="info-link" data-url="https://spanishbibleissue.com">spanishbibleissue.com</a></li>
+            <li class="preacher"><strong>Robert Potthoff</strong> — Big Red Preacher, KJB soul winner<br><a href="#" class="info-link" data-url="https://www.facebook.com/people/Mission-1611/61570948244190/">Facebook</a> · <a href="#" class="info-link" data-url="https://www.instagram.com/big_red_preacher">Instagram</a> · <a href="#" class="info-link" data-url="https://www.tiktok.com/@mission1611grace">TikTok</a> · <a href="#" class="info-link" data-url="https://mission1611.com">mission1611.com</a></li>
+            <li class="preacher"><strong>Ryan Poff</strong> — Seed of Hope Church, KJB pastor and preacher<br><a href="#" class="info-link" data-url="https://www.seedofhopechurch.org/">seedofhopechurch.org</a> · <a href="#" class="info-link" data-url="https://youtube.com/@ryan_poff">YouTube</a> · <a href="#" class="info-link" data-url="https://www.tiktok.com/@ryan_sohc">TikTok</a> · <a href="#" class="info-link" data-url="https://m.facebook.com/profile.php?id=61590619977678">Facebook</a></li>
+            <li class="preacher"><strong>Skyler (AV1611 Ministry)</strong> — AV1611 Ministry, KJB defence and preaching<br><a href="#" class="info-link" data-url="https://youtube.com/@av1611ministries">YouTube</a></li>
+            <li class="preacher"><strong>Crown of Thorns</strong> — KJB preaching ministry on YouTube<br><a href="#" class="info-link" data-url="https://www.youtube.com/@CrownOfThorns">YouTube</a></li>
+            <li class="preacher"><strong>Paul Johnson</strong> — Biblical Salvation, KJB preaching and Bible teaching<br><a href="#" class="info-link" data-url="https://www.tiktok.com/@pauljohnson9632">TikTok</a> · <a href="#" class="info-link" data-url="https://youtube.com/@biblicalsalvation">YouTube</a></li>
+            <li class="preacher"><strong>CPR Missions</strong> — Church Planting and Revival Missions, soul winning and church planting<br><a href="#" class="info-link" data-url="https://www.youtube.com/channel/UCWBR5DmAi2XPMFRtb-wqHwg">YouTube</a> · <a href="#" class="info-link" data-url="https://www.tiktok.com/@cprmissions">TikTok</a> · <a href="#" class="info-link" data-url="https://www.facebook.com/CPRmission/">Facebook</a> · <a href="#" class="info-link" data-url="https://www.instagram.com/cprmissions/">Instagram</a></li>
+            <li class="preacher"><strong>James Bray</strong> — KJB preacher and Bible teacher<br><a href="#" class="info-link" data-url="https://youtube.com/@jamesbrayall3">YouTube</a> · <a href="#" class="info-link" data-url="https://www.tiktok.com/@james.brayall.iii7">TikTok</a></li>
+          </ul>
         </div>
 
         <div class="info-section">
           <h3>Personal Ministry Links</h3>
-          <div class="preacher">
-            <a href="#" class="info-link" data-url="https://godisgracious1031ministriescom.odoo.com/"><strong>God is Gracious 1031 Ministries</strong></a><br>
-            <a href="#" class="info-link" data-url="https://youtube.com/@shawnr325av">YouTube</a> ·
-            <a href="#" class="info-link" data-url="https://rumble.com/user/Godisgracious1031">Rumble</a> ·
-            <a href="#" class="info-link" data-url="https://www.tiktok.com/@svdbyfaithinr325av">TikTok</a> ·
-            <a href="#" class="info-link" data-url="https://www.instagram.com/svdbyfaithinhisbloodr325av/">Instagram</a> ·
-            <a href="#" class="info-link" data-url="https://discord.com/users/faithinhisbloodr325av">Discord</a> ·
-            <a href="#" class="info-link" data-url="https://linktr.ee/shawnr325av">Linktree</a>
-          </div>
+          <ul class="info-list">
+            <li><a href="#" class="info-link" data-url="https://godisgracious1031ministriescom.odoo.com/"><strong>God is Gracious 1031 Ministries</strong></a></li>
+            <li><a href="#" class="info-link" data-url="https://youtube.com/@shawnr325av">YouTube</a></li>
+            <li><a href="#" class="info-link" data-url="https://rumble.com/user/Godisgracious1031">Rumble</a></li>
+            <li><a href="#" class="info-link" data-url="https://www.tiktok.com/@svdbyfaithinr325av">TikTok</a></li>
+            <li><a href="#" class="info-link" data-url="https://www.instagram.com/svdbyfaithinhisbloodr325av/">Instagram</a></li>
+            <li><a href="#" class="info-link" data-url="https://discord.com/users/faithinhisbloodr325av">Discord</a></li>
+            <li><a href="#" class="info-link" data-url="https://linktr.ee/shawnr325av">Linktree</a></li>
+          </ul>
         </div>
 
         <div class="info-section">
           <h3>Contact</h3>
-          <p><a href="mailto:kingjamesbiblereader@outlook.sg" class="info-link">kingjamesbiblereader@outlook.sg</a></p>
+          <ul class="info-list"><li><a href="mailto:kingjamesbiblereader@outlook.sg" class="info-link">kingjamesbiblereader@outlook.sg</a></li></ul>
         </div>
 
 

@@ -1489,10 +1489,25 @@ html.kjb-short-pre .content-area {
   font-style: italic;
   margin-top: 14px;
 }
+/* Resource/preacher lists are real <ul> bullet lists so the rendered panel
+   AND the copied plain-text output (infoPageToText prefixes "• ") both show
+   bullets. */
 .preacher-list {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
+  list-style: disc;
+  padding-left: 18px;
+  margin: 4px 0;
+}
+.info-list {
+  list-style: disc;
+  padding-left: 18px;
+  margin: 4px 0;
+}
+.info-list li {
+  font-size: 12.5px;
+  margin: 3px 0;
+}
+.info-list li a {
+  color: var(--primary);
 }
 .preacher {
   font-size: 12px;
