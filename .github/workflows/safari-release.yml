@@ -16,13 +16,13 @@ on:
         required: false
         default: ""
       macos_version:
-        description: "macOS marketing version override (blank = automatic next free App Store version). Closed/colliding values are bumped automatically."
+        description: "macOS marketing version override (default 2.59: keeps new builds sorting ABOVE the ancient 2.57/2.58 pre-rewrite trains in TestFlight). Closed/colliding values are bumped automatically."
         required: false
-        default: ""
+        default: "2.59"
       ios_version:
-        description: "iOS marketing version override (blank = automatic next free App Store version). Closed/colliding values are bumped automatically."
+        description: "iOS marketing version override (default 2.59: keeps new builds sorting ABOVE the ancient 2.57/2.58 pre-rewrite trains in TestFlight). Closed/colliding values are bumped automatically."
         required: false
-        default: ""
+        default: "2.59"
 jobs:
   build:
     runs-on: xcode-27
