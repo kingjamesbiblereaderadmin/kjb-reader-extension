@@ -16,11 +16,11 @@ on:
         required: false
         default: ""
       macos_version:
-        description: "macOS marketing version override (blank = manifest version). Must be higher than the last approved macOS version."
+        description: "macOS marketing version override (blank = automatic next free App Store version). Closed/colliding values are bumped automatically."
         required: false
         default: ""
       ios_version:
-        description: "iOS marketing version override (blank = manifest version)."
+        description: "iOS marketing version override (blank = automatic next free App Store version). Closed/colliding values are bumped automatically."
         required: false
         default: ""
 jobs:
@@ -95,10 +95,34 @@ jobs:
           done
           echo "App icons forced from store-assets/"
 
+      - name: Resolve next App Store versions (collision-free)
+        env:
+          ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
+          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
+          REQ_MV: ${{ github.event.inputs.macos_version }}
+          REQ_IV: ${{ github.event.inputs.ios_version }}
+        run: |
+          set -euo pipefail
+          if [ -n "$ASC_KEY_P8" ]; then
+            python3 -m venv /tmp/ascvenv
+            /tmp/ascvenv/bin/pip install -q pyjwt requests cryptography
+            MV=$(/tmp/ascvenv/bin/python scripts/asc-next-version.py --app 6813502666 --platform MAC_OS ${REQ_MV:+--requested "$REQ_MV"})
+            IV=$(/tmp/ascvenv/bin/python scripts/asc-next-version.py --app 6813502666 --platform IOS ${REQ_IV:+--requested "$REQ_IV"})
+          else
+            # Validation mode (no Apple secrets): fall back to the manifest
+            # version exactly as before -- nothing is uploaded anyway.
+            MV="${REQ_MV:-$(python3 -c "import json;print(json.load(open('manifest.json'))['version'])")}"
+            IV="${REQ_IV:-$MV}"
+          fi
+          echo "MACOS_VERSION=$MV" >> "$GITHUB_ENV"
+          echo "IOS_VERSION=$IV" >> "$GITHUB_ENV"
+          echo "Resolved macOS v$MV, iOS v$IV"
+
       - name: Configure exact bundle IDs, versions, platforms, and signing
         env:
-          MACOS_VERSION: ${{ github.event.inputs.macos_version }}
-          IOS_VERSION: ${{ github.event.inputs.ios_version }}
+          MACOS_VERSION: ${{ env.MACOS_VERSION }}
+          IOS_VERSION: ${{ env.IOS_VERSION }}
         run: |
           python3 - <<'PY'
           import os, re
@@ -396,11 +420,8 @@ jobs:
           BUILD_NUM: ${{ github.event.inputs.build_number != '' && github.event.inputs.build_number || github.run_number }}
         run: |
           set -euo pipefail
-          VER=$(python3 -c "import json;print(json.load(open('manifest.json'))['version'])")
-          MV="${{ github.event.inputs.macos_version }}"
-          [ -n "$MV" ] || MV="$VER"
-          IV="${{ github.event.inputs.ios_version }}"
-          [ -n "$IV" ] || IV="$VER"
+          MV="${{ env.MACOS_VERSION }}"
+          IV="${{ env.IOS_VERSION }}"
           echo "Uploading macOS v$MV build $BUILD_NUM (Apple ID 6813502666)"
           # altool prints "ERROR:" and still exits 0 in some Xcode versions,
           # so grep the transcript too.
