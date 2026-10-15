@@ -433,8 +433,11 @@ jobs:
             --bundle-short-version-string "$MV" \
             --apiKey "$ASC_KEY_ID" \
             --apiIssuer "$ASC_ISSUER_ID" 2>&1 | tee macos-upload.log
-          if grep -q "ERROR" macos-upload.log; then
-            echo "::error title=macOS upload::altool reported an error uploading the macOS package"
+          # altool sometimes logs transient ERROR lines (an Apple-side 500 during
+          # SPI analysis) and still retries to success -- judge the run on its final
+          # result line, not on any ERROR string in the log.
+          if ! grep -q "No errors uploading archive" macos-upload.log; then
+            echo "::error title=macOS upload::altool failed uploading the macOS package"
             exit 1
           fi
           IPA=$(find dist/ios-export -maxdepth 1 -name '*.ipa' -print -quit)
@@ -445,8 +448,8 @@ jobs:
             --file "$IPA" \
             --apiKey "$ASC_KEY_ID" \
             --apiIssuer "$ASC_ISSUER_ID" 2>&1 | tee ios-upload.log
-          if grep -q "ERROR" ios-upload.log; then
-            echo "::error title=iOS upload::altool reported an error uploading the iOS app"
+          if ! grep -q "No errors uploading archive" ios-upload.log; then
+            echo "::error title=iOS upload::altool failed uploading the iOS app"
             exit 1
           fi
 
