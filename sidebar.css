@@ -1390,6 +1390,26 @@ html.kjb-short-pre .content-area {
   border-bottom: 1px solid var(--border);
   margin-bottom: 8px;
 }
+/* 2026-10-16: short panels (landscape phones, squat overlays) scroll the
+   whole document — a viewport-stuck toolbar would cover the header, so the
+   stickiness is disabled there. */
+#app.kjb-short .info-page > .info-toolbar,
+#app.kjb-short .results-controls,
+html.kjb-short-pre .info-page > .info-toolbar,
+html.kjb-short-pre .results-controls { position: static; }
+
+/* 2026-10-16: Gospel (Copy / Copy All / Print) and Resources (Copy / Print)
+   toolbars stick to the top of the scroll area so the actions are always
+   visible. Negative side margins stretch the strip across .info-content's
+   10px padding so scrolled content never peeks out behind the buttons. */
+.info-page > .info-toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 6;
+  margin: 0 -10px 8px;
+  padding: 4px 10px 8px;
+  background: var(--bg);
+}
 
 .info-page {
   padding: 4px 2px 16px;
@@ -1531,9 +1551,13 @@ html.kjb-short-pre .content-area {
   color: var(--primary);
 }
 .info-content {
-  overflow-y: auto;
+  /* 2026-10-16: was overflow-y:auto + height:100%, but the height never
+     resolves (auto-height parents), so this box never scrolled — it only
+     hijacked position:sticky's scroll-container chain. Keep the layout
+     inert so .info-toolbar sticks to the real scroller. */
+  overflow: visible;
   padding: 4px 10px;
-  height: 100%;
+  height: auto;
 }
 
 /* Legal Links Bar */
@@ -1592,7 +1616,11 @@ html.kjb-short-pre .content-area {
 
   .tab-content {
     flex: 1;
-    overflow-y: auto;
+    /* 2026-10-16: was overflow-y:auto, but this block child of .content-area
+       is auto-height and never scrolls itself — the overflow only hijacked
+       position:sticky's scroll-container chain for the info toolbars.
+       .content-area remains the real scroller. */
+    overflow: visible;
   }
 
   .legal-links-bar {
@@ -1794,6 +1822,11 @@ html.kjb-short-pre .scroll-top-btn {
   padding: 6px 12px;
   border-bottom: 1px solid var(--border);
   background: var(--bg-card);
+  /* 2026-10-16: stick to the top of the scroll area so Select / Copy All /
+     Copy: Full stay reachable while scrolling results. */
+  position: sticky;
+  top: 0;
+  z-index: 6;
 }
 
 .results-toolbar-bar {
