@@ -37,17 +37,29 @@ s = sequence.value[1].value.to_i.to_s(16).rjust(64, "0")
 TOKEN = "#{signing_input}.#{b64url([r + s].pack("H*"))}"
 
 def api(method, path, body = nil)
-  uri = URI("#{BASE_URL}#{path}")
   klass = { get: Net::HTTP::Get, post: Net::HTTP::Post, delete: Net::HTTP::Delete }.fetch(method)
-  request = klass.new(uri)
-  request["Authorization"] = "Bearer #{TOKEN}"
-  request["Content-Type"] = "application/json"
-  request.body = JSON.generate(body) if body
-  response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(request) }
-  unless response.code.to_i.between?(200, 299)
-    raise "App Store Connect #{method.to_s.upcase} #{path} failed (HTTP #{response.code}): #{response.body}"
+  attempts = 0
+  begin
+    attempts += 1
+    uri = URI("#{BASE_URL}#{path}")
+    request = klass.new(uri)
+    request["Authorization"] = "Bearer #{TOKEN}"
+    request["Content-Type"] = "application/json"
+    request.body = JSON.generate(body) if body
+    response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(request) }
+    # 2026-10-16: ASC occasionally answers transient 5xx "unexpected error
+    # occurred on the server side" (run 88 died to one on GET /v1/profiles).
+    # Retry up to 4 times with backoff before giving up.
+    if response.code.to_i >= 500 && attempts < 4
+      warn "ASC #{method.to_s.upcase} #{path} got HTTP #{response.code}; retry #{attempts}/3 in #{attempts * 10}s"
+      sleep(attempts * 10)
+      retry
+    end
+    unless response.code.to_i.between?(200, 299)
+      raise "App Store Connect #{method.to_s.upcase} #{path} failed (HTTP #{response.code}): #{response.body}"
+    end
+    response.body.to_s.empty? ? {} : JSON.parse(response.body)
   end
-  response.body.to_s.empty? ? {} : JSON.parse(response.body)
 end
 
 def filtered_path(resource, key, value, limit = 200)
