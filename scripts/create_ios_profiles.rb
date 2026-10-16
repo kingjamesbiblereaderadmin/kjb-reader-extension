@@ -36,6 +36,11 @@ r = sequence.value[0].value.to_i.to_s(16).rjust(64, "0")
 s = sequence.value[1].value.to_i.to_s(16).rjust(64, "0")
 TOKEN = "#{signing_input}.#{b64url([r + s].pack("H*"))}"
 
+# 2026-10-16: ASC occasionally answers transient 5xx "unexpected error
+# occurred on the server side" (run 88 died to one on GET /v1/profiles).
+# Signal class so api() can retry those without touching other failures.
+class TransientASCError < StandardError; end
+
 def api(method, path, body = nil)
   klass = { get: Net::HTTP::Get, post: Net::HTTP::Post, delete: Net::HTTP::Delete }.fetch(method)
   attempts = 0
@@ -47,18 +52,17 @@ def api(method, path, body = nil)
     request["Content-Type"] = "application/json"
     request.body = JSON.generate(body) if body
     response = Net::HTTP.start(uri.hostname, uri.port, use_ssl: true) { |http| http.request(request) }
-    # 2026-10-16: ASC occasionally answers transient 5xx "unexpected error
-    # occurred on the server side" (run 88 died to one on GET /v1/profiles).
-    # Retry up to 4 times with backoff before giving up.
     if response.code.to_i >= 500 && attempts < 4
-      warn "ASC #{method.to_s.upcase} #{path} got HTTP #{response.code}; retry #{attempts}/3 in #{attempts * 10}s"
-      sleep(attempts * 10)
-      retry
+      raise TransientASCError, "HTTP #{response.code} on #{method.to_s.upcase} #{path}"
     end
     unless response.code.to_i.between?(200, 299)
       raise "App Store Connect #{method.to_s.upcase} #{path} failed (HTTP #{response.code}): #{response.body}"
     end
     response.body.to_s.empty? ? {} : JSON.parse(response.body)
+  rescue TransientASCError
+    warn "ASC transient server error; retry #{attempts}/3 in #{attempts * 10}s"
+    sleep(attempts * 10)
+    retry
   end
 end
 
