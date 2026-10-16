@@ -47,6 +47,12 @@ SUBMITTED_STATES = {"READY_FOR_REVIEW", "WAITING_FOR_REVIEW", "IN_REVIEW",
                     "PROCESSING_FOR_APP_STORE", "READY_FOR_SALE"}
 LOCALE_TEXT_FIELDS = ["description", "keywords", "locale", "marketingUrl",
                       "promotionalText", "supportUrl", "whatsNew"]
+# Fields backfilled from the previous release when ASC's auto-created
+# localizations leave them empty (2026-10-16: staged 2.92 lost the promo
+# text that 1.04/1.4 had). whatsNew is excluded on purpose: every release
+# ships fresh release notes.
+BACKFILL_FIELDS = ["promotionalText", "marketingUrl", "description",
+                   "keywords", "supportUrl"]
 
 
 def make_api():
@@ -220,9 +226,9 @@ def main():
 
             # --- 3. clone localizations from the previous version if blank ---
             code, locs = api(f"/v1/appStoreVersions/{version_id}/appStoreVersionLocalizations?limit=30")
+            prev = next((v for v in versions.get("data") or []
+                         if v["id"] != version_id), None)
             if code == 200 and not (locs.get("data") or []):
-                prev = next((v for v in versions.get("data") or []
-                             if v["id"] != version_id), None)
                 if prev:
                     code, plocs = api(f"/v1/appStoreVersions/{prev['id']}/appStoreVersionLocalizations?limit=30")
                     for ploc in (plocs.get("data") or []):
@@ -234,6 +240,32 @@ def main():
                         c2, _ = api("/v1/appStoreVersionLocalizations", "POST", body)
                         if c2 == 201:
                             print(f"{platform}: cloned localization {ploc['attributes']['locale']} from {prev['attributes']['versionString']}")
+            # --- 3b. backfill metadata ASC's auto-created localizations drop ---
+            # ASC auto-populates description/keywords/supportUrl on a new
+            # version but silently omits promotionalText (staged 2.92 shipped
+            # with an empty promo spot although the previous release had one).
+            # Copy any still-empty field from the previous release's matching
+            # locale. whatsNew is never backfilled: each release carries fresh
+            # notes. Runs for every new version, cloned or auto-created.
+            if code == 200 and prev and (locs.get("data") or []):
+                c2, plocs2 = api(f"/v1/appStoreVersions/{prev['id']}/appStoreVersionLocalizations?limit=30")
+                if c2 == 200:
+                    by_locale = {p["attributes"]["locale"]: p["attributes"]
+                                 for p in (plocs2.get("data") or [])}
+                    for loc in (locs.get("data") or []):
+                        pa = by_locale.get(loc["attributes"]["locale"])
+                        if not pa:
+                            continue
+                        missing = {k: pa.get(k) for k in BACKFILL_FIELDS
+                                   if pa.get(k) and not (loc["attributes"].get(k) or "")}
+                        if missing:
+                            c3, r3 = api(f"/v1/appStoreVersionLocalizations/{loc['id']}", "PATCH",
+                                         {"data": {"type": "appStoreVersionLocalizations",
+                                                   "id": loc["id"], "attributes": missing}})
+                            if c3 in (200, 201):
+                                print(f"{platform}: backfilled {sorted(missing)} on {loc['attributes']['locale']} from {prev['attributes']['versionString']}")
+                            else:
+                                print(f"{platform}: backfill failed: {api_errors(r3)}", file=sys.stderr)
 
         # --- 4. attach the build via the version's direct build relationship ---
         code, attach = api(f"/v1/appStoreVersions/{version_id}", "PATCH", {
