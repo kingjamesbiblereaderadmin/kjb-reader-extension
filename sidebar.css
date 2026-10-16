@@ -43,6 +43,14 @@
   }
 }
 
+@media (prefers-color-scheme: dark) {
+  .filters-active {
+    border-color: #6b5b1e;
+    background: #3a3218;
+    color: #fcd34d;
+  }
+}
+
 html, body {
   height: 100%;
 }
@@ -415,6 +423,23 @@ html.kjb-brand-panel #app.kjb-stack .header-actions { justify-content: flex-end;
 .advanced-toggle {
   margin-top: 8px;
 }
+
+/* 2026-10-16: reminder chip shown while any non-default advanced filter is
+   active (match word, testament, book, case sensitive, wildcards off). Sits
+   in the fixed search strip so it stays visible while scrolling. */
+.filters-active {
+  margin-top: 6px;
+  padding: 4px 10px;
+  border-radius: 6px;
+  border: 1px solid #f0d47a;
+  background: #fff3cd;
+  color: #7a5c00;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  line-height: 1.35;
+}
+.filters-active.hidden { display: none; }
 
 .btn-text {
   background: none;

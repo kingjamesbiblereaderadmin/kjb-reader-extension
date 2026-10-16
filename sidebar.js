@@ -864,11 +864,41 @@
       btnAdvanced.textContent = isOpen ? "Advanced search ▾" : "Advanced search ▸";
     });
 
+    // 2026-10-16: reminder chip — whenever a NON-default advanced filter is
+    // active, show which ones so nobody forgets filters are on and wonders
+    // why the results do not match the expected total. Clicking the chip
+    // opens the advanced panel to review/change them.
+    const filtersActiveChip = document.getElementById("filters-active");
+    function updateFiltersChip() {
+      if (!filtersActiveChip) return;
+      const on = [];
+      if (optWholeWord.checked) on.push("Match whole word");
+      if (optTestament.value === "old") on.push("Old Testament only");
+      if (optTestament.value === "new") on.push("New Testament only");
+      if (optBook.value.trim()) on.push("Book: " + optBook.value.trim());
+      if (optCaseSensitive.checked) on.push("Case sensitive");
+      if (!optWildcard.checked) on.push("Wildcards off (literal)");
+      if (on.length) {
+        filtersActiveChip.textContent = "Filters on: " + on.join(" · ");
+        filtersActiveChip.classList.remove("hidden");
+      } else {
+        filtersActiveChip.textContent = "";
+        filtersActiveChip.classList.add("hidden");
+      }
+    }
+    if (filtersActiveChip) {
+      filtersActiveChip.addEventListener("click", () => {
+        if (advancedPanel.classList.contains("hidden")) btnAdvanced.click();
+      });
+    }
+
     [optWholeWord, optTestament, optBook, optCaseSensitive, optWildcard].forEach(el => {
       el.addEventListener("change", () => {
+        updateFiltersChip();
         if (searchInput.value.trim()) doSearch(searchInput.value.trim());
       });
     });
+    updateFiltersChip();
 
     // Tab switching — always route through switchToTab() so side-effects
     // (result-count visibility, scroll reset) are consistently applied.
