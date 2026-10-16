@@ -16,13 +16,13 @@ on:
         required: false
         default: ""
       macos_version:
-        description: "macOS marketing version override (default 2.59: keeps new builds sorting ABOVE the ancient 2.57/2.58 pre-rewrite trains in TestFlight). Closed/colliding values are bumped automatically."
+        description: "macOS marketing version override (blank = 2.<run number>, which always sorts above older trains and stays above the highest approved train — 2.59 was closed when its build was released). Closed/colliding values are bumped automatically."
         required: false
-        default: "2.59"
+        default: ""
       ios_version:
-        description: "iOS marketing version override (default 2.59: keeps new builds sorting ABOVE the ancient 2.57/2.58 pre-rewrite trains in TestFlight). Closed/colliding values are bumped automatically."
+        description: "iOS marketing version override (blank = 2.<run number>, which always sorts above older trains and stays above the highest approved train). Closed/colliding values are bumped automatically."
         required: false
-        default: "2.59"
+        default: ""
 jobs:
   build:
     runs-on: xcode-27
@@ -100,8 +100,8 @@ jobs:
           ASC_KEY_P8: ${{ secrets.ASC_KEY_P8 }}
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
           ASC_ISSUER_ID: ${{ secrets.ASC_ISSUER_ID }}
-          REQ_MV: ${{ github.event.inputs.macos_version }}
-          REQ_IV: ${{ github.event.inputs.ios_version }}
+          REQ_MV: ${{ github.event.inputs.macos_version || format('2.{0}', github.run_number) }}
+          REQ_IV: ${{ github.event.inputs.ios_version || format('2.{0}', github.run_number) }}
         run: |
           set -euo pipefail
           if [ -n "$ASC_KEY_P8" ]; then
