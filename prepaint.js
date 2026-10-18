@@ -98,7 +98,10 @@
     if (kjbFontFamily === "opendyslexic" || kjbFontFamily === "atkinson") {
       document.documentElement.classList.add("kjb-font-" + kjbFontFamily);
     }
-    var scale = (!raw || raw < 0.75 || raw > 1.5) ? 1 : raw;
+    // iPhone (incl. iPhone Duo) defaults to 80% so the panel fits the narrow
+    // screen without pinch-zooming; a saved preference always wins.
+    var kjbIsIPhone = /iPhone/i.test(navigator.userAgent);
+    var scale = (!raw || raw < 0.75 || raw > 1.5) ? (kjbIsIPhone ? 0.8 : 1) : raw;
 
     // Short viewports (landscape phones, squat overlays) scroll as one document
     // rather than as a clipped 100vh column. Decided here, before first paint,

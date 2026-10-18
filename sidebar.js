@@ -700,7 +700,9 @@
     // Take the synchronous mirror first — prepaint.js has already rendered at
     // this scale, so adopting it causes no visual change. Painting at 1 here
     // (as an earlier build did) is what produced the flash on every open.
-    let initial = 1;
+    // iPhone (incl. iPhone Duo) defaults to 80% — mirrors prepaint.js so the
+    // first paint and the JS reconciliation agree (no flash).
+    let initial = /iPhone/i.test(navigator.userAgent) ? 0.8 : 1;
     try {
       const mirrored = parseFloat(localStorage.getItem("kjbUiScale"));
       if (mirrored && mirrored >= MIN_UI_SCALE && mirrored <= MAX_UI_SCALE) initial = mirrored;
