@@ -237,14 +237,16 @@ jobs:
 
       - name: Package the configured Xcode project for download
         run: |
-          zip -qry KJB-Reader-Xcode-v0.4.272.zip "$APP_NAME"             -x '*/.DS_Store' '*/xcuserdata/*' '*/DerivedData/*'
-          unzip -l KJB-Reader-Xcode-v0.4.272.zip | grep -E '\.xcodeproj/project.pbxproj|manifest.json' | head
+          EXT_VER=$(python3 -c "import json;print(json.load(open('build/safari/manifest.json'))['version'])")
+          echo "XCODE_ZIP=KJB-Reader-Xcode-v${EXT_VER}.zip" >> "$GITHUB_ENV"
+          zip -qry "KJB-Reader-Xcode-v${EXT_VER}.zip" "$APP_NAME" -x '*/.DS_Store' '*/xcuserdata/*' '*/DerivedData/*'
+          unzip -l "KJB-Reader-Xcode-v${EXT_VER}.zip" | grep -E '\.xcodeproj/project.pbxproj|manifest.json' | head
 
       - name: Attach configured Xcode project
         uses: actions/upload-artifact@v4
         with:
-          name: KJB-Reader-Xcode-v0.4.272
-          path: KJB-Reader-Xcode-v0.4.272.zip
+          name: ${{ env.XCODE_ZIP }}
+          path: ${{ env.XCODE_ZIP }}
           retention-days: 14
 
       - name: Import signing certificates
