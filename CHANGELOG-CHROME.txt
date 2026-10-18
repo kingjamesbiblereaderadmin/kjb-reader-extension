@@ -1,3 +1,6 @@
+WHAT'S NEW IN v0.4.315 (October 18, 2026)
+- Accessibility fonts: a new "Aa" button in the panel header offers OpenDyslexic and Atkinson Hyperlegible typefaces, bundled locally with no network requests. The choice is remembered and applies across the whole panel.
+
 WHAT'S NEW IN v0.4.304 (October 13, 2026)
 - Mobile keeps the in-panel logo and "KJB Reader - SidePanel" title on one header row (mobile has no browser header of its own), with the zoom controls and website button right-aligned beside the branding.
 

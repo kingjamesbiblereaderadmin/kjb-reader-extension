@@ -1,3 +1,6 @@
+WHAT'S NEW IN v0.4.315 (October 18, 2026)
+- Accessibility fonts: a new "Aa" button in the panel header offers OpenDyslexic and Atkinson Hyperlegible typefaces, bundled locally with no network requests. The choice is remembered and applies across the whole panel.
+
 WHAT'S NEW IN v0.4.308 (October 15, 2026)
 - Resources tab links and preachers now render and copy as bullet points.
 - Gospel tab: "Copy" now copies just the gospel; the new "Copy All" button copies the whole page, including the extra resources and preachers sections.
