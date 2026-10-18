@@ -51,8 +51,67 @@
   }
 }
 
+/* Accessibility fonts — bundled locally, the panel makes no network requests.
+   Same two typefaces the KJB Reader app offers in Settings > Fonts. */
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('fonts/OpenDyslexic-regular.woff') format('woff');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('fonts/OpenDyslexic-bold.woff') format('woff');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'OpenDyslexic';
+  src: url('fonts/OpenDyslexic-italic.woff') format('woff');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  src: url('fonts/atkinson-hyperlegible-normal-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  src: url('fonts/atkinson-hyperlegible-normal-700.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  src: url('fonts/atkinson-hyperlegible-italic-400.woff2') format('woff2');
+  font-weight: 400;
+  font-style: italic;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Atkinson Hyperlegible';
+  src: url('fonts/atkinson-hyperlegible-italic-700.woff2') format('woff2');
+  font-weight: 700;
+  font-style: italic;
+  font-display: swap;
+}
+
 html, body {
   height: 100%;
+}
+
+html.kjb-font-opendyslexic body {
+  font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif;
+}
+html.kjb-font-atkinson body {
+  font-family: 'Atkinson Hyperlegible', Verdana, sans-serif;
 }
 
 body {
@@ -301,6 +360,57 @@ html.kjb-brand-panel #app.kjb-stack .header-actions { justify-content: flex-end;
 .btn-icon:hover {
   color: var(--primary);
   background: var(--bg-hover);
+}
+
+/* ---- Accessibility font picker (Aa) ---- */
+.font-picker {
+  position: relative;
+  display: flex;
+}
+.font-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 80;
+  min-width: 158px;
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+.font-menu[hidden] {
+  display: none;
+}
+.font-option {
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  color: var(--text);
+}
+.font-option:hover,
+.font-option:focus-visible {
+  background: var(--bg-hover);
+  outline: none;
+}
+.font-option[aria-checked="true"] {
+  font-weight: 700;
+}
+.font-option[aria-checked="true"]::after {
+  content: " \2713";
+  color: var(--primary);
+}
+.font-option-od {
+  font-family: 'OpenDyslexic', 'Comic Sans MS', sans-serif;
+}
+.font-option-ah {
+  font-family: 'Atkinson Hyperlegible', Verdana, sans-serif;
 }
 
 

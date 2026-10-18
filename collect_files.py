@@ -103,6 +103,15 @@ def main():
             for ref in html_refs(os.path.join(base, page)):
                 add(ref)
 
+    # Fonts are referenced only from CSS url() rules in sidebar.css, which
+    # this walker does not parse — bundle the whole fonts/ directory when
+    # present (woff/woff2 files plus the SIL OFL license notice).
+    fonts_dir = os.path.join(base, "fonts")
+    if os.path.isdir(fonts_dir):
+        for name in sorted(os.listdir(fonts_dir)):
+            if os.path.isfile(os.path.join(fonts_dir, name)):
+                add(os.path.join("fonts", name))
+
     # print.html is opened from JS (a blob/tab handoff), so nothing in the
     # manifest points at it. Include it and whatever it references.
     # kjb-pce.txt is fetched from JS (chrome.runtime.getURL), so no HTML tag

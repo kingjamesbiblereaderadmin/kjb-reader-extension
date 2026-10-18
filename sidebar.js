@@ -704,6 +704,78 @@
     } catch (_) {}
   }
 
+  // ---- Accessibility fonts: OpenDyslexic / Atkinson Hyperlegible ----
+  // Mirrors the main app's Settings > Fonts feature. The woff/woff2 files are
+  // bundled (the panel makes no network requests). localStorage mirrors the
+  // choice for the pre-paint pass (see prepaint.js); chrome.storage.local is
+  // the source of truth — the same two-layer pattern as sidebarUiScale.
+  const FONT_CLASSES = { opendyslexic: "kjb-font-opendyslexic", atkinson: "kjb-font-atkinson" };
+  const VALID_FONTS = ["", "opendyslexic", "atkinson"];
+  const btnFont = document.getElementById("btn-font");
+  const fontMenu = document.getElementById("font-menu");
+  let fontMenuOpen = false;
+
+  function applyFontFamily(f) {
+    Object.keys(FONT_CLASSES).forEach((k) => document.documentElement.classList.remove(FONT_CLASSES[k]));
+    if (FONT_CLASSES[f]) document.documentElement.classList.add(FONT_CLASSES[f]);
+    document.querySelectorAll(".font-option").forEach((opt) =>
+      opt.setAttribute("aria-checked", opt.dataset.font === f ? "true" : "false")
+    );
+  }
+
+  function setFontFamily(f) {
+    if (!VALID_FONTS.includes(f)) f = "";
+    applyFontFamily(f);
+    try { localStorage.setItem("kjbFontFamily", f); } catch (_) {}
+    try {
+      const saved = chrome.storage.local.set({ sidebarFontFamily: f });
+      if (saved && typeof saved.catch === "function") saved.catch(() => {});
+    } catch (_) {}
+  }
+
+  function closeFontMenu() {
+    fontMenuOpen = false;
+    fontMenu.hidden = true;
+    btnFont.setAttribute("aria-expanded", "false");
+  }
+
+  btnFont.addEventListener("click", () => {
+    fontMenuOpen = !fontMenuOpen;
+    fontMenu.hidden = !fontMenuOpen;
+    btnFont.setAttribute("aria-expanded", String(fontMenuOpen));
+    if (fontMenuOpen) fontMenu.querySelector("button").focus();
+  });
+  fontMenu.addEventListener("click", (e) => {
+    const opt = e.target.closest(".font-option");
+    if (!opt) return;
+    setFontFamily(opt.dataset.font);
+    closeFontMenu();
+    btnFont.focus();
+  });
+  document.addEventListener("click", (e) => {
+    if (fontMenuOpen && !e.target.closest(".font-picker")) closeFontMenu();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && fontMenuOpen) { closeFontMenu(); btnFont.focus(); }
+  });
+
+  (function loadFontFamily() {
+    let initial = "";
+    try { initial = localStorage.getItem("kjbFontFamily") || ""; } catch (_) {}
+    if (!VALID_FONTS.includes(initial)) initial = "";
+    applyFontFamily(initial);
+    try {
+      chrome.storage.local.get(["sidebarFontFamily"], (data) => {
+        // Only reconcile when storage actually carries a value (same falsy
+        // check as loadUiScale) — a missing key must not wipe the mirror,
+        // which once made a saved font disappear on reload.
+        const saved = data ? data.sidebarFontFamily : undefined;
+        if (!saved || !VALID_FONTS.includes(saved)) return;
+        if (saved !== initial) applyFontFamily(saved);
+      });
+    } catch (_) {}
+  })();
+
   // Re-run the scale math whenever the panel is resized (e.g. via the
   // resizable-width drag grip) so the pre-scale pixel box stays correct.
   let resizeRaf = null;

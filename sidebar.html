@@ -22,6 +22,14 @@
           <button class="btn-scale btn-scale-value" id="btn-zoom-reset" type="button" title="Reset interface size" aria-label="Reset interface size to 100 percent">100%</button>
           <button class="btn-scale" id="btn-zoom-in" type="button" title="Increase interface size" aria-label="Increase interface size">A+</button>
         </div>
+        <div class="font-picker">
+          <button class="btn-scale" id="btn-font" type="button" title="Accessibility fonts" aria-label="Choose accessibility font" aria-haspopup="menu" aria-expanded="false">Aa</button>
+          <div class="font-menu" id="font-menu" role="menu" aria-label="Accessibility fonts" hidden>
+            <button class="font-option" type="button" role="menuitemradio" data-font="">Default</button>
+            <button class="font-option font-option-od" type="button" role="menuitemradio" data-font="opendyslexic">OpenDyslexic</button>
+            <button class="font-option font-option-ah" type="button" role="menuitemradio" data-font="atkinson">Atkinson Hyperlegible</button>
+          </div>
+        </div>
         <button class="btn-icon" id="btn-website" type="button" title="Open KJB Reader website" aria-label="Open KJB Reader website">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>

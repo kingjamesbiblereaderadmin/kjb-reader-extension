@@ -91,6 +91,13 @@
     }
 
     var raw = parseFloat(localStorage.getItem("kjbUiScale"));
+    // Mirror the saved accessibility font the same way, so the first paint
+    // already uses it (sidebar.js reconciles with chrome.storage after).
+    var kjbFontFamily = null;
+    try { kjbFontFamily = localStorage.getItem("kjbFontFamily"); } catch (e) {}
+    if (kjbFontFamily === "opendyslexic" || kjbFontFamily === "atkinson") {
+      document.documentElement.classList.add("kjb-font-" + kjbFontFamily);
+    }
     var scale = (!raw || raw < 0.75 || raw > 1.5) ? 1 : raw;
 
     // Short viewports (landscape phones, squat overlays) scroll as one document

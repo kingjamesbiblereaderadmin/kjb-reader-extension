@@ -1,0 +1,10 @@
+The fonts bundled in this directory are licensed under the SIL Open Font License, Version 1.1.
+
+OpenDyslexic (regular, bold, italic)
+  Copyright (c) Abelardo Gonzalez (opendyslexic.org)
+
+Atkinson Hyperlegible (regular, bold, italic)
+  Copyright (c) Braille Institute of America, Inc.
+  https://www.brailleinstitute.org/freefont
+
+The SIL OFL 1.1 is available with a FAQ at: https://scripts.sil.org/OFL
