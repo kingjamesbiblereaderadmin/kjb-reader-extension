@@ -155,7 +155,7 @@
     // a content script may have already injected.  ONLY the real side
     // panel may do this — never the overlay iframe.
     if (KJB_IS_SIDE_PANEL) {
-      kjbSend({ type: "KJB_PANEL_ALIVE" });
+      kjbSend({ type: "KJB_PANEL_ALIVE", hidden: !!document.hidden });
       // Beat immediately too. storage.onChanged fires straight into the content
       // script, so this is the fastest possible proof-of-life — and unlike the
       // interval below it cannot be throttled away.
@@ -170,7 +170,7 @@
         scheduleLookupWatchdog(text);
         // Drop the background's copy of THIS verse (matched by timestamp) so the
         // slow path cannot search it a second time.
-        kjbSend({ type: "KJB_ACK_LOOKUP", ts: stamp });
+        kjbSend({ type: "KJB_ACK_LOOKUP", ts: stamp, hidden: !!document.hidden });
         try { chrome.storage.local.remove("pendingLookup"); } catch (e) {}
       } catch (e) {
         console.warn("[KJB Sidebar] delivery failed:", e);
@@ -233,11 +233,23 @@
     // is why a stale heartbeat kept letting the overlay through. These events
     // are not throttled, so they keep the flag honest.
     document.addEventListener("visibilitychange", beat);
+    // Chrome keeps a user-closed side panel's document alive: it keeps
+    // heartbeating and acking while INVISIBLE, which used to make every
+    // later verse click route into a panel nobody could see. Alive messages
+    // now carry document.hidden, and when the browser re-shows the panel
+    // this listener immediately re-announces visibility so every tab drops
+    // any overlay it injected meanwhile.
+    document.addEventListener("visibilitychange", () => {
+      if (!document.hidden) {
+        beat();
+        kjbSend({ type: "KJB_PANEL_ALIVE", hidden: false });
+      }
+    });
     window.addEventListener("focus", beat);
     document.addEventListener("click", beat, true);
-    kjbSend({ type: "KJB_PANEL_ALIVE" });
+    kjbSend({ type: "KJB_PANEL_ALIVE", hidden: !!document.hidden });
     setInterval(() => {
-      kjbSend({ type: "KJB_PANEL_ALIVE" });
+      kjbSend({ type: "KJB_PANEL_ALIVE", hidden: !!document.hidden });
     }, 2000);
     window.addEventListener("pagehide", () => {
       kjbSend({ type: "KJB_PANEL_CLOSED" });

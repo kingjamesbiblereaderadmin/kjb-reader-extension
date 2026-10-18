@@ -257,8 +257,15 @@ function claimSurface(kind) {
 // answered. A rejection also NEVER marks the tab standalone — that marking is
 // what poisoned every later click on the tab in v0.4.279/280.
 let ackWaiter = null;
-function notePanelAck() {
-  if (ackWaiter) ackWaiter.acked = true;
+function notePanelAck(msg) {
+  if (ackWaiter) {
+    ackWaiter.acked = true;
+    // A panel that acks while document.hidden is Chrome's closed-but-alive
+    // side panel: the doc survives the toolbar close, so it still receives
+    // messages and acks while invisible. An ack from an invisible panel is
+    // NOT proof the click paid off — the user saw nothing.
+    ackWaiter.hidden = !!(msg && msg.hidden);
+  }
 }
 function fallbackAfterReject(text, tabId) {
   if (tabId === null || tabId === undefined) return;
@@ -267,6 +274,20 @@ function fallbackAfterReject(text, tabId) {
   setTimeout(() => {
     if (ackWaiter === waiter) ackWaiter = null;
     if (waiter.acked) {
+      if (waiter.hidden) {
+        // The ack came from Chrome's closed-but-alive panel document. The
+        // verse landed somewhere nobody can see, so the heartbeat re-read
+        // below would be a lie too (the zombie keeps it fresh). Show a
+        // visible surface: the in-page overlay. The next toolbar click can
+        // still re-show the real panel.
+        if (!claimSurface("overlay")) return;
+        console.log("[KJB Background] ack from HIDDEN panel — overlay fallback");
+        api.tabs.sendMessage(tabId, {
+          type: "KJB_INJECT_OVERLAY", text: text || null, force: false,
+          reason: "panel-hidden", panelHidden: true
+        }, { frameId: 0 }).catch(() => {});
+        return;
+      }
       console.log("[KJB Background] panel acked the lookup after rejection — no fallback surface");
       return;
     }
@@ -579,8 +600,19 @@ api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
 
   if (msg.type === "KJB_PANEL_ALIVE") {
     lastPanelAliveTs = Date.now();
-    notePanelAck();
-    // The side panel itself reported in. Trust this above everything else:
+    notePanelAck(msg);
+    if (msg.hidden) {
+      // Zombie panel: the document is alive but the panel is CLOSED
+      // (Chrome keeps user-closed side panels alive — toolbar close is the
+      // trigger). It must never be announced as open: broadcasting "open"
+      // here is what made verse clicks route into a closed panel forever.
+      setSidePanelOpen(false);
+      sidePanelOpen = false;
+      broadcastPanelStatus(false);
+      sendResponse({ ok: true });
+      return;
+    }
+    // The side panel itself reported in, VISIBLE. Trust this above everything else:
     // mark it open and tell every tab to drop any overlay it injected.
     setSidePanelOpen(true);
     sidePanelOpen = true;
@@ -615,7 +647,7 @@ api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
   }
 
   if (msg.type === "KJB_ACK_LOOKUP") {
-    notePanelAck();
+    notePanelAck(msg);
     // The panel delivered this exact verse already. Clear it only if the
     // timestamps match, so a newer verse that arrived meanwhile survives.
     if (msg.ts && msg.ts === pendingVerseTs) {

@@ -1,3 +1,6 @@
+WHAT'S NEW IN v0.4.316 (October 18, 2026)
+- Fixed clicks going into a closed side panel: Chrome keeps a toolbar-closed panel's document alive (still acking while invisible), which used to swallow every later verse click. The panel now reports its visibility, the background ignores acks from invisible panels, and such clicks fall back to a visible overlay until the panel is reopened.
+
 WHAT'S NEW IN v0.4.315 (October 18, 2026)
 - Accessibility fonts: a new "Aa" button in the panel header offers OpenDyslexic and Atkinson Hyperlegible typefaces, bundled locally with no network requests. The choice is remembered and applies across the whole panel.
 

@@ -3,7 +3,7 @@
 // that already has it (after an extension update); without this guard the
 // top-level `const` declarations would throw "already declared".
 
-const KJB_CONTENT_VERSION = "0.4.315";
+const KJB_CONTENT_VERSION = "0.4.316";
 
 // A plain boolean guard here was a serious bug: after an extension update the
 // background re-injects this file into already-open tabs, and the boolean made
@@ -1733,8 +1733,11 @@ chrome.runtime.onMessage.addListener((msg) => {
     if (!overlayAllowedHere(msg.reason || "unspecified")) return;
     // The background may ask for an overlay after chrome.sidePanel.open()
     // rejected — but that call rejects on some sites even while the panel is
-    // visible. If the panel is beating, ignore the request.
-    if (panelIsLive()) {
+    // visible. If the panel is beating, ignore the request — UNLESS the
+    // background proved the beat comes from a HIDDEN document (Chrome's
+    // closed-but-alive side panel); panelHidden=true means a fresh heartbeat
+    // is exactly the zombie this fallback exists to bypass.
+    if (panelIsLive() && !msg.panelHidden) {
       // Even force must bow to a live panel. force=true was meant for PWA
       // tabs where no docked panel exists — but on Edge a toolbar click can
       // mark a tab standalone and force an overlay WHILE the docked panel
