@@ -464,6 +464,15 @@ jobs:
             dist/ios-export/*.ipa
           retention-days: 14
 
+      - name: Attach the Xcode archives (xcarchive)
+        if: env.HAS_SIGNING == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: KJB-Reader-Safari-xcarchives
+          path: |
+            dist/*.xcarchive
+          retention-days: 14
+
       - name: Attach the converted Xcode project (validation mode)
         if: env.HAS_SIGNING != 'true'
         run: |
@@ -474,3 +483,4 @@ jobs:
           name: Safari-conversion-check
           path: converted-xcode-project.zip
           retention-days: 14
+
