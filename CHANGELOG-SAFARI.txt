@@ -1,3 +1,6 @@
+WHAT'S NEW IN v0.4.318 (October 19, 2026)
+- Safari routing fix: clicking a verse on a web page now ALWAYS opens the in-page overlay, even while the Safari sidebar is open. The sidebar no longer captures page-click lookups and no longer closes an overlay when opened — it stays on whatever you are reading there. Chrome, Edge, Firefox and Opera are unchanged.
+
 WHAT'S NEW IN v0.4.317 (October 19, 2026)
 - Resources: Robert Potthoff's TikTok link now points to @bigredpreacher87.
 

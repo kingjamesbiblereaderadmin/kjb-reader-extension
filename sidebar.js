@@ -145,6 +145,15 @@
   }
 
   function handleIncomingLookup(text, ts) {
+    // Safari: the extension's own surface (toolbar popup / panel) never
+    // captures a page-click lookup — the verse belongs to the in-page
+    // overlay, and the popup keeps whatever the user is reading. The
+    // overlay iframe (?ctx=overlay, KJB_IS_SIDE_PANEL=false) still
+    // consumes pushes normally.
+    if (KJB_IS_SAFARI && KJB_IS_SIDE_PANEL) {
+      console.log("[KJB Sidebar] Safari panel ignores pushed lookup (overlay owns page clicks)");
+      return;
+    }
     if (!text) return;
     const stamp = ts || Date.now();
     if (stamp <= earlyLookupTs) return;
@@ -853,6 +862,13 @@
 
   // --- Pending Lookup (from verse link clicks and context menu) ---
   function checkPendingLookup() {
+    // Safari panel: page clicks never feed this surface. Reopen on the
+    // chapter the user was reading here, not on a verse clicked on a page.
+    if (KJB_IS_SAFARI && KJB_IS_SIDE_PANEL) {
+      console.log("[KJB Sidebar] Safari panel opens on last chapter — ignoring pending lookup");
+      try { restoreLastChapter(); } catch (e) {}
+      return;
+    }
     if (!shouldPullPending({ earlyLookupTs, lookupDelivered })) {
       console.log("[KJB Sidebar] verse already delivered by the fast path — not pulling, not restoring");
       return;
@@ -1074,6 +1090,12 @@
     chrome.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       if (msg.type === "KJB_SIDEBAR_LOOKUP" && msg.text) {
         const ts = msg.ts || Date.now();
+        // Safari panel never captures page-click lookups (overlay owns them);
+        // answer so the background's send resolves, but do not search.
+        if (KJB_IS_SAFARI && KJB_IS_SIDE_PANEL) {
+          sendResponse({ received: false });
+          return;
+        }
         if (ts > lastHandledTimestamp) {
           lastHandledTimestamp = ts;
           searchInput.value = msg.text;
@@ -1087,6 +1109,9 @@
     // Storage fallback: triggers pull when storage changes (panel already open)
     chrome.storage.onChanged.addListener((changes, area) => {
       if (area === "local" && changes.lookupTimestamp) {
+        // Safari panel: storage writes from page clicks must not pull a
+        // verse into this surface either.
+        if (KJB_IS_SAFARI && KJB_IS_SIDE_PANEL) return;
         const newTs = changes.lookupTimestamp.newValue || 0;
         if (newTs > lastHandledTimestamp) {
           // Small delay so background has time to store pendingVerse

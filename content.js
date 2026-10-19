@@ -3,7 +3,7 @@
 // that already has it (after an extension update); without this guard the
 // top-level `const` declarations would throw "already declared".
 
-const KJB_CONTENT_VERSION = "0.4.317";
+const KJB_CONTENT_VERSION = "0.4.318";
 
 // A plain boolean guard here was a serious bug: after an extension update the
 // background re-injects this file into already-open tabs, and the boolean made
@@ -45,6 +45,15 @@ if (window.__kjbReaderContentVersion === KJB_CONTENT_VERSION) {
 const isFirefox = /\bFirefox\/\d/.test(navigator.userAgent) ||
   (typeof browser !== "undefined" && !!browser.runtime &&
    typeof browser.runtime.getBrowserInfo === "function");
+// Safari (macOS and iOS) is the one browser where the extension's sidebar can
+// sit open while the user works in a page — and it is not a routing target for
+// page clicks. Verse clicks on Safari ALWAYS open the in-page overlay; the
+// sidebar never captures a lookup and never tears down an overlay. UA rule:
+// Safari is the only engine whose UA has Version/x AND Safari/ but never
+// Chrome/ (Chromium embeds Safari/ in every build, Firefox has neither).
+const isSafariUA = /AppleWebKit/.test(navigator.userAgent) &&
+  /\bVersion\/\d/.test(navigator.userAgent) &&
+  !/Chrome|Chromium|Edg\b|Edg\/|OPR\/|OPX\/|Firefox\//.test(navigator.userAgent);
 // Promise-style calls need the namespace that actually returns promises:
 // Firefox's chrome.* is callback-based (chrome.storage.local.get(...).then(...)
 // throws a TypeError there and silently aborts the caller), while browser.* is
@@ -168,7 +177,10 @@ try {
     // injected during a momentary heartbeat gap alive FOREVER, ghosting
     // behind the docked panel (the Edge duplicate-panel report). While the
     // real panel is open there is never a reason to keep one.
-    if (panelOpen && overlayExists()) {
+    // On Safari the sidebar and an in-page overlay are two independent
+    // surfaces the user placed deliberately — the sidebar opening must never
+    // close the overlay (it also never receives page-click lookups).
+    if (panelOpen && overlayExists() && !isSafariUA) {
       try { removeSidebarOverlay(); } catch (e) {}
     }
   });
@@ -177,7 +189,7 @@ try {
 // Re-evaluate staleness so a closed panel is noticed even with no writes.
 setInterval(() => {
   panelOpen = panelIsLive();
-  if (panelOpen && overlayExists()) {
+  if (panelOpen && overlayExists() && !isSafariUA) {
     try { removeSidebarOverlay(); } catch (e) {}
   }
 }, 1000);
@@ -443,7 +455,7 @@ function injectSidebarOverlay(force) {
   // is the one place that can reliably stop a flash. Previous versions only
   // guarded the click handler, while the background had its own injection
   // path (sidePanel.open() failure -> KJB_INJECT_OVERLAY) that ignored it.
-  if (!force && panelIsLive()) {
+  if (!force && panelIsLive() && !isSafariUA) {
     console.log('[KJB Reader] overlay suppressed — side panel is live');
     return;
   }
@@ -655,7 +667,7 @@ function injectSidebarOverlay(force) {
   // Final say on whether this overlay is allowed to become visible.
   const revealOverlay = () => {
     if (!container.isConnected) return;
-    if (!force && panelIsLive()) {
+    if (!force && panelIsLive() && !isSafariUA) {
       console.log('[KJB Reader] overlay cancelled before paint — panel is live');
       removeSidebarOverlay();
       return;
@@ -677,7 +689,7 @@ function injectSidebarOverlay(force) {
   try {
     kjbApi.storage.local.get(["kjbPanelHeartbeat", "kjbSidePanelOpen"]).then((d) => {
       const hb = (d && d.kjbPanelHeartbeat) || 0;
-      if (Date.now() - hb < HEARTBEAT_MAX_AGE) {
+      if (Date.now() - hb < HEARTBEAT_MAX_AGE && !isSafariUA) {
         lastHeartbeat = hb;
         panelOpen = true;
         console.log('[KJB Reader] overlay cancelled — fresh heartbeat on re-read');
@@ -1005,8 +1017,17 @@ function handleVerseClick(ref, link) {
   }
 
   // (B) Cached state says the panel is open — go straight there, no overlay.
-  if (panelOpen) {
+  // Safari is exempt: its sidebar is a separate reading surface, never a
+  // routing target for page clicks. On Safari the click goes to the
+  // background, which always picks the in-page overlay — the sidebar does
+  // not capture it.
+  if (panelOpen && !isSafariUA) {
     console.log('[KJB Reader] → side panel (cached)');
+    notify();
+    return;
+  }
+  if (isSafariUA) {
+    console.log('[KJB Reader] → background (Safari: overlay is always the target)');
     notify();
     return;
   }
@@ -1722,7 +1743,7 @@ chrome.runtime.onMessage.addListener((msg) => {
     // Self-healing, but ONLY for an overlay we injected in the last 1.5s.
     // Beyond that window the overlay is there deliberately (panel was shut)
     // and a late broadcast must not close it under the user.
-    if (panelOpen && overlayExists()) {
+    if (panelOpen && overlayExists() && !isSafariUA) {
       try { removeSidebarOverlay(); } catch (e) {}
     }
     return;
@@ -1737,7 +1758,7 @@ chrome.runtime.onMessage.addListener((msg) => {
     // background proved the beat comes from a HIDDEN document (Chrome's
     // closed-but-alive side panel); panelHidden=true means a fresh heartbeat
     // is exactly the zombie this fallback exists to bypass.
-    if (panelIsLive() && !msg.panelHidden) {
+    if (panelIsLive() && !msg.panelHidden && !isSafariUA) {
       // Even force must bow to a live panel. force=true was meant for PWA
       // tabs where no docked panel exists — but on Edge a toolbar click can
       // mark a tab standalone and force an overlay WHILE the docked panel

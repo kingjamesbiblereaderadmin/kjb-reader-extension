@@ -6,6 +6,13 @@
 const isFirefox = typeof browser !== "undefined" && typeof browser.sidebarAction !== "undefined";
 const hasChromeSidePanel = !isFirefox && typeof chrome !== "undefined" && typeof chrome.sidePanel !== "undefined" && !!chrome.sidePanel.setPanelBehavior;
 const isOpera = !isFirefox && !hasChromeSidePanel;
+// Safari (macOS/iOS): its sidebar is a separate reading surface. Page-click
+// lookups must always land on the in-page overlay — never forwarded to the
+// sidebar and never short-circuited by the panelAlreadyOpen branch. UA rule:
+// Version/x + Safari/ without any Chromium embedding.
+const isSafariBG = /AppleWebKit/.test(navigator.userAgent) &&
+  /\bVersion\/\d/.test(navigator.userAgent) &&
+  !/Chrome|Chromium|Edg\b|Edg\/|OPR\/|OPX\/|Firefox\//.test(navigator.userAgent);
 const api = isFirefox ? browser : chrome;
 
 // Track which tabs are in PWA/standalone mode (side panel unavailable)
@@ -448,7 +455,9 @@ api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
       pendingVerse = msg.text;
       pendingVerseTs = Date.now();
     }
-    // Always forward the verse to the sidebar (if it's listening)
+    // Always forward the verse to the sidebar (if it's listening). On Safari
+    // the panel instance ignores this push (sidebar.js) — only the in-page
+    // overlay iframe consumes it there.
     api.runtime.sendMessage({ type: "KJB_SIDEBAR_LOOKUP", text: msg.text, ts: pendingVerseTs }).catch(() => {});
     // Also forward via Port if connected
     if (sidePanelPort) {
@@ -473,7 +482,11 @@ api.runtime.onMessage.addListener((msg, sender, sendResponse) => {
     // Require a live signal: port connection OR recent heartbeat.
     const panelAlreadyOpen = sidePanelPort || (hbAge < 6500);
 
-    if (panelAlreadyOpen) {
+    if (panelAlreadyOpen && isSafariBG) {
+      // Safari: a live sidebar is NOT a routing target. Fall straight to the
+      // overlay (openFallbackSurface → no-side-panel branch below).
+      console.log("[KJB Background] Safari sidebar open — page click still goes to the overlay");
+    } else if (panelAlreadyOpen) {
       // v0.4.301: "believed open" is no longer trusted blindly. Chrome can
       // keep a user-closed panel's document alive (it keeps heartbeating,
       // receiving messages and acking while invisible — verified on Chrome

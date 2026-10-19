@@ -51,7 +51,42 @@ def patch_background(src: str) -> str:
     configure_replacement = "function configurePlatformAction() {\n  if (isFirefox || isSafari) return;"
     if configure_anchor not in src:
         fail("background.js configurePlatformAction anchor not found")
-    return src.replace(configure_anchor, configure_replacement, 1)
+    src = src.replace(configure_anchor, configure_replacement, 1)
+
+    # Safari-only build: the page-click routing fix must not depend on the
+    # service-worker UA either. The source file detects Safari from the UA
+    # (isSafariBG); here it is pinned, same policy as isSafari above.
+    bg_safari_anchor = (
+        "const isSafariBG = /AppleWebKit/.test(navigator.userAgent) &&\n"
+        "  /\\bVersion\\/\\d/.test(navigator.userAgent) &&\n"
+        "  !/Chrome|Chromium|Edg\\b|Edg\\/|OPR\\/|OPX\\/|Firefox\\//.test(navigator.userAgent);"
+    )
+    if bg_safari_anchor not in src:
+        fail("background.js isSafariBG anchor not found; update make_safari.py")
+    src = src.replace(
+        bg_safari_anchor,
+        "const isSafariBG = true;  // Safari-only build — deterministic (source uses the UA rule).",
+        1,
+    )
+    return src
+
+
+def patch_content(src: str) -> str:
+    # Same policy for the content script: the source detects Safari from the
+    # page UA; the Safari-only build pins it so no UA edge case can re-enable
+    # panel routing (sidebar capturing page clicks).
+    content_safari_anchor = (
+        "const isSafariUA = /AppleWebKit/.test(navigator.userAgent) &&\n"
+        "  /\\bVersion\\/\\d/.test(navigator.userAgent) &&\n"
+        "  !/Chrome|Chromium|Edg\\b|Edg\\/|OPR\\/|OPX\\/|Firefox\\//.test(navigator.userAgent);"
+    )
+    if content_safari_anchor not in src:
+        fail("content.js isSafariUA anchor not found; update make_safari.py")
+    return src.replace(
+        content_safari_anchor,
+        "const isSafariUA = true;  // Safari-only build — deterministic (source uses the UA rule).",
+        1,
+    )
 
 
 def make_toolbar_popup():
@@ -116,6 +151,10 @@ def main():
     bpath = SAFARI / "background.js"
     bpath.write_text(patch_background(bpath.read_text(encoding="utf-8")), encoding="utf-8")
     print("patched background.js (deterministic Safari toolbar route)")
+
+    cpath = SAFARI / "content.js"
+    cpath.write_text(patch_content(cpath.read_text(encoding="utf-8")), encoding="utf-8")
+    print("patched content.js (Safari overlay routing: sidebar never captures page clicks)")
 
     # --- zip ---
     version = m["version"]
