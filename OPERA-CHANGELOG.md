@@ -1,3 +1,7 @@
+WHAT'S NEW IN v0.4.319 (October 21, 2026)
+- Reopening the panel now returns you to what you were on before: the last tab you used (Read, Gospel or Resources), the chapter you were reading in Read, and your exact position in it. Clicking a verse on a page still takes over the view exactly as before.
+- Detected verse references now always keep the page's own font colour — pages with soft-grey or otherwise low-contrast text no longer have their verse references recoloured. The dotted underline, pointer cursor and solid hover underline are unchanged.
+
 WHAT'S NEW IN v0.4.284 (October 3, 2026)
 - Fixed click interception on sites that layer UI over verse references
   (Facebook's post/comment dialogs and "Write a comment..." placeholders,

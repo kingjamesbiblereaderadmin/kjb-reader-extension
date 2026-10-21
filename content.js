@@ -2107,72 +2107,20 @@ function unwrapKjbLinks(root) {
 
 // --- Scan ---
 
-// --- Contrast-aware reference color safeguard ---
-// Detected references inherit the host page's text color (per design).
-// But on low-contrast pages the inherited color can be nearly invisible
-// against the background. This function checks the page's effective text
-// color against its background; if the WCAG contrast ratio is below 3:1,
-// it overrides with a visible fallback so references are never invisible.
-function kjbRelativeLuminance(r, g, b) {
-  const s = [r, g, b].map(v => {
-    v /= 255;
-    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
-  });
-  return 0.2126 * s[0] + 0.7152 * s[1] + 0.0722 * s[2];
-}
-
-function kjbContrastRatio(l1, l2) {
-  return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
-}
-
-function kjbParseColor(str) {
-  if (!str) return null;
-  const m = str.match(/rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/);
-  return m ? [parseInt(m[1]), parseInt(m[2]), parseInt(m[3])] : null;
-}
-
-function kjbGetEffectiveBg(el) {
-  let node = el;
-  while (node && node !== document.documentElement) {
-    const bg = getComputedStyle(node).backgroundColor;
-    if (bg && bg !== 'rgba(0, 0, 0, 0)' && bg !== 'transparent') {
-      return kjbParseColor(bg);
-    }
-    node = node.parentElement;
-  }
-  // Check html element
-  const htmlBg = getComputedStyle(document.documentElement).backgroundColor;
-  if (htmlBg && htmlBg !== 'rgba(0, 0, 0, 0)' && htmlBg !== 'transparent') {
-    return kjbParseColor(htmlBg);
-  }
-  return [255, 255, 255]; // Default white
-}
-
-function kjbEnsureVisibleRefColor() {
-  try {
-    const textColor = kjbParseColor(getComputedStyle(document.body).color || 'rgb(0, 0, 0)');
-    const bgColor = kjbGetEffectiveBg(document.body);
-    if (!textColor || !bgColor) return;
-
-    const textLum = kjbRelativeLuminance(textColor[0], textColor[1], textColor[2]);
-    const bgLum = kjbRelativeLuminance(bgColor[0], bgColor[1], bgColor[2]);
-    const ratio = kjbContrastRatio(textLum, bgLum);
-
-    // 3:1 is the WCAG minimum for large text / UI components
-    if (ratio < 3) {
-      const safeColor = bgLum > 0.5 ? '#1a1a2e' : '#e5e7eb';
-      document.documentElement.style.setProperty('--kjb-ref-color', safeColor);
-      document.documentElement.style.setProperty('--kjb-ref-underline', safeColor);
-    } else {
-      // Contrast is fine — inherit the page's text color as before
-      document.documentElement.style.removeProperty('--kjb-ref-color');
-      document.documentElement.style.removeProperty('--kjb-ref-underline');
-    }
-  } catch (_) {}
-}
+// --- Reference colour policy ---
+// Detected verse references ALWAYS keep the page's own font colour: the CSS
+// in content.css inherits (color: inherit) whatever colour surrounds them.
+// An earlier "contrast safeguard" recoloured every reference on a page whose
+// body-level text fell under 3:1 WCAG contrast — but that recoloured the
+// references differently from the surrounding text the user was reading
+// (soft-grey designer pages suddenly got near-black verse text, dark pages
+// whose background came from an image or a nested container got near-black
+// text on dark backgrounds). Per owner policy (2026-10-21) the reference
+// text must match the page font colour exactly, so no override is applied;
+// the dotted underline, pointer cursor and solid hover underline remain the
+// only visual affordances.
 
 function scan() {
-  kjbEnsureVisibleRefColor();
   // Clean up wrappers from older extension versions before using non-DOM ranges.
   unwrapKjbLinks(document.body);
 

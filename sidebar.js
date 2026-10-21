@@ -812,21 +812,51 @@
   window.addEventListener("resize", onViewportChange);
   window.addEventListener("orientationchange", onViewportChange);
 
-  // --- Restore last chapter (popup ↔ side panel state sync) ---
+  // --- Restore last view (popup ↔ side panel state sync) ---
+  // Reopening the panel now lands the user back on what they were on before:
+  // the last tab, the last chapter in Read, and the scroll position they left
+  // it at. It still never replaces a verse the user explicitly clicked (the
+  // earlyLookupTs / lookupDelivered guards below) — a clicked lookup always
+  // keeps ownership of the view.
   function restoreLastChapter() {
     if (!shouldRestoreLastChapter({ earlyLookupTs, lookupDelivered })) {
       console.log("[KJB Sidebar] skipping last-chapter restore — a clicked verse owns this view");
       return;
     }
     try {
-      chrome.storage.local.get(["sidebarLastBook", "sidebarLastChapter", "sidebarLastEndChapter"], (data) => {
-        if (data && data.sidebarLastBook && data.sidebarLastChapter) {
-          // Pre-load the last chapter into the Read tab, but do NOT activate
-          // that tab. Opening the panel used to jump straight to Read, which
-          // hid whatever the user actually opened the panel for.
-          loadChapter(data.sidebarLastBook, data.sidebarLastChapter, null, null, data.sidebarLastEndChapter, false);
+      chrome.storage.local.get(
+        ["sidebarLastBook", "sidebarLastChapter", "sidebarLastEndChapter", "sidebarLastTab", "sidebarScrollTab", "sidebarScrollTop"],
+        (data) => {
+          if (!data) return;
+          const hasChapter = !!(data.sidebarLastBook && data.sidebarLastChapter);
+          const lastTab = data.sidebarLastTab;
+          // Only jump to a remembered tab when it has real content waiting:
+          // Gospel and Resources always render; Read needs the restored
+          // chapter. A remembered Results tab is the default view anyway and
+          // its cards are not persisted, so it stays put.
+          const restoreTab =
+            lastTab === "gospel" || lastTab === "resources" || (lastTab === "read" && hasChapter)
+              ? lastTab : null;
+          const finish = () => {
+            if (!restoreTab) return;
+            switchToTab(restoreTab);
+            // switchToTab scrolls to top — put the saved reading position back.
+            if (data.sidebarScrollTab === restoreTab &&
+                typeof data.sidebarScrollTop === "number" && data.sidebarScrollTop > 0) {
+              try {
+                const scroller = document.querySelector(".content-area");
+                if (scroller) scroller.scrollTop = data.sidebarScrollTop;
+              } catch (e) {}
+            }
+          };
+          if (hasChapter) {
+            loadChapter(data.sidebarLastBook, data.sidebarLastChapter, null, null, data.sidebarLastEndChapter, false)
+              .then(finish, finish);
+          } else {
+            finish();
+          }
         }
-      });
+      );
     } catch (e) {
       console.warn("[KJB] restoreLastChapter error:", e);
     }
@@ -1223,6 +1253,46 @@
     if (contentArea) contentArea.scrollTop = 0;
     // Also scroll tab content if it's independently scrollable
     if (tabContent) tabContent.scrollTop = 0;
+    // Remember which tab the user was last on. A reopened panel (Safari and
+    // mobile popups are fresh documents every time; Chrome after a browser
+    // restart) restores this tab instead of a blank Results tab — the
+    // "remembers what I was on" behaviour. The overlay iframe and the lookup
+    // popup window must never write panel state.
+    if (KJB_IS_SIDE_PANEL) {
+      try { chrome.storage.local.set({ sidebarLastTab: tabName }); } catch (e) {}
+    }
+  }
+
+  // --- Reading position persistence ---
+  // The scrollable content area's position is saved (throttled) whenever the
+  // user scrolls, tagged with the tab it belongs to. On a fresh panel open the
+  // restored tab is scrolled back to where the user left off, so "close and
+  // reopen" loses nothing.
+  let kjbScrollSaveTimer = null;
+  if (KJB_IS_SIDE_PANEL) {
+    const kjbScroller = document.querySelector(".content-area");
+    if (kjbScroller) {
+      kjbScroller.addEventListener("scroll", () => {
+        if (kjbScrollSaveTimer) return;
+        kjbScrollSaveTimer = setTimeout(() => {
+          kjbScrollSaveTimer = null;
+          try {
+            const activeTab = document.querySelector(".tab.active")?.dataset.tab;
+            if (!activeTab) return;
+            chrome.storage.local.set({ sidebarScrollTab: activeTab, sidebarScrollTop: kjbScroller.scrollTop });
+          } catch (e) {}
+        }, 300);
+      }, { passive: true });
+      // Save the position when the panel goes away too — the closing scroll
+      // (and any scroll since the last throttle tick) must not be lost.
+      window.addEventListener("pagehide", () => {
+        try {
+          const activeTab = document.querySelector(".tab.active")?.dataset.tab;
+          if (!activeTab) return;
+          chrome.storage.local.set({ sidebarScrollTab: activeTab, sidebarScrollTop: kjbScroller.scrollTop });
+        } catch (e) {}
+      });
+    }
   }
 
   // --- Search Logic ---

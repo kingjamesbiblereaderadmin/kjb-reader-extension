@@ -1,3 +1,7 @@
+WHAT'S NEW IN v0.4.319 (October 21, 2026)
+- Reopening the panel now returns you to what you were on before: the last tab you used (Read, Gospel or Resources), the chapter you were reading in Read, and your exact position in it. Clicking a verse on a page still takes over the view exactly as before.
+- Detected verse references now always keep the page's own font colour — pages with soft-grey or otherwise low-contrast text no longer have their verse references recoloured. The dotted underline, pointer cursor and solid hover underline are unchanged.
+
 WHAT'S NEW IN v0.4.318 (October 19, 2026)
 - Safari routing fix: clicking a verse on a web page now ALWAYS opens the in-page overlay, even while the Safari sidebar is open. The sidebar no longer captures page-click lookups and no longer closes an overlay when opened — it stays on whatever you are reading there. Chrome, Edge, Firefox and Opera are unchanged.
 
