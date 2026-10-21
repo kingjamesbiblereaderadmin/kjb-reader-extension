@@ -1,4 +1,5 @@
 WHAT'S NEW IN v0.4.319 (October 21, 2026)
+- The Read tab's Previous/Next chapter buttons now cross book boundaries: going back from chapter 1 opens the last chapter of the previous book, and going forward from a book's last chapter opens chapter 1 of the next book. They only grey out at the very ends of the Bible (Genesis 1 and Revelation 22).
 - Reopening the panel now returns you to what you were on before: the last tab you used (Read, Gospel or Resources), the chapter you were reading in Read, and your exact position in it. Clicking a verse on a page still takes over the view exactly as before.
 - Detected verse references now always keep the page's own font colour — pages with soft-grey or otherwise low-contrast text no longer have their verse references recoloured. The dotted underline, pointer cursor and solid hover underline are unchanged.
 

@@ -2150,11 +2150,15 @@
         setHTML(chapterDropdown, Array.from({length: maxCh}, (_, i) => `<option value="${i+1}" ${i+1 === chapter ? 'selected' : ''}>${i+1}</option>`).join(""));
       }
 
-      // Prev/Next disabled state
+      // Prev/Next disabled state — navigation crosses book boundaries, so the
+      // buttons only grey out at the very ends of the Bible (Genesis 1 prev,
+      // Revelation 22 next).
+      const navBooks = KJB_API.getBooks();
+      const navIdx = navBooks.findIndex(b => b.name === book);
       const prevBtn = document.getElementById('read-prev');
       const nextBtn = document.getElementById('read-next');
-      if (prevBtn) prevBtn.disabled = chapter <= (endChapter ? Math.min(endChapter, 1) : 1);
-      if (nextBtn) nextBtn.disabled = endChapter ? chapter >= endChapter : chapter >= totalChapters;
+      if (prevBtn) prevBtn.disabled = navIdx <= 0 && chapter <= 1;
+      if (nextBtn) nextBtn.disabled = navIdx >= 0 && navIdx === navBooks.length - 1 && (endChapter || chapter) >= totalChapters;
 
       // NOTE: Don't show read-controls here — switchToTab handles that.
       // Only verses go in the scroll area
@@ -2243,8 +2247,33 @@
           const prev = e.target.closest("#read-prev");
           const next = e.target.closest("#read-next");
           const openWeb = e.target.closest("#read-open-web");
-          if (prev && !prev.disabled) loadChapter(currentBook, currentChapter - 1, null, null, currentEndChapter);
-          if (next && !next.disabled) loadChapter(currentBook, currentChapter + 1, null, null, currentEndChapter);
+          if (prev && !prev.disabled) {
+            // Previous chapter — crosses into the previous book at chapter 1,
+            // landing on that book's last chapter (keeping the view's width).
+            const books = KJB_API.getBooks();
+            const bi = books.findIndex(b => b.name === currentBook);
+            const width = currentEndChapter ? (currentEndChapter - currentChapter + 1) : 1;
+            let b = currentBook, startCh = currentChapter - width, endCh = currentEndChapter;
+            if (startCh < 1) {
+              const pb = books[bi - 1];
+              if (pb) { b = pb.name; startCh = Math.max(1, pb.chapters - (width - 1)); endCh = width === 1 ? null : pb.chapters; }
+            }
+            loadChapter(b, startCh, null, null, endCh);
+          }
+          if (next && !next.disabled) {
+            // Next chapter — crosses into the next book after the last chapter,
+            // landing on chapter 1 (keeping the view's width).
+            const books = KJB_API.getBooks();
+            const bi = books.findIndex(b => b.name === currentBook);
+            const cb = books[bi];
+            const width = currentEndChapter ? (currentEndChapter - currentChapter + 1) : 1;
+            let b = currentBook, startCh = (currentEndChapter || currentChapter) + 1, endCh = currentEndChapter;
+            if (startCh > (cb ? cb.chapters : 0)) {
+              const nb = books[bi + 1];
+              if (nb) { b = nb.name; startCh = 1; endCh = width === 1 ? null : Math.min(width, nb.chapters); }
+            }
+            loadChapter(b, startCh, null, null, endCh);
+          }
           if (openWeb) openExternalUrl(KJB_API.getReadUrl(currentBook, currentChapter));
         });
         const bd = rcEl.querySelector("#read-book-dropdown");
