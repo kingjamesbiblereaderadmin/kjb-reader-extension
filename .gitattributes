@@ -55,3 +55,8 @@
 *.exe filter=lfs diff=lfs merge=lfs -text
 *.wasm filter=lfs diff=lfs merge=lfs -text
 *.bin filter=lfs diff=lfs merge=lfs -text
+
+# CI-checked-out paths must be real Git blobs (runner has no LFS)
+fonts/** !filter !diff !merge -text
+icons/** !filter !diff !merge -text
+store-assets/** !filter !diff !merge -text
