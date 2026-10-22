@@ -1,0 +1,44 @@
+{
+  "name": "Chrome 319 Publish Watch",
+  "description": "Every 2 hours, retry the Chrome Web Store upload/submit of KJB Reader v0.4.319 while v0.4.318 is stuck in review. Stops automatically after 24 runs.",
+  "trigger": {
+    "condition": null,
+    "config": {
+      "trigger_type": "scheduled",
+      "events": [],
+      "schedule_mode": "recurring",
+      "cron_expression": "0 */2 * * *",
+      "one_time_date": null,
+      "timezone": "Asia/Singapore",
+      "interval_value": null,
+      "interval_unit": null,
+      "interval_anchor": null,
+      "ends_type": "after_count",
+      "ends_on_date": null,
+      "ends_after_count": 24
+    }
+  },
+  "definition": {
+    "do": [
+      {
+        "retry_publish": {
+          "call": "invoke_superagent_step",
+          "then": "end",
+          "with": {
+            "message": "Scheduled check: retry publishing KJB Reader v0.4.319 to the Chrome Web Store.\n\nRun: cd /app && set -a && source .agents/.env && set +a && bash scripts/publish-chrome.sh build/kjb-reader-chrome-v0.4.319.zip --submit --auto-publish\n\nContext: the previous attempt failed with 'You may not edit or publish an item that is in review.' because v0.4.318 is still in CWS review. That is a transient blocker, not a bug.\n\nIf it succeeds: report the publication to the owner, then deactivate this workflow (name: Chrome 319 Publish Watch) so it stops firing.\nIf it still fails with the in-review error: reply briefly that the review is still pending, and let the workflow fire again. Do not deactivate.\nIf it fails with a DIFFERENT error: investigate, report to the owner, and deactivate this workflow so it stops firing."
+          },
+          "x-base44": {
+            "title": "Retry Chrome v0.4.319 publish",
+            "description": "Retry while 0.4.318 is stuck in review"
+          }
+        }
+      }
+    ],
+    "document": {
+      "dsl": "1.0.0",
+      "name": "chrome_319_publish_watch",
+      "namespace": "base44",
+      "version": "1.0"
+    }
+  }
+}

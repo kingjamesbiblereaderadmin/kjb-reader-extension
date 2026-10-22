@@ -105,8 +105,13 @@ def api_errors(payload):
 
 
 def main():
-    version = sys.argv[1]
-    build_num = sys.argv[2]
+    args = sys.argv[1:]
+    whats_new = None
+    if "--whats-new" in args:
+        i = args.index("--whats-new")
+        whats_new = open(args[i + 1]).read().strip()
+        del args[i:i + 2]
+    version, build_num = args[0], args[1]
     bundle_id = os.environ.get("APP_BUNDLE_ID") or "com.kingjamesbiblereader.kjbreaderforsafari"
     api = make_api()
 
@@ -283,6 +288,20 @@ def main():
                     print(f"{platform}: build already attached")
                 else:
                     print(f"{platform}: attach build issue: {msg}", file=sys.stderr)
+        if whats_new:
+            code, locs = api(f"/v1/appStoreVersions/{version_id}/appStoreVersionLocalizations?limit=30")
+            if code == 200:
+                for loc in (locs.get("data") or []):
+                    c2, r2 = api(f"/v1/appStoreVersionLocalizations/{loc['id']}", "PATCH",
+                                 {"data": {"type": "appStoreVersionLocalizations",
+                                           "id": loc["id"],
+                                           "attributes": {"whatsNew": whats_new}}})
+                    if c2 in (200, 201):
+                        print(f"{platform}: set What's New on {loc['attributes']['locale']}")
+                    else:
+                        print(f"{platform}: What's New failed: {api_errors(r2)}", file=sys.stderr)
+            else:
+                print(f"{platform}: could not list localizations for What's New: HTTP {code}", file=sys.stderr)
         ready_any = True
 
     if not ready_any:
