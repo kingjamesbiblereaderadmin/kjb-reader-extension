@@ -2787,14 +2787,19 @@
     }
     if (!copyRefsOn) {
       // Copy: Plain multi-verse (2026-10-12) — one flowing paragraph, not a
-      // line per verse: verses join with single spaces (a pilcrow-led verse
-      // keeps its "¶ " paragraph mark followed by a space, exactly as the
-      // source prints it), and the whole text is wrapped in quotes with the
-      // group's reference and (KJB), matching the single-verse copy format.
+      // line per verse: verses join with single spaces, and the whole text
+      // is wrapped in quotes with the group's reference and (KJB), matching
+      // the single-verse copy format. The pilcrow rule is VERSE-based, not
+      // chapter-based (2026-10-23): a pilcrow-led verse that is not the
+      // first verse of the copied set starts a new paragraph (blank line =
+      // the same gap the panel shows) instead of joining inline — the ¶
+      // mark stays at the head of that new paragraph, exactly as the
+      // source prints it.
       let headerLine = "";
       let footerText = "";
       let firstVerse = null, lastVerse = null;
-      const parts = [];
+      let plainBody = "";
+      let plainVerseSeen = false;
       cards.forEach(card => {
         const structHeader = card.querySelector(".result-card-superscription, .result-card-hebrew-name");
         if (structHeader && !headerLine) {
@@ -2809,7 +2814,13 @@
         // Prefer the raw source text (data-text) over the rendered DOM text,
         // since rendering converts [brackets] into <em> tags for display —
         // the raw attribute keeps the brackets plain-text copy needs.
-        parts.push(mergeAdjacentItalics((card.dataset.text || (card.querySelector(".result-verse-body")?.textContent || "")).trim().replace(/\s+/g, ' ')));
+        const bodyText = mergeAdjacentItalics((card.dataset.text || (card.querySelector(".result-verse-body")?.textContent || "")).trim().replace(/\s+/g, ' '));
+        if (plainVerseSeen && /^\u00B6/.test(bodyText)) {
+          plainBody += "\n\n" + bodyText;
+        } else {
+          plainBody += (plainVerseSeen ? " " : "") + bodyText;
+        }
+        plainVerseSeen = true;
         const footer = card.querySelector(".result-card-structural-footer");
         if (footer) footerText = " " + bracketedTextFromElement(footer);
       });
@@ -2818,7 +2829,7 @@
         : (lastVerse > firstVerse
           ? book + " " + chapter + ":" + firstVerse + "-" + lastVerse
           : book + " " + chapter + ":" + firstVerse);
-      return "\u201c" + headerLine + parts.join(" ") + footerText + "\u201d - " + refStr + " (KJB)";
+      return "\u201c" + headerLine + plainBody + footerText + "\u201d - " + refStr + " (KJB)";
     }
     // Multi-verse: the centered chapter block, matching the Read tab's
     // "Copy Chapter" — full title and "Chapter N" centered over the verses.
