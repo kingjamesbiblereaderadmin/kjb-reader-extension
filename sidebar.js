@@ -2060,6 +2060,11 @@
   // in the Read tab so both stay in sync with what gets captured.
   function buildReadCopyText(elements, fullTitle, chapter) {
     let text = centerLine(fullTitle) + "\n" + centerLine(`Chapter ${chapter}`) + "\n\n";
+    // Mirrors the on-screen pilcrow spacing in the copied text: a paragraph-
+    // start (pilcrow) verse that is not the first verse is preceded by a
+    // blank line, so the pasted chapter keeps its paragraph breaks. The
+    // first verse stays flush under the chapter heading.
+    let copyVerseSeen = false;
     elements.forEach(el => {
       if (el.classList.contains("psalm-superscription")) {
         text += centerLine(bracketedTextFromElement(el)) + "\n\n";
@@ -2070,7 +2075,9 @@
         const raw = el.dataset.verseText || el.querySelector(".read-verse-text").textContent;
         const plain = cleanVerseTextForCopy(raw);
         const verseNum = vn ? vn.textContent : "";
+        if (copyVerseSeen && /^\u00B6/.test(String(raw || "").trim())) text += "\n";
         text += verseNum ? `${verseNum} ${plain}\n` : `${plain}\n`;
+        copyVerseSeen = true;
       } else if (el.classList.contains("epistle-subscription")) {
         text += "\n" + centerLine(bracketedTextFromElement(el)) + "\n";
       }
@@ -2186,7 +2193,7 @@
       }
 
       if (verses.length > 0 && verses[0].verse !== null) {
-        verses.forEach(v => {
+        verses.forEach((v, vIdx) => {
           // Insert section heading for Psalm 119 (name only, centered)
           if (book === "Psalms" && chapter === 119) {
             const hebrewEntry = PSALM_119_HEBREW.find(h => h.verse === v.verse);
@@ -2195,8 +2202,12 @@
             }
           }
           const isHighlight = highlightRanges.some(r => v.verse >= r[0] && v.verse <= r[1]);
+          // A pilcrow (paragraph-start) verse that is not the first verse
+          // leaves a line of space above it, mirroring the printed Bible's
+          // paragraph break. Verse 1 stays flush at the top of the chapter.
+          const isParaStart = vIdx > 0 && /^\u00B6/.test(String(v.text || ""));
           html += `
-            <div class="read-verse ${isHighlight ? 'read-verse-highlight' : ''}" id="verse-${v.verse}" data-verse-text="${escapeHtml(v.text)}">
+            <div class="read-verse ${isHighlight ? 'read-verse-highlight' : ''}${isParaStart ? ' read-verse-para-start' : ''}" id="verse-${v.verse}" data-verse-text="${escapeHtml(v.text)}">
               <sup class="read-verse-num">${v.verse}</sup>
               <span class="read-verse-text">${formatVerseText(v.text)}</span>
             </div>
@@ -2816,6 +2827,10 @@
     // themselves stay plain lines so the bullet marks the section, not
     // every verse.
     let text = "\u2022 " + (fullTitle ? centerLine(fullTitle) + "\n" + centerLine(`Chapter ${chapter}`) + "\n\n" : "");
+    // Mirrors the on-screen pilcrow spacing: a paragraph-start (pilcrow)
+    // verse that is not the first verse gets a blank line above it in the
+    // copied text; the first verse stays flush under the chapter heading.
+    let copyVerseSeen = false;
     cards.forEach(card => {
       const structHeader = card.querySelector(".result-card-superscription, .result-card-hebrew-name");
       if (structHeader) {
@@ -2826,7 +2841,9 @@
       // since rendering converts [brackets] into <em> tags for display —
       // the raw attribute keeps the brackets plain-text copy needs.
       const bodyText = mergeAdjacentItalics((card.dataset.text || (card.querySelector(".result-verse-body")?.textContent || "")).trim().replace(/\s+/g, ' '));
+      if (copyVerseSeen && /^\u00B6/.test(bodyText)) text += "\n";
       text += (copyRefsOn && verseNum ? verseNum.textContent + " " : "") + bodyText + "\n";
+      copyVerseSeen = true;
       const footer = card.querySelector(".result-card-structural-footer");
       if (footer) {
         text += "\n" + centerLine(bracketedTextFromElement(footer)) + "\n";

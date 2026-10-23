@@ -1185,6 +1185,14 @@ html.kjb-short-pre .content-area {
   background: var(--bg-hover);
 }
 
+/* A pilcrow (paragraph-start) verse that is not the first verse leaves one
+   line of space above it in the Read tab, mirroring the printed Bible's
+   paragraph break and matching the search results' spacing. Verse 1 stays
+   flush at the top of the chapter. ~25px = one verse-text line. */
+.read-verse.read-verse-para-start {
+  margin-top: 25px;
+}
+
 
 
 
