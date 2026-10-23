@@ -2463,6 +2463,11 @@
     const useChapterLayout = validResults.some(r => r.chapterHeader);
     let pendingHeader = null;
     let chapterGroupOpen = false;
+    // First verse card of the current chapter group (or of the whole list
+    // when results are not chapter-grouped) starts flush at the top; every
+    // later pilcrow verse (paragraph start, "¶ ") leaves a line of space
+    // above it, mirroring the printed Bible's paragraph break.
+    let firstVerseCardInGroup = true;
 
     for (const r of validResults) {
       if (r.chapterHeader) {
@@ -2470,6 +2475,7 @@
         htmlParts.push(`<section class="result-chapter-group"><div class="result-chapter-header">${formatFullChapterHeader(r.chapterHeader, r.bookFullName)}</div><button class="btn-text result-group-copy-all" title="Copy all verses shown for this chapter">📋 Copy All</button>`);
         chapterGroupOpen = true;
         pendingHeader = null;
+        firstVerseCardInGroup = true;
         continue;
       }
       if (r.superscription || r.hebrewHeading) {
@@ -2500,7 +2506,9 @@
       }
       // Verse card — place structural text below the verse reference/actions
       // and immediately above the verse text.
-      const cardHtml = renderResultCard(r, query, useChapterLayout);
+      const paraStart = /^\s*¶/.test(String(r.text || "")) && !firstVerseCardInGroup;
+      const cardHtml = renderResultCard(r, query, useChapterLayout, paraStart);
+      firstVerseCardInGroup = false;
       if (pendingHeader) {
         const verseTextMarker = '<div class="result-text">';
         const verseTextIdx = cardHtml.indexOf(verseTextMarker);
@@ -2557,7 +2565,7 @@
     }
   }
 
-  function renderResultCard(r, query, useChapterLayout = false) {
+  function renderResultCard(r, query, useChapterLayout = false, paraStart = false) {
     const formattedText = formatVerseText(r.text, query);
     const webLink = r.readUrl
       ? `<button class="btn-link" data-url="${escapeHtml(r.readUrl)}" title="Open on KJB Reader">↗</button>`
@@ -2580,7 +2588,7 @@
       ? `<span class="result-verse-body">${formattedText}</span>`
       : formattedText;
     return `
-      <div class="result-card${useChapterLayout ? ' result-card-chapter-layout' : ''}" data-ref="${escapeHtml(r.ref)}" data-text="${escapeHtml(r.text)}" data-book="${escapeHtml(r.book || '')}" data-chapter="${r.chapter || ''}" data-verse="${r.verse || ''}">
+      <div class="result-card${useChapterLayout ? ' result-card-chapter-layout' : ''}${paraStart ? ' result-card-para-start' : ''}" data-ref="${escapeHtml(r.ref)}" data-text="${escapeHtml(r.text)}" data-book="${escapeHtml(r.book || '')}" data-chapter="${r.chapter || ''}" data-verse="${r.verse || ''}">
         ${heading}
         <div class="result-text">${verseNumber}${verseBody}</div>
       </div>

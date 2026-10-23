@@ -1036,6 +1036,16 @@ html.kjb-short-pre .content-area {
   padding-top: 42px;
 }
 
+/* A pilcrow verse (paragraph start, "¶ ") that is NOT the first verse shown
+   leaves one blank line of space above it, mirroring the printed Bible's
+   paragraph break. The first verse of the results/chapter stays flush at
+   the top, exactly like a pilcrow verse leading a column on the website.
+   ~25px = one verse-text line (15px * 1.65 line-height). */
+.result-card-para-start {
+  margin-top: 25px;
+}
+
+
 .result-card-chapter-layout .result-text {
   display: grid;
   grid-template-columns: 24px minmax(0, 1fr);
