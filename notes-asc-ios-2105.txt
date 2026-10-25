@@ -1,0 +1,17 @@
+iOS App Version 2.105:
+
+- Pilcrow (paragraph) verses now leave a line of space above them in the Read tab and search results, matching the printed Bible's paragraph breaks; the first verse stays flush at the top.
+
+- Search highlighting now matches hyphenated spellings both ways: "Bethel" finds "Beth-el" and vice versa.
+
+- The side panel now remembers your search results and clicked-verse lookups, with their highlights and scroll position, when reopened.
+
+- Advanced search filters (whole word, Testament scope, Book, case sensitivity, wildcards) are restored when the panel reopens, so a restored search reproduces the exact same results.
+
+- Copy All in Copy: Plain mode now gives every verse its own bullet, one bullet per line with a blank line between verses.
+
+- Clicking a detected verse reference is more reliable on pages with overlays stacked over it.
+
+- Editorial "This is the end of the Epistle" lines are no longer shown; the original "Written to the Romans..." subscription lines are kept.
+
+- Release note generated with Ai.

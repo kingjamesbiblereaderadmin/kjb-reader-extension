@@ -1,3 +1,19 @@
+WHAT'S NEW IN v0.4.325 (October 25, 2026)
+- Copy All in Copy: Plain mode now gives every verse its own bullet, one bullet per line with a blank line between verses; Full mode keeps the centered chapter block.
+
+WHAT'S NEW IN v0.4.324 (October 25, 2026)
+- Advanced search filters (whole word, Testament scope, Book, case sensitivity, wildcards) are now restored when the panel reopens, so a restored search reproduces the exact same results.
+
+WHAT'S NEW IN v0.4.323 (October 25, 2026)
+- Removed the unused "tabs" permission; nothing changes in how the panel works.
+
+WHAT'S NEW IN v0.4.322 (October 25, 2026)
+- Search highlighting now matches hyphenated spellings both ways: "Bethel" finds "Beth-el" and vice versa.
+- The panel remembers your search results and clicked-verse lookups, with their highlights and scroll position, when reopened.
+- Clicking a detected verse reference is more reliable on pages with overlays stacked over it.
+- Editorial "This is the end of the Epistle" lines are no longer shown; the original "Written to the Romans..." subscription lines are kept.
+
+
 WHAT'S NEW IN v0.4.320 (October 22, 2026)
 - Resources: added Evangelist Joshua Michael (Bible Believer AV1611 Gospel) to the Verified KJB Preachers list, with his YouTube, TikTok, Instagram and Facebook links.
 
