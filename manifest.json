@@ -1,14 +1,13 @@
 {
   "manifest_version": 3,
   "name": "__MSG_extName__",
-  "version": "0.4.322",
+  "version": "0.4.323",
   "description": "__MSG_extDescription__",
   "permissions": [
     "contextMenus",
     "sidePanel",
     "activeTab",
-    "storage",
-    "tabs"
+    "storage"
   ],
   "background": {
     "service_worker": "background.js"
