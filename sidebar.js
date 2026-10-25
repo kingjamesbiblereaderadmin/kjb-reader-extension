@@ -451,6 +451,27 @@
   const optBook = document.getElementById("opt-book");
   const optCaseSensitive = document.getElementById("opt-case-sensitive");
   const optWildcard = document.getElementById("opt-wildcard");
+  const filtersActiveChip = document.getElementById("filters-active");
+
+  // 2026-10-25: hoisted from bindEvents so the restore path can refresh the
+  // "Filters on" chip after re-applying a saved filter set.
+  function updateFiltersChip() {
+    if (!filtersActiveChip) return;
+    const on = [];
+    if (optWholeWord.checked) on.push("Match whole word");
+    if (optTestament.value === "old") on.push("Old Testament only");
+    if (optTestament.value === "new") on.push("New Testament only");
+    if (optBook.value.trim()) on.push("Book: " + optBook.value.trim());
+    if (optCaseSensitive.checked) on.push("Case sensitive");
+    if (!optWildcard.checked) on.push("Wildcards off (literal)");
+    if (on.length) {
+      filtersActiveChip.textContent = "Filters on: " + on.join(" · ");
+      filtersActiveChip.classList.remove("hidden");
+    } else {
+      filtersActiveChip.textContent = "";
+      filtersActiveChip.classList.add("hidden");
+    }
+  }
   const resultsList = document.getElementById("results-list");
   const loading = document.getElementById("loading");
   const resultCount = document.getElementById("result-count");
@@ -825,7 +846,7 @@
     }
     try {
       chrome.storage.local.get(
-        ["sidebarLastBook", "sidebarLastChapter", "sidebarLastEndChapter", "sidebarLastTab", "sidebarLastQuery", "sidebarScrollTab", "sidebarScrollTop"],
+        ["sidebarLastBook", "sidebarLastChapter", "sidebarLastEndChapter", "sidebarLastTab", "sidebarLastQuery", "sidebarLastFilters", "sidebarScrollTab", "sidebarScrollTop"],
         (data) => {
           if (!data) return;
           const hasChapter = !!(data.sidebarLastBook && data.sidebarLastChapter);
@@ -858,7 +879,25 @@
               // returns a promise and resets the scroller itself, so the
               // saved position is re-applied only after it completes.
               searchInput.value = data.sidebarLastQuery;
-              doSearch(data.sidebarLastQuery).then(() => restoreScroll("results"), () => {});
+              // 2026-10-25: re-apply the advanced filters that were active
+              // when the query ran, so the restored search reproduces the
+              // exact same result set instead of silently re-running with
+              // default filters. Controls are set before doSearch (it reads
+              // them live) and the chip is refreshed afterwards.
+              const f = data.sidebarLastFilters;
+              if (f && typeof f === "object") {
+                try {
+                  optWholeWord.checked = !!f.wholeWord;
+                  optTestament.value = (f.testament === "old" || f.testament === "new") ? f.testament : "all";
+                  optBook.value = (typeof f.book === "string") ? f.book : "";
+                  optCaseSensitive.checked = !!f.caseSensitive;
+                  optWildcard.checked = (f.wildcard !== false);
+                } catch (e) {}
+              }
+              doSearch(data.sidebarLastQuery).then(() => {
+                updateFiltersChip();
+                restoreScroll("results");
+              }, () => {});
               return;
             }
             switchToTab(restoreTab);
@@ -1015,24 +1054,6 @@
     // active, show which ones so nobody forgets filters are on and wonders
     // why the results do not match the expected total. Clicking the chip
     // opens the advanced panel to review/change them.
-    const filtersActiveChip = document.getElementById("filters-active");
-    function updateFiltersChip() {
-      if (!filtersActiveChip) return;
-      const on = [];
-      if (optWholeWord.checked) on.push("Match whole word");
-      if (optTestament.value === "old") on.push("Old Testament only");
-      if (optTestament.value === "new") on.push("New Testament only");
-      if (optBook.value.trim()) on.push("Book: " + optBook.value.trim());
-      if (optCaseSensitive.checked) on.push("Case sensitive");
-      if (!optWildcard.checked) on.push("Wildcards off (literal)");
-      if (on.length) {
-        filtersActiveChip.textContent = "Filters on: " + on.join(" · ");
-        filtersActiveChip.classList.remove("hidden");
-      } else {
-        filtersActiveChip.textContent = "";
-        filtersActiveChip.classList.add("hidden");
-      }
-    }
     if (filtersActiveChip) {
       filtersActiveChip.addEventListener("click", () => {
         if (advancedPanel.classList.contains("hidden")) btnAdvanced.click();
@@ -1475,7 +1496,20 @@
       const contentArea = document.querySelector(".content-area");
       if (contentArea) contentArea.scrollTop = 0;
       if (kjbSaveLastQuery) {
-        try { chrome.storage.local.set({ sidebarLastQuery: query }); } catch (e) {}
+        // 2026-10-25: the advanced-filter state rides along with the query so
+        // the restore path can reproduce the search exactly.
+        try {
+          chrome.storage.local.set({
+            sidebarLastQuery: query,
+            sidebarLastFilters: {
+              wholeWord: optWholeWord.checked,
+              testament: optTestament.value,
+              book: optBook.value.trim(),
+              caseSensitive: optCaseSensitive.checked,
+              wildcard: optWildcard.checked
+            }
+          });
+        } catch (e) {}
       }
     } catch (err) {
       console.error("Search error:", err);
