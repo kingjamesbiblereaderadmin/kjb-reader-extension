@@ -825,23 +825,25 @@
     }
     try {
       chrome.storage.local.get(
-        ["sidebarLastBook", "sidebarLastChapter", "sidebarLastEndChapter", "sidebarLastTab", "sidebarScrollTab", "sidebarScrollTop"],
+        ["sidebarLastBook", "sidebarLastChapter", "sidebarLastEndChapter", "sidebarLastTab", "sidebarLastQuery", "sidebarScrollTab", "sidebarScrollTop"],
         (data) => {
           if (!data) return;
           const hasChapter = !!(data.sidebarLastBook && data.sidebarLastChapter);
+          const hasQuery = !!data.sidebarLastQuery;
           const lastTab = data.sidebarLastTab;
           // Only jump to a remembered tab when it has real content waiting:
           // Gospel and Resources always render; Read needs the restored
-          // chapter. A remembered Results tab is the default view anyway and
-          // its cards are not persisted, so it stays put.
+          // chapter; Results re-runs its remembered query (its cards are not
+          // persisted, but the query reproduces them exactly — including a
+          // clicked-verse lookup and its highlight).
           const restoreTab =
-            lastTab === "gospel" || lastTab === "resources" || (lastTab === "read" && hasChapter)
+            lastTab === "gospel" || lastTab === "resources" ||
+            (lastTab === "read" && hasChapter) ||
+            (lastTab === "results" && hasQuery)
               ? lastTab : null;
-          const finish = () => {
-            if (!restoreTab) return;
-            switchToTab(restoreTab);
-            // switchToTab scrolls to top — put the saved reading position back.
-            if (data.sidebarScrollTab === restoreTab &&
+          const restoreScroll = (tab) => {
+            // switchToTab/doSearch scroll to top — put the saved reading position back.
+            if (data.sidebarScrollTab === tab &&
                 typeof data.sidebarScrollTop === "number" && data.sidebarScrollTop > 0) {
               try {
                 const scroller = document.querySelector(".content-area");
@@ -849,7 +851,20 @@
               } catch (e) {}
             }
           };
-          if (hasChapter) {
+          const finish = () => {
+            if (!restoreTab) return;
+            if (restoreTab === "results") {
+              // Restore the remembered search or verse lookup. doSearch
+              // returns a promise and resets the scroller itself, so the
+              // saved position is re-applied only after it completes.
+              searchInput.value = data.sidebarLastQuery;
+              doSearch(data.sidebarLastQuery).then(() => restoreScroll("results"), () => {});
+              return;
+            }
+            switchToTab(restoreTab);
+            restoreScroll(restoreTab);
+          };
+          if (hasChapter && restoreTab !== "results") {
             loadChapter(data.sidebarLastBook, data.sidebarLastChapter, null, null, data.sidebarLastEndChapter, false)
               .then(finish, finish);
           } else {
@@ -1303,6 +1318,12 @@
   async function doSearch(query, options = {}) {
     if (!options._isRetry) transportRetries = 0;
     const { openVerseRangeInRead = false } = options;
+    // Remember the query for panel reopen (see restoreLastChapter): a
+    // remembered Results tab re-runs it, restoring keyword searches and
+    // clicked-verse lookups (with their highlight) across close/open.
+    // Cleared below when a reference lookup fails, so a reopen never
+    // replays a broken view.
+    let kjbSaveLastQuery = Boolean(KJB_IS_SIDE_PANEL && query);
     // allowBookOnly:false — a bare book name ("Joshua") must NOT be hijacked
     // into a chapter-1 reference; it runs a text search like the website does.
     // (Page-click detection and other parseRef callers are unaffected.)
@@ -1370,6 +1391,7 @@
           hasPrimaryVerseRange && !ref.multiRefs;
 
         if (lookupFailed) {
+          kjbSaveLastQuery = false;
           // Remove highlights from stale Read-mode content as well. A failed
           // lookup must never leave a previous verse looking like a match.
           readContent.querySelectorAll(".read-verse-highlight").forEach(el =>
@@ -1452,6 +1474,9 @@
 
       const contentArea = document.querySelector(".content-area");
       if (contentArea) contentArea.scrollTop = 0;
+      if (kjbSaveLastQuery) {
+        try { chrome.storage.local.set({ sidebarLastQuery: query }); } catch (e) {}
+      }
     } catch (err) {
       console.error("Search error:", err);
       // A cold service worker is the normal state on the FIRST lookup after the
@@ -1770,6 +1795,9 @@
     // editorial "[and sent]"), and only the lines the source actually prints:
     // the PCE has no subscription after James, 1/2 Peter, 1/2/3 John, Jude or
     // Revelation, so those chapters correctly carry no subscription.
+    // Owner note 2026-10-25: these "Written..." lines are KEPT — the excluded
+    // ones are the editorial "The End of the Epistle..." lines the PCE never
+    // printed (dead map deleted from kjb-local.js).
     "Romans|16":           "Written to the Romans from Corinthus, [and] [sent] by Phebe servant of the church at Cenchrea.",
     "1 Corinthians|16":    "The first [epistle] to the Corinthians was written from Philippi by Stephanas, and Fortunatus, and Achaicus, and Timotheus.",
     "2 Corinthians|13":    "The second [epistle] to the Corinthians was written from Philippi, [a] [city] of Macedonia, by Titus and Lucas.",
@@ -1780,7 +1808,7 @@
     "1 Thessalonians|5":   "The first [epistle] unto the Thessalonians was written from Athens.",
     "2 Thessalonians|3":   "The second [epistle] to the Thessalonians was written from Athens.",
     "1 Timothy|6":         "The first to Timothy was written from Laodicea, which is the chiefest city of Phrygia Pacatiana.",
-    "2 Timothy|4":         "The second [epistle] unto Timotheus, ordained the first bishop of the church of the Ephesians, was written from Rome, when Paul was brought before Nero the second time.",
+    "2 Timothy|4":        "The second [epistle] unto Timotheus, ordained the first bishop of the church of the Ephesians, was written from Rome, when Paul was brought before Nero the second time.",
     "Titus|3":             "It was written to Titus, ordained the first bishop of the church of the Cretians, from Nicopolis of Macedonia.",
     "Philemon|1":          "Written from Rome to Philemon, by Onesimus a servant.",
     "Hebrews|13":          "Written to the Hebrews from Italy by Timothy.",
@@ -2218,6 +2246,8 @@
       }
 
       html += `</div>`;
+
+
 
       // Add epistle subscription / colophon
       // Prefer the API's colophon field (has proper [bracket] italics), fall back to hardcoded data
@@ -2658,6 +2688,24 @@
     return [...new Set(forms)];
   };
 
+  // Hyphen equivalences, mirroring the engine's formsOf(): the engine tests
+  // every verse against BOTH the printed form and its de-hyphenated twin, so
+  // a typed term without the hyphen ("Bethel") hits verses printed WITH one
+  // ("Beth-el") — but the paint step only marked the exact typed string, so
+  // those hits arrived with no highlight. A term typed WITH a hyphen paints
+  // both its exact form and the stripped form; a term typed WITHOUT one
+  // allows an optional hyphen between every character, so "Bethel" paints
+  // "Beth-el" wherever the engine found it. (An optional hyphen can never
+  // stretch a match over a whole-word boundary: the boundary class already
+  // treats "-" as a word character, so "Bethel" still never paints inside
+  // "Beth-lehem".)
+  const hyphenForms = (form) => {
+    if (form.includes("-")) {
+      return [...new Set([form, form.replace(/-/g, "")])].map(escapeRegex);
+    }
+    return [form.split("").map(escapeRegex).join("-?")];
+  };
+
   function highlightTerms(html, query) {
     const hasSpecial = KJB_API.hasLiteralSpecialChars(query);
     const wildcard = optWildcard.checked && !hasSpecial;
@@ -2688,9 +2736,14 @@
     terms.forEach(term => {
       if (!term || term.length < 1) return;
       const ligForms = hasSpecial ? [term] : ligatureForms(term);
-      const termPattern = ligForms.length > 1
-        ? `(?:${ligForms.map((f) => aposInsensitive(escapeRegex(f))).join("|")})`
-        : aposInsensitive(escapeRegex(term));
+      // Paint every hyphen form of every ligature form (see hyphenForms) so
+      // the highlight always covers what the engine actually matched.
+      const formPatterns = hasSpecial
+        ? [aposInsensitive(escapeRegex(term))]
+        : ligForms.flatMap((f) => hyphenForms(f)).map(aposInsensitive);
+      const termPattern = formPatterns.length > 1
+        ? `(?:${formPatterns.join("|")})`
+        : formPatterns[0];
       let pattern;
       if (hasSpecial) {
         pattern = termPattern + TRAILING_PUNCT;

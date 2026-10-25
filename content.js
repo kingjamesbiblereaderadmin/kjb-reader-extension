@@ -3,7 +3,7 @@
 // that already has it (after an extension update); without this guard the
 // top-level `const` declarations would throw "already declared".
 
-const KJB_CONTENT_VERSION = "0.4.321";
+const KJB_CONTENT_VERSION = "0.4.322";
 
 // A plain boolean guard here was a serious bug: after an extension update the
 // background re-injects this file into already-open tabs, and the boolean made
@@ -1449,14 +1449,38 @@ function kjbOccOwners(occId) {
 function kjbPointUnoccluded(entry, x, y) {
   const top = kjbDeepElementFromPoint(x, y);
   if (!top) return true; // off-document point: keep legacy behavior
-  // DIRECT membership only. Walking up from the top element would hit the
+  const owners = kjbOccOwners(entry.occId);
+  // DIRECT membership first. Walking up from the top element would hit the
   // shared ancestors (body/html) that own every reference on the page and
   // the check would never reject anything. The browser delivers the click
   // to `top`; the reference is genuinely reachable only when `top` itself
   // is one of its own containers (the block/inline element holding the
   // text, or an ancestor box like body when the point is in empty space
   // next to the text — body is in the owner set via the ref's chain).
-  return kjbOccOwners(entry.occId).has(top);
+  if (owners.has(top)) return true;
+  // 2026-10-25 hyperlink fix: sites often stack a child element (icon,
+  // underline layer, svg, span) INSIDE the reference's own hyperlink, and
+  // the browser delivers the click to that child instead of the text
+  // container. Direct membership alone rejected those hits, so a painted
+  // verse inside a hyperlink needed several clicks or a lucky click
+  // "around" it. Walk up from the top element and let the FIRST anchor
+  // decide: the click lands on this reference's own hyperlink when that
+  // anchor is one of its containers; a foreign anchor overlapping the
+  // painted text keeps the click, exactly as before. The walk stops at
+  // the first anchor, so it can never climb to body/html (which own
+  // everything) and reopen the occlusion holes v0.4.284 closed.
+  let el = top;
+  let guard = 0;
+  while (el && guard++ < 32) {
+    if (el.nodeType !== Node.ELEMENT_NODE) break;
+    const isLink = el.tagName === "A" ||
+      (el.getAttribute && el.getAttribute("role") === "link");
+    if (isLink) return owners.has(el);
+    const root = el.getRootNode && el.getRootNode();
+    if (root && root.host) { el = root.host; continue; } // cross shadow DOM
+    el = el.parentElement;
+  }
+  return false;
 }
 
 // Confirmed 2026-10-04: BibleGateway's autosuggest renders the query

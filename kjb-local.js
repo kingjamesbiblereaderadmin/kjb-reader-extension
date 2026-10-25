@@ -318,56 +318,13 @@ const EPISTLE_SUBSCRIPTIONS = {
   "Revelation:22":    "The Revelation of John was written from Patmos.",
 };
 
-const COLOPHONS = {
-  "Psalms:150": "\xB6 The End of the Psalms.",
-  "Proverbs:31": "\xB6 The End of the Proverbs.",
-  "Ecclesiastes:12": "\xB6 The End of the Preacher's Sermon.",
-  "Song of Solomon:8": "\xB6 The End of the Song of Solomon.",
-  "Isaiah:66": "\xB6 The End of the Prophecy of Isaiah.",
-  "Jeremiah:52": "\xB6 The End of the Prophecies of Jeremiah.",
-  "Lamentations:5": "\xB6 The End of the Lamentations of Jeremiah.",
-  "Ezekiel:48": "\xB6 The End of the Prophecy of Ezekiel.",
-  "Daniel:12": "\xB6 The End of the Prophecy of Daniel.",
-  "Hosea:14": "\xB6 The End of the Prophecy of Hosea.",
-  "Joel:3": "\xB6 The End of the Prophecy of Joel.",
-  "Amos:9": "\xB6 The End of the Prophecy of Amos.",
-  "Obadiah:1": "\xB6 The End of the Prophecy of Obadiah.",
-  "Jonah:4": "\xB6 The End of the Prophecy of Jonah.",
-  "Micah:7": "\xB6 The End of the Prophecy of Micah.",
-  "Nahum:3": "\xB6 The End of the Prophecy of Nahum.",
-  "Habakkuk:3": "\xB6 The End of the Prophecy of Habakkuk.",
-  "Zephaniah:3": "\xB6 The End of the Prophecy of Zephaniah.",
-  "Haggai:2": "\xB6 The End of the Prophecy of Haggai.",
-  "Zechariah:14": "\xB6 The End of the Prophecy of Zechariah.",
-  "Malachi:4": "\xB6 The End of the Prophets.",
-  "Matthew:28": "\xB6 The End of the Gospel According to Matthew.",
-  "Mark:16": "\xB6 The End of the Gospel According to Mark.",
-  "Luke:24": "\xB6 The End of the Gospel According to Luke.",
-  "John:21": "\xB6 The End of the Gospel According to John.",
-  "Acts:28": "\xB6 The End of the Acts of the Apostles.",
-  "Romans:16": "\xB6 The End of the Epistle of Paul the Apostle to the Romans.",
-  "1 Corinthians:16": "\xB6 The End of the First Epistle of Paul the Apostle to the Corinthians.",
-  "2 Corinthians:13": "\xB6 The End of the Second Epistle of Paul the Apostle to the Corinthians.",
-  "Galatians:6": "\xB6 The End of the Epistle of Paul the Apostle to the Galatians.",
-  "Ephesians:6": "\xB6 The End of the Epistle of Paul the Apostle to the Ephesians.",
-  "Philippians:4": "\xB6 The End of the Epistle of Paul the Apostle to the Philippians.",
-  "Colossians:4": "\xB6 The End of the Epistle of Paul the Apostle to the Colossians.",
-  "1 Thessalonians:5": "\xB6 The End of the First Epistle of Paul the Apostle to the Thessalonians.",
-  "2 Thessalonians:3": "\xB6 The End of the Second Epistle of Paul the Apostle to the Thessalonians.",
-  "1 Timothy:6": "\xB6 The End of the First Epistle of Paul the Apostle to Timothy.",
-  "2 Timothy:4": "\xB6 The End of the Second Epistle of Paul the Apostle to Timothy.",
-  "Titus:3": "\xB6 The End of the Epistle of Paul the Apostle to Titus.",
-  "Philemon:1": "\xB6 The End of the Epistle of Paul the Apostle to Philemon.",
-  "Hebrews:13": "\xB6 The End of the Epistle of Paul the Apostle to the Hebrews.",
-  "James:5": "\xB6 The End of the Epistle of James.",
-  "1 Peter:5": "\xB6 The End of the First Epistle of Peter.",
-  "2 Peter:3": "\xB6 The End of the Second Epistle of Peter.",
-  "1 John:5": "\xB6 The End of the First Epistle of John.",
-  "2 John:1": "\xB6 The End of the Second Epistle of John.",
-  "3 John:1": "\xB6 The End of the Third Epistle of John.",
-  "Jude:1": "\xB6 The End of the General Epistle of Jude.",
-  "Revelation:22": "\xB6 The End."
-};
+// 2026-10-25: the editorial COLOPHONS map ("\xB6 The End of the Epistle of
+// Paul the Apostle to the Romans." etc.) was DELETED by owner request —
+// these lines were invented by an earlier build; the PCE never printed them
+// and nothing consumed them ("nothing consumes them" was already the case).
+// The REAL epistle-end lines the source prints — the subscriptions
+// ("Written to the Romans from Corinthus...") — stay: parsed verbatim into
+// __subscriptions and attached as data.colophon.
 const VERSE_REPAIRS = {
   "Genesis|1|8": {
     damaged: /^(\u00b6\s*)?And God called the firmament Heaven\.?$/,
@@ -922,10 +879,11 @@ async function bibleApi(body) {
       for (const chapter of chapterNums) {
         const chapterVerses = chapters[chapter];
         const supText = bible.__superscriptions?.[`${bookName}:${chapter}`] || null;
-        // Trailing structural lines: the printed book-end colophon ("The End
-        // of the Epistle...") and the epistle subscription ("Written to the
-        // Romans from Corinthus..."). Either can carry the searched words.
-        // Only the source subscription — book-end lines are website-only.
+        // Trailing structural lines: the epistle subscription ("Written to the
+        // Romans from Corinthus…") — SOURCE text the owner wants kept in the
+        // panel. The editorial book-end lines ("The End of the Epistle of
+        // Paul the Apostle to the Romans.") never appear here: the PCE does
+        // not print them and their dead map was removed 2026-10-25.
         const trailingTexts = [
           bible.__subscriptions?.[`${bookName}:${chapter}`] || null
         ].filter(Boolean);
@@ -990,6 +948,15 @@ async function bibleApi(body) {
           if (supText && (supVia === level || reachedStart)) {
             addUnit(firstVerse).before.push({ kind: "superscription", text: supText });
           }
+          // Trailing structural lines (epistle subscription): attach when
+          // their text matched the query OR the hits reach the chapter's
+          // final verse — the same rule a reference lookup follows
+          // (chapterResponse coversEnd), so a keyword that lands on the last
+          // verse carries the subscription, like "Romans 16".
+          const trailHits = trailing.filter((t) => t.via === level);
+          if (trailHits.length > 0 || reachedEnd) {
+            addUnit(lastVerse).after.push(...(reachedEnd ? trailing : trailHits).map((t) => ({ kind: "colophon", text: t.text })));
+          }
           hits.forEach((v) => {
             const e = addUnit(v);
             // Hebrew section heading (Psalm 119 letters): attach before its
@@ -997,15 +964,6 @@ async function bibleApi(body) {
             // reference lookup shows the section letter above the verse.
             if (v.heading) e.before.push({ kind: "hebrewHeading", text: v.heading });
           });
-          // Trailing structural lines (book-end colophon / epistle
-          // subscription): attach when their text matched the query OR the
-          // hits reach the chapter's final verse — the same rule a reference
-          // lookup follows (chapterResponse coversEnd), so a keyword that
-          // lands on the last verse carries the colophon, like "Romans 16".
-          const trailHits = trailing.filter((t) => t.via === level);
-          if (trailHits.length > 0 || reachedEnd) {
-            addUnit(lastVerse).after.push(...(reachedEnd ? trailing : trailHits).map((t) => ({ kind: "colophon", text: t.text })));
-          }
           arr.push(...units);
         };
         pushLevel(matches, "phrase", verseHitsP);
