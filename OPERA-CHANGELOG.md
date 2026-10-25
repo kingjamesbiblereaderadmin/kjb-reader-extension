@@ -1,3 +1,7 @@
+WHAT'S NEW IN v0.4.324 (October 25, 2026)
+- Advanced search filters (whole word, Testament scope, Book, case sensitivity, wildcards) are now restored when the panel reopens, so a restored search reproduces the exact same results.
+- Removed the unused "tabs" permission; nothing changes in how the panel works.
+
 WHAT'S NEW IN v0.4.321 (October 23, 2026)
 - Pilcrow (paragraph) verses now leave a line of space above them in the Read tab and in search results, matching the printed Bible's paragraph breaks; the first verse stays flush at the top.
 - Copied verses keep the same paragraph breaks: Copy Chapter, Copy Selected and Copy All insert a blank line above pilcrow verses, and Copy: Plain starts a new paragraph for them. Each verse's own pilcrow decides, based on the verses you copied, not the chapter.

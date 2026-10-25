@@ -1,0 +1,13 @@
+iOS App Version 2.104:
+
+- Search highlighting now matches hyphenated spellings both ways: "Bethel" finds "Beth-el" and vice versa.
+
+- The side panel now remembers your search results and clicked-verse lookups, with their highlights and scroll position, when reopened.
+
+- Advanced search filters (whole word, Testament scope, Book, case sensitivity, wildcards) are restored when the panel reopens, so a restored search reproduces the exact same results.
+
+- Clicking a detected verse reference is more reliable on pages with overlays stacked over it.
+
+- Editorial "This is the end of the Epistle" lines are no longer shown; the original "Written to the Romans..." subscription lines are kept.
+
+- Release note generated with Ai.

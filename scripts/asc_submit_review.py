@@ -107,10 +107,19 @@ def api_errors(payload):
 def main():
     args = sys.argv[1:]
     whats_new = None
+    whats_new_by_platform = {}
     if "--whats-new" in args:
         i = args.index("--whats-new")
         whats_new = open(args[i + 1]).read().strip()
         del args[i:i + 2]
+    # 2026-10-25: per-platform What's New (policy: iOS builds carry the
+    # "iOS App Version X:" header, macOS builds "macOS App Version X:").
+    # A per-platform file overrides --whats-new for that platform.
+    for flag, platform in (("--whats-new-ios", "IOS"), ("--whats-new-macos", "MAC_OS")):
+        if flag in args:
+            i = args.index(flag)
+            whats_new_by_platform[platform] = open(args[i + 1]).read().strip()
+            del args[i:i + 2]
     version, build_num = args[0], args[1]
     bundle_id = os.environ.get("APP_BUNDLE_ID") or "com.kingjamesbiblereader.kjbreaderforsafari"
     api = make_api()
@@ -288,14 +297,15 @@ def main():
                     print(f"{platform}: build already attached")
                 else:
                     print(f"{platform}: attach build issue: {msg}", file=sys.stderr)
-        if whats_new:
+        wn = whats_new_by_platform.get(platform) or whats_new
+        if wn:
             code, locs = api(f"/v1/appStoreVersions/{version_id}/appStoreVersionLocalizations?limit=30")
             if code == 200:
                 for loc in (locs.get("data") or []):
                     c2, r2 = api(f"/v1/appStoreVersionLocalizations/{loc['id']}", "PATCH",
                                  {"data": {"type": "appStoreVersionLocalizations",
                                            "id": loc["id"],
-                                           "attributes": {"whatsNew": whats_new}}})
+                                           "attributes": {"whatsNew": wn}}})
                     if c2 in (200, 201):
                         print(f"{platform}: set What's New on {loc['attributes']['locale']}")
                     else:
