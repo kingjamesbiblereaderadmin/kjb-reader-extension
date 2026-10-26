@@ -1,0 +1,5 @@
+iOS App Version 2.106:
+
+- When search results mix lone verses with verse groups, Copy All now gives the lone verses the same bullet as the grouped verses; a search that produced only the one verse keeps the clean single-verse copy.
+
+- Release note generated with Ai.
