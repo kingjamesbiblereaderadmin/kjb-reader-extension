@@ -2860,6 +2860,12 @@
     // header over one line reads like a whole-chapter copy when it isn't.
     // Match the single-verse copy button's own format instead: a quoted
     // line with the reference and (KJB) tag, nothing stacked above it.
+    // Owner rule (2026-10-26): in a MIXED result (more than one group),
+    // a lone verse also gets its "\u2022 " bullet so it matches the
+    // bulleted groups beside it — Full-mode groups carry one section
+    // bullet, Plain-mode groups one bullet per verse, and the lone verse
+    // needs the same marker. A search that produced only this one group
+    // keeps the clean un-bulleted single-verse copy.
     if (cards.length === 1) {
       const card = firstCard;
       const ref = card.dataset.ref || "";
@@ -2870,7 +2876,8 @@
         : "";
       const footer = card.querySelector(".result-card-structural-footer");
       const footerText = footer ? " " + bracketedTextFromElement(footer) : "";
-      return `\u201c${headerLine}${plainText}${footerText}\u201d - ${ref} (KJB)`;
+      const loneBullet = resultsList.querySelectorAll(".result-chapter-group").length > 1 ? "\u2022 " : "";
+      return `\u201c${loneBullet}${headerLine}${plainText}${footerText}\u201d - ${ref} (KJB)`;
     }
     if (!copyRefsOn) {
       // Copy: Plain multi-verse Copy All (owner rule, 2026-10-25): EVERY

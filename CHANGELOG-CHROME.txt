@@ -1,3 +1,6 @@
+WHAT'S NEW IN v0.4.326 (October 26, 2026)
+- When search results mix lone verses with verse groups, Copy All now gives the lone verses the same bullet as the grouped verses; a search that produced only the one verse keeps the clean single-verse copy.
+
 WHAT'S NEW IN v0.4.325 (October 25, 2026)
 - Copy All in Copy: Plain mode now gives every verse its own bullet, one bullet per line with a blank line between verses; Full mode keeps the centered chapter block.
 
