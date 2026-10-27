@@ -1,0 +1,3 @@
+Version 0.4.331:
+
+- Copy: Plain now marks every copied item with an external bullet — group quotes, single verses, and Copy Selected copies alike.
