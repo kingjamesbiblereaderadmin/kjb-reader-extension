@@ -27,7 +27,7 @@ jobs:
   build:
     runs-on: xcode-27
     env:
-      APP_NAME: "KJB Reader - SidePanel"
+      APP_NAME: "KJB Panel"
       BUNDLE_ID: "com.kingjamesbiblereader.kjbreaderforsafari"
       # Validation mode: run without Apple secrets still builds + converts,
       # and attaches the converted Xcode project as an artifact.
