@@ -1,0 +1,3 @@
+Version 0.4.330:
+
+- Copy All of a group whose verses skip some (e.g. verses 7 and 9) now always marks each quoted verse line with an external bullet, even when when it is the only group in the results.
