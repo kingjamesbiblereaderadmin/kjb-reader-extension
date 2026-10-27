@@ -1,0 +1,156 @@
+Version 0.4.328:
+
+- Results select bar: the scroll-to-top circle now rises above the bar instead of overlapping the Cancel button.
+
+- The Copy button keeps its white label on hover instead of turning invisible.
+
+
+Version 0.4.327:
+
+- Copy All (Copy: Plain): a group of verses copies as one flowing quoted paragraph — verses joined with spaces and the range reference at the end — instead of one bullet per verse.
+- A lone verse in mixed results keeps its bullet marker, now placed outside the quotation marks.
+
+WHAT'S NEW IN v0.4.326 (October 26, 2026)
+- When search results mix lone verses with verse groups, Copy All now gives the lone verses the same bullet as the grouped verses; a search that produced only the one verse keeps the clean single-verse copy.
+
+WHAT'S NEW IN v0.4.325 (October 25, 2026)
+- Copy All in Copy: Plain mode now gives every verse its own bullet, one bullet per line with a blank line between verses; Full mode keeps the centered chapter block.
+
+WHAT'S NEW IN v0.4.324 (October 25, 2026)
+- Removed the unused "tabs" permission; nothing changes in how the panel works.
+- Advanced search filters (whole word, Testament scope, Book, case sensitivity, wildcards) are now restored when the panel reopens, so a restored search reproduces the exact same results.
+- Search highlighting now matches hyphenated spellings both ways: "Bethel" finds "Beth-el" and vice versa.
+- The panel remembers your search results and clicked-verse lookups, with their highlights and scroll position, when reopened.
+- Clicking a detected verse reference is more reliable on pages with overlays stacked over it.
+- Editorial "This is the end of the Epistle" lines are no longer shown; the original "Written to the Romans..." subscription lines are kept.
+
+WHAT'S NEW IN v0.4.321 (October 23, 2026)
+- Pilcrow (paragraph) verses now leave a line of space above them in the Read tab and in search results, matching the printed Bible's paragraph breaks; the first verse stays flush at the top.
+- Copied verses keep the same paragraph breaks: Copy Chapter, Copy Selected and Copy All insert a blank line above pilcrow verses, and Copy: Plain starts a new paragraph for them. Each verse's own pilcrow decides, based on the verses you copied, not the chapter.
+
+WHAT'S NEW IN v0.4.320 (October 22, 2026)
+- Resources: added Evangelist Joshua Michael (Bible Believer AV1611 Gospel) to the Verified KJB Preachers list, with his YouTube, TikTok, Instagram and Facebook links.
+
+WHAT'S NEW IN v0.4.319 (October 21, 2026)
+- The Read tab's Previous/Next chapter buttons now cross book boundaries: going back from chapter 1 opens the last chapter of the previous book, and going forward from a book's last chapter opens chapter 1 of the next book. They only grey out at the very ends of the Bible (Genesis 1 and Revelation 22).
+- Reopening the panel now returns you to what you were on before: the last tab you used (Read, Gospel or Resources), the chapter you were reading in Read, and your exact position in it. Clicking a verse on a page still takes over the view exactly as before.
+- Detected verse references now always keep the page's own font colour — pages with soft-grey or otherwise low-contrast text no longer have their verse references recoloured. The dotted underline, pointer cursor and solid hover underline are unchanged.
+
+WHAT'S NEW IN v0.4.317 (October 19, 2026)
+- Resources: Robert Potthoff's TikTok link now points to @bigredpreacher87.
+
+WHAT'S NEW IN v0.4.316 (October 18, 2026)
+- Fixed clicks going into a closed side panel: Chrome keeps a toolbar-closed panel's document alive (still acking while invisible), which used to swallow every later verse click. The panel now reports its visibility, the background ignores acks from invisible panels, and such clicks fall back to a visible overlay until the panel is reopened.
+
+WHAT'S NEW IN v0.4.315 (October 18, 2026)
+- Accessibility fonts: a new "Aa" button in the panel header offers OpenDyslexic and Atkinson Hyperlegible typefaces, bundled locally with no network requests. The choice is remembered and applies across the whole panel.
+
+WHAT'S NEW IN v0.4.308 (October 15, 2026)
+- Resources tab links and preachers now render and copy as bullet points.
+- Gospel tab: "Copy" now copies just the gospel; the new "Copy All" button copies the whole page, including the extra resources and preachers sections.
+
+WHAT'S NEW IN v0.4.307 (October 15, 2026)
+- Removed the KJB Knights personal Discord server section from the Resources tab. The KJB Reader Discord bot remains.
+
+WHAT'S NEW IN v0.4.306 (October 13, 2026)
+- Edge's side panel header now stays on one row: logo and "KJB Reader - SidePanel" title on the left, zoom controls and website button right-aligned, instead of stacking in narrow panels.
+
+WHAT'S NEW IN v0.4.305 (October 13, 2026)
+- Fix: mobile browsers (Edge on Android, Chrome, Samsung, Opera Mobile) were picking up the desktop Chrome centre-only styling, which hid the in-panel logo and title on phones. Mobile now always keeps the logo and "KJB Reader - SidePanel" title on one header row, with the zoom controls and website button right-aligned. Desktop panels unchanged.
+
+WHAT'S NEW IN v0.4.304 (October 13, 2026)
+- Mobile keeps the in-panel logo and "KJB Reader - SidePanel" title on one header row (mobile has no browser header of its own), with the zoom controls and website button right-aligned beside the branding.
+
+WHAT'S NEW IN v0.4.302 (October 10, 2026)
+- Chrome's side panel now shows only the centred zoom controls and website button, matching Opera — the browser's own panel header carries the name. Edge keeps the in-panel logo and title.
+
+WHAT'S NEW IN v0.4.301 (October 10, 2026)
+- Fixed verse clicks sometimes needing several attempts to open the side panel after it had been opened and closed once.
+- The copy toolbar no longer appears on the Gospel and Resources tabs.
+- Copied verse groups now carry one bullet for the whole group instead of a bullet on every verse.
+
+WHAT'S NEW IN v0.4.300 (October 10, 2026)
+- Copy All and multi-verse block copies now list each verse on its own bulleted line.
+
+WHAT'S NEW IN v0.4.299 (October 10, 2026)
+- The multi-verse copy setting is now labeled "Copy: Full / Copy: Plain" for clarity.
+
+WHAT'S NEW IN v0.4.298 (October 10, 2026)
+- Opera: zoom controls and website button now stay centered in the header at every panel width.
+
+WHAT'S NEW IN v0.4.297 (October 10, 2026)
+- Opera: the side panel header now shows just the centered zoom controls and website button; the browser's own sidebar bar provides the title.
+
+WHAT'S NEW IN v0.4.296 (October 10, 2026)
+- New copy setting: turn "Refs" off to copy plain verse text without book names and verse numbers when copying more than one verse.
+
+WHAT'S NEW IN v0.4.295 (October 10, 2026)
+- The KJB logo now sits inside the panel header; the duplicate title text is gone (your browser's panel bar shows the name).
+
+WHAT'S NEW IN v0.4.294 (October 10, 2026)
+- Removed the duplicate in-panel branding header; your browser's own side panel title bar now provides the branding.
+
+WHAT'S NEW IN v0.4.293 (October 10, 2026)
+- Fixed the SidePanel header crowding the A-/100%/A+ zoom controls: the title now gets its own row on narrower panels.
+
+WHAT'S NEW IN v0.4.292 (October 9, 2026)
+- Updated the extension toolbar icon to the hand-drawn KJB Reader icon.
+
+WHAT'S NEW IN v0.4.291 (October 9, 2026)
+- Updated the extension toolbar icon.
+
+WHAT'S NEW IN v0.4.290 (October 9, 2026)
+- Safari App Store release moves to version 1.0 (iOS and macOS);
+  the extension engine is unchanged.
+
+WHAT'S NEW IN v0.4.289 (October 5, 2026)
+- Updated the KJB Knights Discord invite link in the Resources tab
+  (the previous invite had expired).
+
+WHAT'S NEW IN v0.4.284 (October 3, 2026)
+- Fixed click interception on sites that layer UI over verse references
+  (Facebook's post/comment dialogs and "Write a comment..." placeholders,
+  sticky headers, dropdown menus, nav links, cookie bars, embedded
+  content): the reader no longer steals those clicks, so compose boxes
+  keep taking focus and stay typable after navigating around a page.
+  Clicks on a reference's own visible text still open the reader exactly
+  as before.
+
+WHAT'S NEW IN v0.4.283 (October 3, 2026)
+- Fixed reply/compose boxes on X (Twitter), Facebook, TikTok and other social
+  sites stealing-focus or becoming untypable: a verse reference in the post
+  above a reply box had a small invisible click fringe that could reach into
+  the compose box, blocking caret placement and popping the reader open.
+  Clicks on a reference's own text are unchanged and still open the reader.
+
+WHAT'S NEW IN v0.4.282 (September 28, 2026)
+
+- Supplied words joined by an apostrophe or hyphen now share one set of italic brackets, matching the printed page: "he taketh [a] [man's] life" and "[Ben-hadad]" instead of split brackets like "[a] [man]'[s]" and "[Ben]-[hadad]". Copy and search treat the joined words the same way.
+
+WHAT'S NEW IN v0.4.281 (September 28, 2026)
+
+- Verse clicks open the reader on the first click again, the way v0.4.146 did. When the side panel cannot open or fails to answer a lookup, the in-page reader now steps in — but only after the side panel has been given a brief chance to acknowledge the verse, so nothing appears twice. Tabs are never mis-flagged by a failed panel open.
+- Standalone/PWA windows and Firefox open the in-page reader directly on click, with no routing round-trip.
+
+WHAT'S NEW IN v0.4.280 (September 28, 2026)
+
+- On Microsoft Edge, verse lookups are back to the classic behavior: clicking a reference opens the docked side panel, and the in-page reader appears only when no panel is available — the same flow as Chrome. The separate popup lookup window fallback is gone.
+
+WHAT'S NEW IN v0.4.277 (September 27, 2026)
+
+- Wildcard search highlighting now follows the Match word option: with Match word on, a wildcard pattern like "lov?" only highlights whole words, exactly matching the results list.
+- Fixed the sidebar highlight treating "?" as "optional previous character" instead of a wildcard "any single character" (e.g. "lov?" highlighted "lo" inside every word).
+- Fixed a rare conflict where clicking back into a comment or post compose box on some sites (Facebook, TikTok and other editors that render behind shadow DOM) failed to focus the box and typing couldn't be resumed: verse-link hit detection now always yields to editable areas.
+
+WHAT'S NEW IN v0.4.275 (September 27, 2026)
+
+- On Microsoft Edge, the side panel no longer shows the extension name twice: Edge's own native header already displays the name, so the panel's duplicate title text is now hidden (the logo and controls remain).
+
+WHAT'S NEW IN v0.4.274 (September 27, 2026)
+
+- Personal Ministry Links in the Resources tab now include TikTok, Instagram and Discord, and the Rumble link points to rumble.com/user/Godisgracious1031.
+
+WHAT'S NEW IN v0.4.273 (September 25, 2026)
+
+- Punctuation attached to an italicized (bracketed) word now sits inside the brackets on screen and when copying, e.g. "thou [art,] and unto dust". The PCE already prints ":" and ";" inside the brackets; commas and periods now follow the same rule.
+- Updated the Verified KJB Preachers list with corrected and expanded links (YouTube, Instagram, TikTok, X, Facebook and ministry sites).
