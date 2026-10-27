@@ -2935,7 +2935,6 @@
       nums.sort((a, b) => a - b);
       const consecutive = nums.length === cards.length && nums.every((v, i) => i === 0 || v === nums[i - 1] + 1);
       if (!consecutive && cards.length > 1 && firstVerse !== null) {
-        const mixed = resultsList.querySelectorAll(".result-chapter-group").length > 1;
         const lines = [];
         cards.forEach(card => {
           const vm = String(card.dataset.ref || "").match(/(\d+)$/);
@@ -2943,7 +2942,7 @@
           const bodyText = mergeAdjacentItalics((card.dataset.text || (card.querySelector(".result-verse-body")?.textContent || "")).trim().replace(/\s+/g, ' '));
           const footer = card.querySelector(".result-card-structural-footer");
           const footerTxt = footer ? " " + bracketedTextFromElement(footer) : "";
-          lines.push(`${mixed ? "\u2022 " : ""}\u201c${bodyText}${footerTxt}\u201d - ${book} ${chapter}:${vn} (KJB)`);
+          lines.push(`\u2022 \u201c${bodyText}${footerTxt}\u201d - ${book} ${chapter}:${vn} (KJB)`);
         });
         return (headerLine ? headerLine.trimEnd() + "\n\n" : "") + lines.join("\n\n");
       }
