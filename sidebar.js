@@ -3142,11 +3142,15 @@
       bar.querySelector("#select-cancel").addEventListener("click", () => toggleResultsSelectMode());
     }
     bar.style.display = "";
+    // Raise the scroll-top circle above the select bar so it never sits
+    // on top of the bar's Cancel button (owner report 2026-10-27).
+    document.getElementById("app").classList.add("kjb-selecting");
   }
 
   function hideSelectBar() {
     const bar = document.getElementById("results-select-bar");
     if (bar) bar.style.display = "none";
+    document.getElementById("app").classList.remove("kjb-selecting");
   }
 
   function copySelectedVerses() {

@@ -1,3 +1,10 @@
+Version 0.4.328:
+
+- Results select bar: the scroll-to-top circle now rises above the bar instead of overlapping the Cancel button.
+
+- The Copy button keeps its white label on hover instead of turning invisible.
+
+
 Version 0.4.327:
 
 - Copy All (Copy: Plain): a group of verses copies as one flowing quoted paragraph — verses joined with spaces and the range reference at the end — instead of one bullet per verse.

@@ -2104,6 +2104,24 @@ html.kjb-short-pre .scroll-top-btn {
   border-color: var(--primary);
 }
 
+/* Keep the primary Copy button readable on hover: the generic .btn-text
+   hover rule turns text green, which on the green primary background of
+   the copy button made the label invisible (owner report 2026-10-27). */
 .results-select-bar .btn-copy-go:hover {
+  color: var(--primary-contrast, #fff);
+  border-color: var(--primary);
   opacity: 0.9;
+}
+
+/* While the results select bar is up, the scroll-top circle sits above it
+   instead of overlapping the bar's Cancel button (owner report
+   2026-10-27). The bar is ~50px tall; normal mode parks the circle at
+   48px, short mode at 40px. */
+#app.kjb-selecting .scroll-top-btn {
+  bottom: 100px;
+}
+
+#app.kjb-short.kjb-selecting .scroll-top-btn,
+html.kjb-short-pre.kjb-selecting .scroll-top-btn {
+  bottom: 92px;
 }
