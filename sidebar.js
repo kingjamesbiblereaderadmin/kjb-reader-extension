@@ -2879,8 +2879,9 @@
       // Owner rule (2026-10-27): a bullet never sits INSIDE the quote — the
       // lone verse in a mixed result keeps its "\u2022 " marker (matching
       // the groups beside it) but placed before the opening quote.
-      const loneBullet = resultsList.querySelectorAll(".result-chapter-group").length > 1 ? "\u2022 " : "";
-      return `${loneBullet}\u201c${headerLine}${plainText}${footerText}\u201d - ${ref} (KJB)`;
+      // Owner rule (2026-10-27): in Copy: Plain EVERY copied item carries
+      // an external bullet — lone verses included, not just in mixed results.
+      return `\u2022 \u201c${headerLine}${plainText}${footerText}\u201d - ${ref} (KJB)`;
     }
     if (!copyRefsOn) {
       // Copy: Plain multi-verse Copy All (owner rules 2026-10-12 and
@@ -2951,7 +2952,9 @@
         : (lastVerse > firstVerse
           ? book + " " + chapter + ":" + firstVerse + "-" + lastVerse
           : book + " " + chapter + ":" + firstVerse);
-      return "\u201c" + headerLine + plainBody + footerText + "\u201d - " + refStr + " (KJB)";
+      // Owner rule (2026-10-27): the group quote carries an external bullet
+      // like every other Plain-mode item.
+      return "\u2022 \u201c" + headerLine + plainBody + footerText + "\u201d - " + refStr + " (KJB)";
     }
     // Multi-verse: the centered chapter block, matching the Read tab's
     // "Copy Chapter" — full title and "Chapter N" centered over the verses.
@@ -3226,7 +3229,7 @@
       const headerLine = headerText ? centerLine(headerText, 1) + "\n" : "";
       const footerBit = footerText ? " " + footerText : "";
       if (g.verses.length === 1) {
-        parts.push("\u201c" + headerLine + g.verses[0].text + footerBit + "\u201d - " + g.book + " " + g.chapter + ":" + g.verses[0].verse + " (KJB)");
+        parts.push("\u2022 \u201c" + headerLine + g.verses[0].text + footerBit + "\u201d - " + g.book + " " + g.chapter + ":" + g.verses[0].verse + " (KJB)");
       } else {
         const isConsecutive = g.verses.every((v, i) => i === 0 || v.verse === g.verses[i - 1].verse + 1);
         if (!isConsecutive) {
@@ -3241,7 +3244,7 @@
             // non-contiguous verses into one quote — each verse copies as its
             // own quoted line with its own single-verse reference.
             const lines = g.verses.map(v =>
-              "\u201c" + (v.header ? centerLine(v.header, 1) + "\n" : "") + v.text + (v.footer ? " " + v.footer : "") +
+              "\u2022 \u201c" + (v.header ? centerLine(v.header, 1) + "\n" : "") + v.text + (v.footer ? " " + v.footer : "") +
               "\u201d - " + g.book + " " + g.chapter + ":" + v.verse + " (KJB)");
             parts.push(lines.join("\n\n"));
           } else {
@@ -3267,7 +3270,7 @@
           // Copy: Plain uses the same quoted paragraph (2026-10-12) — the
           // whole text is in quotes with the verse ref and (KJB), exactly
           // like the single-verse copy format.
-          parts.push("\u201c" + headerLine + combined + footerBit + "\u201d - " + refStr + " (KJB)");
+          parts.push("\u2022 \u201c" + headerLine + combined + footerBit + "\u201d - " + refStr + " (KJB)");
         }
       }
     }

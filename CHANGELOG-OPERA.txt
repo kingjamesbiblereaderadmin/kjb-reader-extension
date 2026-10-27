@@ -1,3 +1,8 @@
+Version 0.4.331:
+
+- Copy: Plain now marks every copied item with an external bullet — group quotes, single verses, and Copy Selected copies alike.
+
+
 Version 0.4.330:
 
 - Copy All of a group whose verses skip some (e.g. verses 7 and 9) now always marks each quoted verse line with an external bullet, even when it is the only group in the results.
