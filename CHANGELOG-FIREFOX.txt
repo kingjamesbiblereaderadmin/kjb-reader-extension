@@ -1,3 +1,8 @@
+Version 0.4.327:
+
+- Copy All (Copy: Plain): a group of verses copies as one flowing quoted paragraph — verses joined with spaces and the range reference at the end — instead of one bullet per verse.
+- A lone verse in mixed results keeps its bullet marker, now placed outside the quotation marks.
+
 WHAT'S NEW IN v0.4.325 (October 25, 2026)
 - Copy All in Copy: Plain mode now gives every verse its own bullet, one bullet per line with a blank line between verses; Full mode keeps the centered chapter block.
 

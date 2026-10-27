@@ -1,3 +1,8 @@
+Version 0.4.327:
+
+- Copy All (Copy: Plain): a group of verses copies as one flowing quoted paragraph — verses joined with spaces and the range reference at the end — instead of one bullet per verse.
+- A lone verse in mixed results keeps its bullet marker, now placed outside the quotation marks.
+
 WHAT'S NEW IN v0.4.326 (October 26, 2026)
 - When search results mix lone verses with verse groups, Copy All now gives the lone verses the same bullet as the grouped verses; a search that produced only the one verse keeps the clean single-verse copy.
 

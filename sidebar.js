@@ -2876,23 +2876,27 @@
         : "";
       const footer = card.querySelector(".result-card-structural-footer");
       const footerText = footer ? " " + bracketedTextFromElement(footer) : "";
+      // Owner rule (2026-10-27): a bullet never sits INSIDE the quote — the
+      // lone verse in a mixed result keeps its "\u2022 " marker (matching
+      // the groups beside it) but placed before the opening quote.
       const loneBullet = resultsList.querySelectorAll(".result-chapter-group").length > 1 ? "\u2022 " : "";
-      return `\u201c${loneBullet}${headerLine}${plainText}${footerText}\u201d - ${ref} (KJB)`;
+      return `${loneBullet}\u201c${headerLine}${plainText}${footerText}\u201d - ${ref} (KJB)`;
     }
     if (!copyRefsOn) {
-      // Copy: Plain multi-verse Copy All (owner rule, 2026-10-25): EVERY
-      // verse is its own "• " bullet, with a blank line between bullets.
-      // The whole set is still wrapped in quotes with the group's
-      // reference and (KJB), matching the single-verse copy format. A
-      // structural heading sits above the first bullet and a colophon
-      // follows the last, as before. The pilcrow mark stays at the head of
-      // its own verse text (after the bullet); with every verse separated
-      // the paragraph-gap rule no longer applies to Copy All. Full mode is
-      // unaffected: same-chapter groups keep the centered chapter block.
+      // Copy: Plain multi-verse Copy All (owner rules 2026-10-12 and
+      // 2026-10-27): a GROUP copies as ONE flowing quoted paragraph —
+      // verses join with single spaces, never one "• " bullet per
+      // verse — with the group's reference and (KJB) at the end, matching
+      // the single-verse copy format. The pilcrow rule is VERSE-based: a
+      // pilcrow-led verse that is not the first verse of the copied set
+      // starts a new paragraph (blank line = the same gap the panel
+      // shows) instead of joining inline — the ¶ mark stays at the
+      // head of that new paragraph, exactly as the source prints it.
       let headerLine = "";
       let footerText = "";
       let firstVerse = null, lastVerse = null;
-      const bullets = [];
+      let plainBody = "";
+      let plainVerseSeen = false;
       cards.forEach(card => {
         const structHeader = card.querySelector(".result-card-superscription, .result-card-hebrew-name");
         if (structHeader && !headerLine) {
@@ -2908,7 +2912,12 @@
         // since rendering converts [brackets] into <em> tags for display —
         // the raw attribute keeps the brackets plain-text copy needs.
         const bodyText = mergeAdjacentItalics((card.dataset.text || (card.querySelector(".result-verse-body")?.textContent || "")).trim().replace(/\s+/g, ' '));
-        bullets.push("\u2022 " + bodyText);
+        if (plainVerseSeen && /^\u00B6/.test(bodyText)) {
+          plainBody += "\n\n" + bodyText;
+        } else {
+          plainBody += (plainVerseSeen ? " " : "") + bodyText;
+        }
+        plainVerseSeen = true;
         const footer = card.querySelector(".result-card-structural-footer");
         if (footer) footerText = " " + bracketedTextFromElement(footer);
       });
@@ -2917,7 +2926,7 @@
         : (lastVerse > firstVerse
           ? book + " " + chapter + ":" + firstVerse + "-" + lastVerse
           : book + " " + chapter + ":" + firstVerse);
-      return "\u201c" + headerLine + bullets.join("\n\n") + footerText + "\u201d - " + refStr + " (KJB)";
+      return "\u201c" + headerLine + plainBody + footerText + "\u201d - " + refStr + " (KJB)";
     }
     // Multi-verse: the centered chapter block, matching the Read tab's
     // "Copy Chapter" — full title and "Chapter N" centered over the verses.
