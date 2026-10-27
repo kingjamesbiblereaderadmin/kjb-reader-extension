@@ -1,3 +1,8 @@
+Version 0.4.329:
+
+- Copying a group whose verses skip some (e.g. verses 7 and 9) no longer claims a range like 7-9 and no longer merges them into one quote — each verse copies as its own quoted line with its own single-verse reference.
+
+
 Version 0.4.328:
 
 - Results select bar: the scroll-to-top circle now rises above the bar instead of overlapping the Cancel button.

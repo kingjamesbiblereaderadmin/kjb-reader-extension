@@ -2921,6 +2921,32 @@
         const footer = card.querySelector(".result-card-structural-footer");
         if (footer) footerText = " " + bracketedTextFromElement(footer);
       });
+      // Owner rule (2026-10-27): a group whose verses are NOT consecutive
+      // must never claim a range it does not cover ("7-9" when only 7 and 9
+      // were copied) and must not merge non-contiguous verses into one
+      // quote. Such a group copies as separate quoted lines, one per verse,
+      // each with its own single-verse reference. Consecutive groups keep
+      // the flowing single-quoted paragraph with the range reference.
+      const nums = [];
+      cards.forEach(card => {
+        const vm = String(card.dataset.ref || "").match(/(\d+)$/);
+        if (vm) nums.push(parseInt(vm[1], 10));
+      });
+      nums.sort((a, b) => a - b);
+      const consecutive = nums.length === cards.length && nums.every((v, i) => i === 0 || v === nums[i - 1] + 1);
+      if (!consecutive && cards.length > 1 && firstVerse !== null) {
+        const mixed = resultsList.querySelectorAll(".result-chapter-group").length > 1;
+        const lines = [];
+        cards.forEach(card => {
+          const vm = String(card.dataset.ref || "").match(/(\d+)$/);
+          const vn = vm ? vm[1] : "";
+          const bodyText = mergeAdjacentItalics((card.dataset.text || (card.querySelector(".result-verse-body")?.textContent || "")).trim().replace(/\s+/g, ' '));
+          const footer = card.querySelector(".result-card-structural-footer");
+          const footerTxt = footer ? " " + bracketedTextFromElement(footer) : "";
+          lines.push(`${mixed ? "\u2022 " : ""}\u201c${bodyText}${footerTxt}\u201d - ${book} ${chapter}:${vn} (KJB)`);
+        });
+        return (headerLine ? headerLine.trimEnd() + "\n\n" : "") + lines.join("\n\n");
+      }
       const refStr = firstVerse === null
         ? (book + " " + chapter).trim()
         : (lastVerse > firstVerse
@@ -3211,18 +3237,14 @@
           // "Chapter N", then one verse per line with its verse number — the
           // numbers make the gaps explicit.
           if (!copyRefsOn) {
-            // Copy: Plain (2026-10-12) — the same flowing-paragraph format as
-            // consecutive selections: verses join with single spaces (pilcrow-
-            // led verses keep their "¶ " mark with a space), no per-verse
-            // lines or numbers, and the whole text is quoted with the range
-            // reference and (KJB).
-            const combinedPlain = g.verses.map(v => v.text).join(" ");
-            const fp = g.verses[0].verse;
-            const lp = g.verses[g.verses.length - 1].verse;
-            const plainRefStr = fp === lp
-              ? g.book + " " + g.chapter + ":" + fp
-              : g.book + " " + g.chapter + ":" + fp + "-" + lp;
-            parts.push("\u201c" + headerLine + combinedPlain + footerBit + "\u201d - " + plainRefStr + " (KJB)");
+            // Copy: Plain, non-consecutive selection (owner rule 2026-10-27):
+            // never claim a range that skips copied verses and never merge
+            // non-contiguous verses into one quote — each verse copies as its
+            // own quoted line with its own single-verse reference.
+            const lines = g.verses.map(v =>
+              "\u201c" + (v.header ? centerLine(v.header, 1) + "\n" : "") + v.text + (v.footer ? " " + v.footer : "") +
+              "\u201d - " + g.book + " " + g.chapter + ":" + v.verse + " (KJB)");
+            parts.push(lines.join("\n\n"));
           } else {
             const fullTitle = BOOK_FULL_TITLES[g.book] || g.book;
             // One bullet marks the whole group (2026-10-10).
