@@ -1,3 +1,6 @@
+WHAT'S NEW IN v0.4.332 (October 28, 2026)
+- The per-verse Copy button now gives a single-verse copy the same external bullet as every other copied item, placed outside the quote.
+
 WHAT'S NEW IN v0.4.324 (October 25, 2026)
 - Advanced search filters (whole word, Testament scope, Book, case sensitivity, wildcards) are now restored when the panel reopens, so a restored search reproduces the exact same results.
 - Removed the unused "tabs" permission; nothing changes in how the panel works.

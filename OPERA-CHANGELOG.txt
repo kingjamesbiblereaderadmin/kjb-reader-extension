@@ -1,3 +1,6 @@
+WHAT'S NEW IN v0.4.332 (October 28, 2026)
+- The per-verse Copy button now gives a single-verse copy the same external bullet as every other copied item, placed outside the quote.
+
 WHAT'S NEW IN v0.4.321 (October 23, 2026)
 - Pilcrow (paragraph) verses now leave a line of space above them in the Read tab and in search results, matching the printed Bible's paragraph breaks; the first verse stays flush at the top.
 - Copied verses keep the same paragraph breaks: Copy Chapter, Copy Selected and Copy All insert a blank line above pilcrow verses, and Copy: Plain starts a new paragraph for them. Each verse's own pilcrow decides, based on the verses you copied, not the chapter.
