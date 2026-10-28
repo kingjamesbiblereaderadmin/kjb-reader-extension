@@ -1,0 +1,5 @@
+iOS App Version 2.115:
+
+- The per-verse Copy button now gives a single-verse copy the same external bullet as every other copied item, placed outside the quote.
+
+- Release note generated with Ai.
