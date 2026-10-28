@@ -3006,7 +3006,10 @@
           : "";
         const footer = card.querySelector(".result-card-structural-footer");
         const footerText = footer ? " " + bracketedTextFromElement(footer) : "";
-        copyToClipboard(`“${headerLine}${plainText}${footerText}” - ${ref} (KJB)`).then(() => {
+        // Owner rule (2026-10-28): a single-verse copy carries the same
+        // external bullet as every other copied item — placed before the
+        // opening quote, never inside it.
+        copyToClipboard(`\u2022 “${headerLine}${plainText}${footerText}” - ${ref} (KJB)`).then(() => {
           e.target.textContent = "✓";
           setTimeout(() => e.target.textContent = "📋", 1500);
         }).catch((e) => {
@@ -3209,7 +3212,7 @@
         if (!groups[key]) {
           const headerLine = headerText ? centerLine(headerText, 1) + "\n" : "";
           const footerBit = footerText ? " " + footerText : "";
-          groups[key] = { book: null, chapter: null, verses: [], single: "\u201c" + headerLine + plainText + footerBit + "\u201d - " + ref + " (KJB)" };
+          groups[key] = { book: null, chapter: null, verses: [], single: "\u2022 " + "\u201c" + headerLine + plainText + footerBit + "\u201d - " + ref + " (KJB)" };
           order.push(key);
         }
       }
