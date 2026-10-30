@@ -1,3 +1,6 @@
+WHAT'S NEW IN v0.4.333 (October 30, 2026)
+- Starting a new search or typing a new keyword now leaves Results select mode: the select bar closes and the ticks clear instead of staying on the old results.
+
 WHAT'S NEW IN v0.4.332 (October 28, 2026)
 - The per-verse Copy button now gives a single-verse copy the same external bullet as every other copied item, placed outside the quote.
 

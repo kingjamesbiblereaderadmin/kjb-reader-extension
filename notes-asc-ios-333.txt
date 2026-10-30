@@ -1,0 +1,5 @@
+iOS App Version 2.116:
+
+- Starting a new search or typing a new keyword now leaves Results select mode: the select bar closes and the ticks clear instead of staying on the old results.
+
+- Release note generated with Ai.
