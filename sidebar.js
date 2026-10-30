@@ -1028,6 +1028,10 @@
   function bindEvents() {
     searchInput.addEventListener("input", () => {
       clearTimeout(searchTimer);
+      // Owner report 2026-10-30: starting to type a new keyword must drop
+      // out of Results select mode — the bottom select bar (and its ticks)
+      // belong to the results being replaced, so they cannot linger.
+      exitResultsSelectMode();
       const query = searchInput.value.trim();
       if (!query) {
         showEmptyState(resultsList, "Search for a verse reference or keyword to get started.");
@@ -1338,6 +1342,10 @@
 
   async function doSearch(query, options = {}) {
     if (!options._isRetry) transportRetries = 0;
+    // A new query (typed, Enter, advanced filter change) invalidates any
+    // in-progress selection: its verses are about to be replaced, so the
+    // select bar is dismissed with them (owner report 2026-10-30).
+    if (!options._keepSelect) exitResultsSelectMode();
     const { openVerseRangeInRead = false } = options;
     // Remember the query for panel reopen (see restoreLastChapter): a
     // remembered Results tab re-runs it, restoring keyword searches and
@@ -3089,6 +3097,11 @@
       const b = document.getElementById(id);
       if (b) b.textContent = label;
     }
+  }
+
+  // Leaves select mode when it is on; harmless when it is already off.
+  function exitResultsSelectMode() {
+    if (resultsSelectMode) toggleResultsSelectMode();
   }
 
   function toggleResultsSelectMode() {
